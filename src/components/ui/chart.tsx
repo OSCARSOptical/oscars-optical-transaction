@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 
@@ -352,6 +353,126 @@ function getPayloadConfigFromPayload(
     ? config[configLabelKey]
     : config[key as keyof typeof config]
 }
+
+// Add the missing chart components
+interface ChartProps extends React.HTMLAttributes<HTMLDivElement> {
+  data: any[];
+  categories: string[];
+  index: string;
+  colors?: string[];
+  valueFormatter?: (value: number) => string;
+  yAxisWidth?: number;
+  height?: number;
+}
+
+export const BarChart = React.forwardRef<HTMLDivElement, ChartProps>(
+  ({ data, categories, index, colors = ["#2563eb"], valueFormatter = (value: number) => `${value}`, yAxisWidth = 40, height = 300, className, ...props }, ref) => {
+    const config = React.useMemo(() => {
+      return categories.reduce<ChartConfig>((acc, category, i) => {
+        acc[category] = {
+          color: colors[i % colors.length],
+        };
+        return acc;
+      }, {});
+    }, [categories, colors]);
+
+    return (
+      <ChartContainer ref={ref} className={className} config={config} {...props}>
+        <RechartsPrimitive.BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} height={height}>
+          <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <RechartsPrimitive.XAxis dataKey={index} />
+          <RechartsPrimitive.YAxis width={yAxisWidth} tickFormatter={valueFormatter} />
+          <ChartTooltip content={<ChartTooltipContent labelKey={index} formatter={(value) => valueFormatter(Number(value))} />} />
+          {categories.map((category, i) => (
+            <RechartsPrimitive.Bar key={category} dataKey={category} fill={colors[i % colors.length]} radius={[4, 4, 0, 0]} />
+          ))}
+        </RechartsPrimitive.BarChart>
+      </ChartContainer>
+    );
+  }
+);
+BarChart.displayName = "BarChart";
+
+export const LineChart = React.forwardRef<HTMLDivElement, ChartProps>(
+  ({ data, categories, index, colors = ["#2563eb"], valueFormatter = (value: number) => `${value}`, yAxisWidth = 40, height = 300, className, ...props }, ref) => {
+    const config = React.useMemo(() => {
+      return categories.reduce<ChartConfig>((acc, category, i) => {
+        acc[category] = {
+          color: colors[i % colors.length],
+        };
+        return acc;
+      }, {});
+    }, [categories, colors]);
+
+    return (
+      <ChartContainer ref={ref} className={className} config={config} {...props}>
+        <RechartsPrimitive.LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} height={height}>
+          <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <RechartsPrimitive.XAxis dataKey={index} />
+          <RechartsPrimitive.YAxis width={yAxisWidth} tickFormatter={valueFormatter} />
+          <ChartTooltip content={<ChartTooltipContent labelKey={index} formatter={(value) => valueFormatter(Number(value))} />} />
+          {categories.map((category, i) => (
+            <RechartsPrimitive.Line 
+              key={category} 
+              type="monotone" 
+              dataKey={category} 
+              stroke={colors[i % colors.length]} 
+              strokeWidth={2} 
+              dot={{ r: 4, fill: colors[i % colors.length] }} 
+              activeDot={{ r: 6 }} 
+            />
+          ))}
+        </RechartsPrimitive.LineChart>
+      </ChartContainer>
+    );
+  }
+);
+LineChart.displayName = "LineChart";
+
+export const PieChart = React.forwardRef<
+  HTMLDivElement, 
+  Omit<ChartProps, 'categories'> & { 
+    category: string;
+    colors?: string[];
+  }
+>(
+  ({ data, category, index, colors = ["#2563eb", "#4ade80", "#f97316", "#f43f5e", "#a855f7"], valueFormatter = (value: number) => `${value}`, className, ...props }, ref) => {
+    const config = React.useMemo(() => {
+      return data.reduce<ChartConfig>((acc, item, i) => {
+        const key = String(item[index]);
+        acc[key] = {
+          color: colors[i % colors.length],
+          label: key,
+        };
+        return acc;
+      }, {});
+    }, [data, index, colors]);
+
+    return (
+      <ChartContainer ref={ref} className={className} config={config} {...props}>
+        <RechartsPrimitive.PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+          <RechartsPrimitive.Pie
+            data={data}
+            dataKey={category}
+            nameKey={index}
+            cx="50%"
+            cy="50%"
+            outerRadius={80}
+            fill="#8884d8"
+            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+          >
+            {data.map((entry, index) => (
+              <RechartsPrimitive.Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+            ))}
+          </RechartsPrimitive.Pie>
+          <ChartTooltip content={<ChartTooltipContent labelKey={index} formatter={(value) => valueFormatter(Number(value))} />} />
+          <ChartLegend layout="horizontal" verticalAlign="bottom" align="center" content={<ChartLegendContent nameKey={index} />} />
+        </RechartsPrimitive.PieChart>
+      </ChartContainer>
+    );
+  }
+);
+PieChart.displayName = "PieChart";
 
 export {
   ChartContainer,
