@@ -1,11 +1,10 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, CreditCard, DollarSign, Users } from "lucide-react";
+import { Users, PhilippinePeso } from "lucide-react";
 import { BarChart, LineChart } from "@/components/ui/chart";
 
 const Dashboard = () => {
-  // Sample metrics data
+  // Sample metrics data with Appointments removed and Total Transactions added
   const metrics = [
     {
       title: "Total Patients",
@@ -16,23 +15,23 @@ const Dashboard = () => {
     },
     {
       title: "Monthly Revenue",
-      value: "$12,563",
+      value: "₱12,563",
       description: "+8% from last month",
-      icon: DollarSign,
+      icon: PhilippinePeso,
       iconColor: "text-green-500",
     },
     {
       title: "Pending Payments",
-      value: "$3,890",
+      value: "₱3,890",
       description: "10 patients",
-      icon: CreditCard,
+      icon: PhilippinePeso,
       iconColor: "text-yellow-500",
     },
     {
-      title: "Appointments",
-      value: "32",
-      description: "This week",
-      icon: Activity,
+      title: "Total Transactions This Month",
+      value: "45",
+      description: "Current month",
+      icon: PhilippinePeso,
       iconColor: "text-purple-500",
     },
   ];
@@ -98,6 +97,26 @@ const Dashboard = () => {
     },
   ];
 
+  // New transaction trend data
+  const transactionTrendData = [
+    {
+      type: "Complete",
+      count: 15,
+    },
+    {
+      type: "Frame Replacement",
+      count: 8,
+    },
+    {
+      type: "Lens Replacement",
+      count: 12,
+    },
+    {
+      type: "Eye Exam",
+      count: 10,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -128,6 +147,7 @@ const Dashboard = () => {
         <TabsList className="bg-gray-100">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="patients">Patients</TabsTrigger>
+          <TabsTrigger value="transactions">Transaction Trend</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <Card className="shadow-sm border border-gray-100">
@@ -143,7 +163,7 @@ const Dashboard = () => {
                 categories={["revenue"]}
                 index="name"
                 colors={["#dc2626"]}
-                valueFormatter={(value: number) => `$${value}`}
+                valueFormatter={(value: number) => `₱${value}`}
                 yAxisWidth={60}
                 height={350}
               />
@@ -164,6 +184,27 @@ const Dashboard = () => {
                 categories={["patients", "newPatients"]}
                 index="name"
                 colors={["#dc2626", "#0ea5e9"]}
+                valueFormatter={(value: number) => `${value}`}
+                yAxisWidth={48}
+                height={350}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="transactions" className="space-y-4">
+          <Card className="shadow-sm border border-gray-100">
+            <CardHeader>
+              <CardTitle>Transaction Distribution</CardTitle>
+              <CardDescription>
+                Number of transactions by type this month
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pl-2">
+              <BarChart
+                data={transactionTrendData}
+                categories={["count"]}
+                index="type"
+                colors={["#8b5cf6"]}
                 valueFormatter={(value: number) => `${value}`}
                 yAxisWidth={48}
                 height={350}
