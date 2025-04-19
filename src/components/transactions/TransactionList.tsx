@@ -1,66 +1,68 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { TransactionTable } from './TransactionTable';
 import { TransactionListHeader } from './TransactionListHeader';
+import { Transaction } from '@/types';
 
-interface Transaction {
-  id: string;
-  date: string;
-  patientName: string;
-  type: 'payment' | 'charge';
-  category: string;
-  amount: number;
-  status: 'completed' | 'pending' | 'failed';
-}
-
-// Sample data
+// Sample data - using the correct Transaction type from types/index.ts
 const sampleTransactions: Transaction[] = [
   {
     id: '1',
+    code: 'TX-2023-001',
     date: '2023-04-10',
+    patientCode: 'PC-001',
     patientName: 'John Doe',
-    type: 'payment',
-    category: 'Consultation',
-    amount: 75.00,
-    status: 'completed',
+    type: 'Complete',
+    grossAmount: 75.00,
+    deposit: 25.00,
+    balance: 50.00
   },
   {
     id: '2',
+    code: 'TX-2023-002',
     date: '2023-04-08',
+    patientCode: 'PC-002',
     patientName: 'Jane Smith',
-    type: 'charge',
-    category: 'Lab Test',
-    amount: 120.50,
-    status: 'pending',
+    type: 'Eye Exam',
+    grossAmount: 120.50,
+    deposit: 60.25,
+    balance: 60.25
   },
   {
     id: '3',
+    code: 'TX-2023-003',
     date: '2023-04-05',
+    patientCode: 'PC-003',
     patientName: 'Robert Johnson',
-    type: 'payment',
-    category: 'Procedure',
-    amount: 450.00,
-    status: 'completed',
+    type: 'Frame Replacement',
+    grossAmount: 450.00,
+    deposit: 225.00,
+    balance: 225.00
   },
   {
     id: '4',
+    code: 'TX-2023-004',
     date: '2023-04-03',
+    patientCode: 'PC-004',
     patientName: 'Emily Davis',
-    type: 'charge',
-    category: 'Medication',
-    amount: 85.75,
-    status: 'failed',
+    type: 'Lens Replacement',
+    grossAmount: 85.75,
+    deposit: 40.00,
+    balance: 45.75
   },
   {
     id: '5',
+    code: 'TX-2023-005',
     date: '2023-04-01',
+    patientCode: 'PC-005',
     patientName: 'Michael Wilson',
-    type: 'payment',
-    category: 'Follow-up',
-    amount: 45.25,
-    status: 'completed',
+    type: 'Medical Certificate',
+    grossAmount: 45.25,
+    deposit: 45.25,
+    balance: 0.00
   },
 ];
 
@@ -71,7 +73,7 @@ export function TransactionList() {
 
   const filteredTransactions = transactions.filter(transaction => 
     transaction.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    transaction.category.toLowerCase().includes(searchQuery.toLowerCase())
+    transaction.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDeleteTransaction = (id: string) => {

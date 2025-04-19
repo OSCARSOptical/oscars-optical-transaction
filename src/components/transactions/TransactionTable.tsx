@@ -26,16 +26,41 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     }).format(date);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'Complete':
         return 'bg-green-50 text-green-700 border-green-200 hover:bg-green-50';
-      case 'pending':
+      case 'Eye Exam':
+        return 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50';
+      case 'Frame Replacement':
+        return 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-50';
+      case 'Lens Replacement':
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-50';
+      case 'Medical Certificate':
         return 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-50';
-      case 'failed':
+      case 'Contact Lens':
+        return 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-50';
+      case 'Repair':
+        return 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-50';
+      case 'Return':
         return 'bg-red-50 text-red-700 border-red-200 hover:bg-red-50';
       default:
-        return '';
+        return 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-50';
+    }
+  };
+
+  const getBalanceStatus = (balance: number) => {
+    if (balance <= 0) {
+      return 'bg-green-50 text-green-700 border-green-200 hover:bg-green-50';
+    } else {
+      return 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-50';
     }
   };
 
@@ -44,11 +69,12 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
       <TableHeader>
         <TableRow>
           <TableHead>Date</TableHead>
+          <TableHead>Transaction Code</TableHead>
           <TableHead>Patient</TableHead>
-          <TableHead>Category</TableHead>
           <TableHead>Type</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
+          <TableHead className="text-right">Gross Amount</TableHead>
+          <TableHead className="text-right">Deposit</TableHead>
+          <TableHead className="text-right">Balance</TableHead>
           <TableHead className="w-[60px]"></TableHead>
         </TableRow>
       </TableHeader>
@@ -57,32 +83,29 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
           transactions.map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell>{formatDate(transaction.date)}</TableCell>
+              <TableCell>{transaction.code}</TableCell>
               <TableCell className="font-medium">{transaction.patientName}</TableCell>
-              <TableCell>{transaction.category}</TableCell>
               <TableCell>
                 <Badge 
                   variant="outline" 
-                  className={
-                    transaction.type === 'payment' 
-                      ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50'
-                      : 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-50'
-                  }
+                  className={getTypeColor(transaction.type)}
                 >
-                  {transaction.type === 'payment' ? 'Payment' : 'Charge'}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge 
-                  variant="outline" 
-                  className={getStatusColor(transaction.status)}
-                >
-                  {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                  {transaction.type}
                 </Badge>
               </TableCell>
               <TableCell className="text-right font-medium">
-                <span className={transaction.type === 'payment' ? 'text-green-600' : 'text-gray-900'}>
-                  {transaction.type === 'payment' ? '+' : ''} ${transaction.amount.toFixed(2)}
-                </span>
+                {formatCurrency(transaction.grossAmount)}
+              </TableCell>
+              <TableCell className="text-right">
+                {formatCurrency(transaction.deposit)}
+              </TableCell>
+              <TableCell className="text-right">
+                <Badge 
+                  variant="outline" 
+                  className={getBalanceStatus(transaction.balance)}
+                >
+                  {formatCurrency(transaction.balance)}
+                </Badge>
               </TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -113,7 +136,7 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={7} className="h-24 text-center">
+            <TableCell colSpan={8} className="h-24 text-center">
               No transactions found.
             </TableCell>
           </TableRow>
