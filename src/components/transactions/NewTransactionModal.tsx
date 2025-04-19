@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Patient } from "@/types";
@@ -15,15 +15,16 @@ type Mode = "select" | "search" | "new";
 
 const NewTransactionModal = ({ isOpen, onClose }: NewTransactionModalProps) => {
   const [mode, setMode] = useState<Mode>("select");
+  const navigate = useNavigate();
   
   const handlePatientSelect = (patient: Patient) => {
-    // TODO: Proceed to transaction form with selected patient
-    console.log("Selected patient:", patient);
+    onClose();
+    navigate(`/transactions/new/${patient.id}`);
   };
 
   const handlePatientSave = (patientData: Omit<Patient, "id">) => {
-    // TODO: Create new patient and proceed to transaction form
-    console.log("New patient data:", patientData);
+    onClose();
+    navigate("/transactions/new");
   };
 
   const renderContent = () => {
