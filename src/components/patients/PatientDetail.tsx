@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Patient } from '@/types';
 import { PatientDetailHeader } from './PatientDetailHeader';
 import { PatientInformationForm } from './PatientInformationForm';
+import { PatientTransactionHistory } from './PatientTransactionHistory';
 
 export function PatientDetail() {
   const { patientCode } = useParams();
@@ -38,6 +39,15 @@ export function PatientDetail() {
             isEditing={isEditing}
             onPatientChange={setPatient}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Transaction History</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PatientTransactionHistory patientCode={patient.code} />
         </CardContent>
       </Card>
     </div>
