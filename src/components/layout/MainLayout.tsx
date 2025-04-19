@@ -1,13 +1,15 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import AppHeader from './AppHeader';
 import Sidebar from './Sidebar';
 import { cn } from '@/lib/utils';
+import FloatingActionButton from '../common/FloatingActionButton';
+import NewTransactionModal from '../transactions/NewTransactionModal';
 
 export function MainLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isNewTransactionModalOpen, setIsNewTransactionModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,7 +30,7 @@ export function MainLayout() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // For auth pages, render without layout
+  // Return without FAB for auth pages
   if (
     location.pathname === '/login' ||
     location.pathname === '/register' ||
@@ -49,6 +51,13 @@ export function MainLayout() {
       >
         <Outlet />
       </main>
+      <FloatingActionButton 
+        onClick={() => setIsNewTransactionModalOpen(true)} 
+      />
+      <NewTransactionModal 
+        isOpen={isNewTransactionModalOpen}
+        onClose={() => setIsNewTransactionModalOpen(false)}
+      />
     </div>
   );
 }
