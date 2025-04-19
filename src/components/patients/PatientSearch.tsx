@@ -68,7 +68,7 @@ const PatientSearch = ({ onSelect, onBack }: PatientSearchProps) => {
         patient.code.toLowerCase().includes(query) ||
         patient.firstName.toLowerCase().includes(query) ||
         patient.lastName.toLowerCase().includes(query) ||
-        fullName === query ||
+        fullName.includes(query) ||
         (nameParts.length > 1 && 
           nameParts.every(part => fullName.includes(part.toLowerCase())))
       );

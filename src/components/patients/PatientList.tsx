@@ -1,11 +1,13 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, User } from "lucide-react";
-import { Patient } from '@/types';
+import { Patient, Transaction } from '@/types';
+
 const generatePatientCode = (firstName: string, lastName: string, id: string): string => {
   const firstInitial = firstName.charAt(0).toUpperCase();
   const lastInitial = lastName.charAt(0).toUpperCase();
@@ -33,11 +35,60 @@ const samplePatients: Patient[] = [{
   address: '456 Oak St, City, State',
   code: 'PX-JS-67890'
 }];
+
+// Sample transactions that match our patients
+const sampleTransactions: Transaction[] = [
+  {
+    id: '1',
+    code: 'TX25-04-0001',
+    date: '2025-04-10',
+    patientCode: 'PX-JD-12345',
+    patientName: 'John Doe',
+    firstName: 'John',
+    lastName: 'Doe',
+    type: 'Complete',
+    grossAmount: 75.00,
+    deposit: 25.00,
+    balance: 50.00
+  },
+  {
+    id: '2',
+    code: 'TX25-04-0002',
+    date: '2025-04-08',
+    patientCode: 'PX-JS-67890',
+    patientName: 'Jane Smith',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    type: 'Eye Exam',
+    grossAmount: 120.50,
+    deposit: 60.25,
+    balance: 60.25
+  }
+];
+
 export function PatientList() {
   const [patients] = useState<Patient[]>(samplePatients);
+  const [transactions] = useState<Transaction[]>(sampleTransactions);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-  const filteredPatients = patients.filter(patient => patient.firstName.toLowerCase().includes(searchQuery.toLowerCase()) || patient.lastName.toLowerCase().includes(searchQuery.toLowerCase()) || patient.code.toLowerCase().includes(searchQuery.toLowerCase()) || patient.email.toLowerCase().includes(searchQuery.toLowerCase()));
+  
+  const filteredPatients = patients.filter(patient => 
+    patient.firstName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    patient.lastName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    patient.code.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    patient.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Function to get the most recent transaction for a patient
+  const getLatestTransaction = (patientCode: string) => {
+    const patientTransactions = transactions.filter(t => t.patientCode === patientCode);
+    if (patientTransactions.length === 0) return null;
+    
+    return patientTransactions.sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    )[0];
+  };
+
   return <Card className="w-full shadow-sm border border-gray-100">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-xl font-bold flex items-center">
@@ -61,10 +112,15 @@ export function PatientList() {
               <TableHead>Age</TableHead>
               <TableHead>Contact Number</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Transaction Code</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredPatients.length > 0 ? filteredPatients.map(patient => <TableRow key={patient.id} className="cursor-pointer hover:bg-gray-50" onClick={() => navigate(`/patients/${patient.code}`)}>
+            {filteredPatients.length > 0 ? filteredPatients.map(patient => {
+              const latestTransaction = getLatestTransaction(patient.code);
+              
+              return (
+                <TableRow key={patient.id} className="cursor-pointer hover:bg-gray-50" onClick={() => navigate(`/patients/${patient.code}`)}>
                   <TableCell className="font-medium">
                     {patient.firstName} {patient.lastName}
                   </TableCell>
@@ -72,8 +128,21 @@ export function PatientList() {
                   <TableCell>{patient.age}</TableCell>
                   <TableCell>{patient.phone}</TableCell>
                   <TableCell>{patient.email}</TableCell>
-                </TableRow>) : <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (latestTransaction) {
+                        navigate(`/transactions/${latestTransaction.code}`);
+                      }
+                    }}
+                    className={latestTransaction ? "text-blue-600 hover:underline" : ""}
+                  >
+                    {latestTransaction ? latestTransaction.code : "—"}
+                  </TableCell>
+                </TableRow>
+              );
+            }) : <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
                   No patients found.
                 </TableCell>
               </TableRow>}

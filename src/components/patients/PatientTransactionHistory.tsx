@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from "react";
 import { 
   Table, 
   TableHeader, 
@@ -17,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Transaction } from "@/types";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PatientTransactionHistoryProps {
   patientCode: string;
@@ -24,14 +26,16 @@ interface PatientTransactionHistoryProps {
 
 export function PatientTransactionHistory({ patientCode }: PatientTransactionHistoryProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   
-  // Mock transactions data - in a real app this would come from an API
-  const transactions: Transaction[] = [
+  // Mock transactions data - in a real app this would come from a shared data source or API
+  const allTransactions: Transaction[] = [
     {
       id: "1",
-      code: "TX23-01-0001",
-      date: "2024-01-15",
-      patientCode: patientCode,
+      code: "TX25-04-0001",
+      date: "2025-04-10",
+      patientCode: "PX-JD-12345",
       patientName: "John Doe",
       firstName: "John",
       lastName: "Doe",
@@ -42,18 +46,40 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
     },
     {
       id: "2",
-      code: "TX23-02-0002",
-      date: "2024-02-20",
-      patientCode: patientCode,
-      patientName: "John Doe",
-      firstName: "John",
-      lastName: "Doe",
+      code: "TX25-04-0002",
+      date: "2025-04-08",
+      patientCode: "PX-JS-67890",
+      patientName: "Jane Smith",
+      firstName: "Jane",
+      lastName: "Smith",
       type: "Frame Replacement",
       grossAmount: 300.00,
       deposit: 150.00,
       balance: 150.00
     }
   ];
+
+  useEffect(() => {
+    // Filter transactions for this patient only
+    const patientTransactions = allTransactions.filter(
+      transaction => transaction.patientCode === patientCode
+    );
+    
+    // Verify patient code match and alert if mismatch
+    const hasCodeMismatch = patientTransactions.some(
+      transaction => transaction.patientCode !== patientCode
+    );
+    
+    if (hasCodeMismatch) {
+      toast({
+        title: "Data Error",
+        description: "Mismatch between transaction and patient code—please check the patient link.",
+        variant: "destructive"
+      });
+    }
+    
+    setTransactions(patientTransactions);
+  }, [patientCode, toast]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -77,8 +103,6 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Transaction Code</TableHead>
-            <TableHead>Patient Name</TableHead>
-            <TableHead>Patient Code</TableHead>
             <TableHead>Type</TableHead>
             <TableHead className="text-right">Gross Amount</TableHead>
             <TableHead className="text-right">Deposit</TableHead>
@@ -87,34 +111,40 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{formatDate(transaction.date)}</TableCell>
-              <TableCell>{transaction.code}</TableCell>
-              <TableCell>{transaction.patientName}</TableCell>
-              <TableCell>{transaction.patientCode}</TableCell>
-              <TableCell>{transaction.type}</TableCell>
-              <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
-              <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
-              <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem 
-                      onClick={() => navigate(`/transactions/${transaction.code}`)}
-                    >
-                      View Full Transaction
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+          {transactions.length > 0 ? (
+            transactions.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>{formatDate(transaction.date)}</TableCell>
+                <TableCell>{transaction.code}</TableCell>
+                <TableCell>{transaction.type}</TableCell>
+                <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem 
+                        onClick={() => navigate(`/transactions/${transaction.code}`)}
+                      >
+                        View Full Transaction
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center py-6">
+                No transactions found for this patient.
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>

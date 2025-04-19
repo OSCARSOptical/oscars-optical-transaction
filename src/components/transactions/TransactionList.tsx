@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -7,12 +7,13 @@ import { TransactionTable } from './TransactionTable';
 import { TransactionListHeader } from './TransactionListHeader';
 import { Transaction } from '@/types';
 
+// This would come from a shared data source in a real app
 const sampleTransactions: Transaction[] = [
   {
     id: '1',
     code: 'TX25-04-0001',
     date: '2025-04-10',
-    patientCode: 'PC-001',
+    patientCode: 'PX-JD-12345',
     patientName: 'John Doe',
     firstName: 'John',
     lastName: 'Doe',
@@ -25,7 +26,7 @@ const sampleTransactions: Transaction[] = [
     id: '2',
     code: 'TX25-04-0002',
     date: '2025-04-08',
-    patientCode: 'PC-002',
+    patientCode: 'PX-JS-67890',
     patientName: 'Jane Smith',
     firstName: 'Jane',
     lastName: 'Smith',
@@ -40,6 +41,23 @@ export function TransactionList() {
   const [transactions, setTransactions] = useState<Transaction[]>(sampleTransactions);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+
+  // Verify all transactions have matching patient codes
+  useEffect(() => {
+    const hasCodeMismatch = transactions.some(transaction => {
+      // Check if the patient name matches the format "FirstName LastName"
+      const expectedPatientName = `${transaction.firstName} ${transaction.lastName}`;
+      return transaction.patientName !== expectedPatientName;
+    });
+    
+    if (hasCodeMismatch) {
+      toast({
+        title: "Data Error",
+        description: "Mismatch between transaction and patient code—please check the patient link.",
+        variant: "destructive"
+      });
+    }
+  }, [transactions, toast]);
 
   const filteredTransactions = transactions.filter(transaction => {
     const searchLower = searchQuery.toLowerCase();
