@@ -18,13 +18,35 @@ const NewTransactionModal = ({ isOpen, onClose }: NewTransactionModalProps) => {
   const navigate = useNavigate();
   
   const handlePatientSelect = (patient: Patient) => {
+    localStorage.setItem(`patient_${patient.id}_code`, patient.code);
+    localStorage.setItem(`patient_${patient.id}_firstName`, patient.firstName);
+    localStorage.setItem(`patient_${patient.id}_lastName`, patient.lastName);
+    localStorage.setItem(`patient_${patient.id}_age`, patient.age.toString());
+    localStorage.setItem(`patient_${patient.id}_email`, patient.email);
+    localStorage.setItem(`patient_${patient.id}_phone`, patient.phone);
+    localStorage.setItem(`patient_${patient.id}_address`, patient.address);
+    
     onClose();
     navigate(`/transactions/new/${patient.id}`);
   };
 
   const handlePatientSave = (patientData: Omit<Patient, "id">) => {
+    const newId = Math.random().toString(36).substring(7);
+    const newPatient: Patient = {
+      id: newId,
+      ...patientData
+    };
+    
+    localStorage.setItem(`patient_${newId}_code`, newPatient.code);
+    localStorage.setItem(`patient_${newId}_firstName`, newPatient.firstName);
+    localStorage.setItem(`patient_${newId}_lastName`, newPatient.lastName);
+    localStorage.setItem(`patient_${newId}_age`, newPatient.age.toString());
+    localStorage.setItem(`patient_${newId}_email`, newPatient.email);
+    localStorage.setItem(`patient_${newId}_phone`, newPatient.phone);
+    localStorage.setItem(`patient_${newId}_address`, newPatient.address);
+    
     onClose();
-    navigate("/transactions/new");
+    navigate(`/transactions/new/${newId}`);
   };
 
   const renderContent = () => {

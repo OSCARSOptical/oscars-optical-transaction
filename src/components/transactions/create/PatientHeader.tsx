@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Patient } from "@/types";
 import { Edit2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface PatientHeaderProps {
   patient?: Patient;
 }
 
 const PatientHeader = ({ patient }: PatientHeaderProps) => {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState(patient?.firstName || "");
   const [lastName, setLastName] = useState(patient?.lastName || "");
@@ -22,6 +24,10 @@ const PatientHeader = ({ patient }: PatientHeaderProps) => {
     const random = Math.floor(Math.random() * 9999).toString().padStart(4, "0");
     return `TX${year}-${month}-${random}`;
   };
+
+  if (!patient?.code) {
+    return null;
+  }
 
   return (
     <Card>
@@ -42,7 +48,7 @@ const PatientHeader = ({ patient }: PatientHeaderProps) => {
             </div>
           ) : (
             <span>
-              {patient ? `${patient.firstName} ${patient.lastName}` : "New Patient"}
+              {patient.firstName} {patient.lastName}
             </span>
           )}
         </CardTitle>
@@ -56,7 +62,7 @@ const PatientHeader = ({ patient }: PatientHeaderProps) => {
         </Button>
       </CardHeader>
       <CardContent className="flex justify-between items-center">
-        <div>Patient Code: {patient?.code || "Not assigned"}</div>
+        <div>Patient Code: {patient.code}</div>
         <div>Transaction Code: {generateTransactionCode()}</div>
       </CardContent>
     </Card>
