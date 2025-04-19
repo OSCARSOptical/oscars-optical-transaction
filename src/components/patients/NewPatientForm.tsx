@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Patient } from "@/types";
 
 interface NewPatientFormProps {
@@ -13,10 +14,10 @@ interface NewPatientFormProps {
 const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [age, setAge] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
 
   const generatePatientCode = (first: string, last: string) => {
     if (!first || !last) return "";
@@ -36,14 +37,15 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
       email,
       phone,
       address,
-      age: new Date().getFullYear() - new Date(dateOfBirth).getFullYear(),
+      age: parseInt(age) || 0,
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+      <div className="grid grid-cols-12 gap-4">
+        {/* Row 1: First Name, Last Name, Patient Code */}
+        <div className="col-span-4 space-y-2">
           <Label htmlFor="firstName">First Name</Label>
           <Input
             id="firstName"
@@ -52,7 +54,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
             onChange={(e) => setFirstName(e.target.value)}
           />
         </div>
-        <div className="space-y-2">
+        <div className="col-span-4 space-y-2">
           <Label htmlFor="lastName">Last Name</Label>
           <Input
             id="lastName"
@@ -61,59 +63,61 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
             onChange={(e) => setLastName(e.target.value)}
           />
         </div>
-      </div>
+        <div className="col-span-4 space-y-2">
+          <Label htmlFor="patientCode">Patient Code</Label>
+          <Input
+            id="patientCode"
+            value={generatePatientCode(firstName, lastName)}
+            disabled
+            className="bg-gray-100"
+          />
+        </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="patientCode">Patient Code</Label>
-        <Input
-          id="patientCode"
-          value={generatePatientCode(firstName, lastName)}
-          disabled
-          className="bg-gray-100"
-        />
-      </div>
+        {/* Row 2: Age and Contact Number */}
+        <div className="col-span-6 space-y-2">
+          <Label htmlFor="age">Age</Label>
+          <Input
+            id="age"
+            type="number"
+            required
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+          />
+        </div>
+        <div className="col-span-6 space-y-2">
+          <Label htmlFor="phone">Contact Number</Label>
+          <Input
+            id="phone"
+            type="tel"
+            required
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="dateOfBirth">Date of Birth</Label>
-        <Input
-          id="dateOfBirth"
-          type="date"
-          required
-          value={dateOfBirth}
-          onChange={(e) => setDateOfBirth(e.target.value)}
-        />
-      </div>
+        {/* Row 3: Email Address */}
+        <div className="col-span-12 space-y-2">
+          <Label htmlFor="email">Email Address</Label>
+          <Input
+            id="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="phone">Contact Number</Label>
-        <Input
-          id="phone"
-          type="tel"
-          required
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="email">Email Address</Label>
-        <Input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
-        <Input
-          id="address"
-          required
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
+        {/* Row 4: Address */}
+        <div className="col-span-12 space-y-2">
+          <Label htmlFor="address">Address</Label>
+          <Textarea
+            id="address"
+            required
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className="min-h-[100px]"
+          />
+        </div>
       </div>
 
       <div className="flex justify-end space-x-2 pt-4">

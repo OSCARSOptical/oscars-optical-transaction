@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
@@ -21,37 +21,60 @@ interface PatientSearchProps {
 const PatientSearch = ({ onSelect, onBack }: PatientSearchProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<Patient[]>([]);
+  
+  // Simulated database - in a real app, this would come from your backend
+  const mockPatients: Patient[] = [
+    {
+      id: "1",
+      code: "PX-JD-00012",
+      firstName: "Jane",
+      lastName: "Doe",
+      age: 38,
+      email: "jane@example.com",
+      phone: "+1234567890",
+      address: "123 Main St"
+    },
+    {
+      id: "2",
+      code: "PX-JS-00045",
+      firstName: "Janet",
+      lastName: "Smith",
+      age: 35,
+      email: "janet@example.com",
+      phone: "+1234567891",
+      address: "456 Oak Ave"
+    }
+  ];
+
+  // Show most recent patients by default
+  useEffect(() => {
+    setResults(mockPatients);
+  }, []);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    // Simulated search - replace with actual API call
-    const mockResults: Patient[] = [
-      {
-        id: "1",
-        code: "PX-JD-00012",
-        firstName: "Jane",
-        lastName: "Doe",
-        age: 38,
-        email: "jane@example.com",
-        phone: "+1234567890",
-        address: "123 Main St"
-      },
-      {
-        id: "2",
-        code: "PX-JD-00045",
-        firstName: "Janet",
-        lastName: "Do",
-        age: 35,
-        email: "janet@example.com",
-        phone: "+1234567891",
-        address: "456 Oak Ave"
-      }
-    ];
-    setResults(mockResults.filter(patient => 
-      patient.code.toLowerCase().includes(value.toLowerCase()) ||
-      patient.firstName.toLowerCase().includes(value.toLowerCase()) ||
-      patient.lastName.toLowerCase().includes(value.toLowerCase())
-    ));
+    const query = value.toLowerCase();
+    
+    if (!query) {
+      setResults(mockPatients);
+      return;
+    }
+
+    const filtered = mockPatients.filter(patient => {
+      const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+      const nameParts = query.split(' ');
+      
+      return (
+        patient.code.toLowerCase().includes(query) ||
+        patient.firstName.toLowerCase().includes(query) ||
+        patient.lastName.toLowerCase().includes(query) ||
+        fullName === query ||
+        (nameParts.length > 1 && 
+          nameParts.every(part => fullName.includes(part.toLowerCase())))
+      );
+    });
+
+    setResults(filtered);
   };
 
   return (
