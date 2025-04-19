@@ -7,14 +7,15 @@ import { TransactionTable } from './TransactionTable';
 import { TransactionListHeader } from './TransactionListHeader';
 import { Transaction } from '@/types';
 
-// Sample data - using the correct Transaction type from types/index.ts
 const sampleTransactions: Transaction[] = [
   {
     id: '1',
-    code: 'TX-2023-001',
-    date: '2023-04-10',
+    code: 'TX25-04-0001',
+    date: '2025-04-10',
     patientCode: 'PC-001',
     patientName: 'John Doe',
+    firstName: 'John',
+    lastName: 'Doe',
     type: 'Complete',
     grossAmount: 75.00,
     deposit: 25.00,
@@ -22,48 +23,17 @@ const sampleTransactions: Transaction[] = [
   },
   {
     id: '2',
-    code: 'TX-2023-002',
-    date: '2023-04-08',
+    code: 'TX25-04-0002',
+    date: '2025-04-08',
     patientCode: 'PC-002',
     patientName: 'Jane Smith',
+    firstName: 'Jane',
+    lastName: 'Smith',
     type: 'Eye Exam',
     grossAmount: 120.50,
     deposit: 60.25,
     balance: 60.25
-  },
-  {
-    id: '3',
-    code: 'TX-2023-003',
-    date: '2023-04-05',
-    patientCode: 'PC-003',
-    patientName: 'Robert Johnson',
-    type: 'Frame Replacement',
-    grossAmount: 450.00,
-    deposit: 225.00,
-    balance: 225.00
-  },
-  {
-    id: '4',
-    code: 'TX-2023-004',
-    date: '2023-04-03',
-    patientCode: 'PC-004',
-    patientName: 'Emily Davis',
-    type: 'Lens Replacement',
-    grossAmount: 85.75,
-    deposit: 40.00,
-    balance: 45.75
-  },
-  {
-    id: '5',
-    code: 'TX-2023-005',
-    date: '2023-04-01',
-    patientCode: 'PC-005',
-    patientName: 'Michael Wilson',
-    type: 'Medical Certificate',
-    grossAmount: 45.25,
-    deposit: 45.25,
-    balance: 0.00
-  },
+  }
 ];
 
 export function TransactionList() {
@@ -71,10 +41,16 @@ export function TransactionList() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
-  const filteredTransactions = transactions.filter(transaction => 
-    transaction.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    transaction.type.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTransactions = transactions.filter(transaction => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      transaction.patientName.toLowerCase().includes(searchLower) ||
+      transaction.patientCode.toLowerCase().includes(searchLower) ||
+      transaction.code.toLowerCase().includes(searchLower) ||
+      transaction.firstName.toLowerCase().includes(searchLower) ||
+      transaction.lastName.toLowerCase().includes(searchLower)
+    );
+  });
 
   const handleDeleteTransaction = (id: string) => {
     setTransactions(transactions.filter(transaction => transaction.id !== id));

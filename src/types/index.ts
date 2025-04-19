@@ -12,10 +12,12 @@ export interface Patient {
 
 export interface Transaction {
   id: string;
-  code: string;
+  code: string; // Format: TXYY-MM-XXXX
   date: string;
   patientCode: string;
   patientName: string;
+  firstName: string;
+  lastName: string;
   type: 'Complete' | 'Frame Replacement' | 'Lens Replacement' | 'Eye Exam' | 'Medical Certificate' | 'Contact Lens' | 'Repair' | 'Return';
   grossAmount: number;
   deposit: number;

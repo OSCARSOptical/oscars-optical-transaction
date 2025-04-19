@@ -4,8 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { MoreHorizontal } from "lucide-react";
 import { Transaction } from '@/types';
 
 interface TransactionTableProps {
@@ -15,7 +14,6 @@ interface TransactionTableProps {
 
 export function TransactionTable({ transactions, onDeleteTransaction }: TransactionTableProps) {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -56,21 +54,14 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     }
   };
 
-  const getBalanceStatus = (balance: number) => {
-    if (balance <= 0) {
-      return 'bg-green-50 text-green-700 border-green-200 hover:bg-green-50';
-    } else {
-      return 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-50';
-    }
-  };
-
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Date</TableHead>
           <TableHead>Transaction Code</TableHead>
-          <TableHead>Patient</TableHead>
+          <TableHead>Patient Name</TableHead>
+          <TableHead>Patient Code</TableHead>
           <TableHead>Type</TableHead>
           <TableHead className="text-right">Gross Amount</TableHead>
           <TableHead className="text-right">Deposit</TableHead>
@@ -79,68 +70,42 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
         </TableRow>
       </TableHeader>
       <TableBody>
-        {transactions.length > 0 ? (
-          transactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{formatDate(transaction.date)}</TableCell>
-              <TableCell>{transaction.code}</TableCell>
-              <TableCell className="font-medium">{transaction.patientName}</TableCell>
-              <TableCell>
-                <Badge 
-                  variant="outline" 
-                  className={getTypeColor(transaction.type)}
-                >
-                  {transaction.type}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right font-medium">
-                {formatCurrency(transaction.grossAmount)}
-              </TableCell>
-              <TableCell className="text-right">
-                {formatCurrency(transaction.deposit)}
-              </TableCell>
-              <TableCell className="text-right">
-                <Badge 
-                  variant="outline" 
-                  className={getBalanceStatus(transaction.balance)}
-                >
-                  {formatCurrency(transaction.balance)}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem 
-                      onClick={() => navigate(`/transactions/${transaction.id}`)}
-                      className="cursor-pointer"
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>Edit</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => onDeleteTransaction(transaction.id)}
-                      className="cursor-pointer text-red-600"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      <span>Delete</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))
-        ) : (
-          <TableRow>
-            <TableCell colSpan={8} className="h-24 text-center">
-              No transactions found.
+        {transactions.map((transaction) => (
+          <TableRow key={transaction.id}>
+            <TableCell>{formatDate(transaction.date)}</TableCell>
+            <TableCell>{transaction.code}</TableCell>
+            <TableCell>{transaction.patientName}</TableCell>
+            <TableCell>{transaction.patientCode}</TableCell>
+            <TableCell>
+              <Badge 
+                variant="outline" 
+                className={getTypeColor(transaction.type)}
+              >
+                {transaction.type}
+              </Badge>
+            </TableCell>
+            <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
+            <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
+            <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem 
+                    onClick={() => navigate(`/transactions/${transaction.code}`)}
+                    className="cursor-pointer"
+                  >
+                    View Full Transaction
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </TableCell>
           </TableRow>
-        )}
+        ))}
       </TableBody>
     </Table>
   );

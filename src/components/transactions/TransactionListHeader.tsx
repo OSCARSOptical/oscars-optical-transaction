@@ -14,11 +14,11 @@ export function TransactionListHeader({ searchQuery, onSearchChange }: Transacti
 
   return (
     <div className="flex items-center space-x-2">
-      <div className="relative">
+      <div className="relative w-[350px]">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
-          placeholder="Search transactions..."
-          className="pl-9 w-[250px]"
+          placeholder="Search by patient name, code or transaction code..."
+          className="pl-9"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
         />

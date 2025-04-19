@@ -14,6 +14,7 @@ import Transactions from "./pages/Transactions";
 import BalanceSheetPage from "./pages/BalanceSheetPage";
 import NotFound from "./pages/NotFound";
 import PatientDetailPage from "./pages/PatientDetail";
+import TransactionDetail from "./pages/TransactionDetail";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/balance-sheet" element={<BalanceSheetPage />} />
             <Route path="/patients/:patientCode" element={<PatientDetailPage />} />
+            <Route path="/transactions/:transactionCode" element={<TransactionDetail />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
