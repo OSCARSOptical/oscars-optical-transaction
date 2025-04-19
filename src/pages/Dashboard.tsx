@@ -7,7 +7,7 @@ const Dashboard = () => {
   return <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight mb-1">Dashboard</h2>
-        <p className="text-muted-foreground">Your practice overview and key metrics</p>
+        <p className="text-muted-foreground">Welcome, Doctor!</p>
       </div>
 
       <MetricsOverview />
