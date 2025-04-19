@@ -54,7 +54,11 @@ export function AppHeader({ toggleSidebar }: { toggleSidebar: () => void }) {
         <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
           <Menu className="h-5 w-5" />
         </Button>
-        <h1 className="text-xl font-bold text-crimson-700">Crimson Ledger</h1>
+        <img 
+          src="/lovable-uploads/2ebe7ecc-af2a-4e7d-bba7-c42cae035782.png" 
+          alt="Oscars Optical Clinic" 
+          className="h-10 mr-4"
+        />
       </div>
 
       {user && (

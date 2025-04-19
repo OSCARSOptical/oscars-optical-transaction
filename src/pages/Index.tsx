@@ -15,8 +15,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-      <div className="text-center max-w-3xl">
-        <h1 className="text-5xl font-bold text-crimson-700 mb-6">Crimson Ledger</h1>
+      <div className="text-center max-w-3xl mb-8">
+        <img 
+          src="/lovable-uploads/2ebe7ecc-af2a-4e7d-bba7-c42cae035782.png" 
+          alt="Oscars Optical Clinic" 
+          className="mx-auto mb-6 max-h-24"
+        />
         <p className="text-xl text-gray-600 mb-8">
           The modern solution for healthcare professionals to manage patients, 
           track transactions, and optimize financial performance.
