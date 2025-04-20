@@ -71,6 +71,12 @@ const sampleTransactions: Transaction[] = [
   }
 ];
 
+// Define an interface for grouped data to fix the type error
+interface GroupedData {
+  transactions: Transaction[];
+  date: string;
+}
+
 // We no longer need separate expense data as it's now part of the transaction model
 export function BalanceSheet() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -105,7 +111,7 @@ export function BalanceSheet() {
   const balanceSheetEntries = getAllBalanceSheetEntries();
   
   // Group transactions by date and incorporate balance sheet entries
-  const groupedData = filteredTransactions.reduce((acc, transaction) => {
+  const groupedData: Record<string, GroupedData> = filteredTransactions.reduce((acc, transaction) => {
     if (!acc[transaction.date]) {
       acc[transaction.date] = {
         transactions: [],
@@ -114,7 +120,7 @@ export function BalanceSheet() {
     }
     acc[transaction.date].transactions.push(transaction);
     return acc;
-  }, {});
+  }, {} as Record<string, GroupedData>);
   
   // Add balance sheet entries to the grouped data
   Object.entries(balanceSheetEntries).forEach(([date, entries]) => {
