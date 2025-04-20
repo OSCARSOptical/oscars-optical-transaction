@@ -17,16 +17,20 @@ export function OrderDetailsCard({ transaction }: OrderDetailsCardProps) {
       </TableHeader>
       <TableBody>
         <TableRow>
-          <TableCell className="font-medium">Refractive Index</TableCell>
-          <TableCell>{transaction.refractiveIndex || "—"}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className="font-medium">Lens Type</TableCell>
-          <TableCell>{transaction.lensType || "—"}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className="font-medium">Lens Coating</TableCell>
-          <TableCell>{transaction.lensCoating || "—"}</TableCell>
+          <TableCell className="font-medium">Lens Specifications</TableCell>
+          <TableCell>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-gray-100 rounded-md text-sm">
+                RI: {transaction.refractiveIndex || "—"}
+              </span>
+              <span className="px-2 py-1 bg-gray-100 rounded-md text-sm">
+                Type: {transaction.lensType || "—"}
+              </span>
+              <span className="px-2 py-1 bg-gray-100 rounded-md text-sm">
+                Coating: {transaction.lensCoating || "—"}
+              </span>
+            </div>
+          </TableCell>
         </TableRow>
         <TableRow>
           <TableCell className="font-medium">Interpupillary Distance</TableCell>
