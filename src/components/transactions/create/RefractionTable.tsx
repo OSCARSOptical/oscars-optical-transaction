@@ -6,7 +6,7 @@ import {
   generateAxisOptions, 
   generateAddOptions 
 } from "./utils/refractionOptions";
-import { visualAcuityOptions } from "./constants/visualAcuityOptions";
+import { distanceVisualAcuityOptions, nearVisualAcuityOptions } from "./constants/visualAcuityOptions";
 import { PrescriptionRow } from "./components/PrescriptionRow";
 
 const sphereOptions = generateSphereOptions();
@@ -29,24 +29,27 @@ export const RefractionTable = () => {
       <TableBody>
         <PrescriptionRow
           label="OD"
+          type="od"
           sphereOptions={sphereOptions}
           cylinderOptions={cylinderOptions}
           axisOptions={axisOptions}
-          visualAcuityOptions={visualAcuityOptions}
+          visualAcuityOptions={distanceVisualAcuityOptions}
         />
         <PrescriptionRow
           label="OS"
+          type="os"
           sphereOptions={sphereOptions}
           cylinderOptions={cylinderOptions}
           axisOptions={axisOptions}
-          visualAcuityOptions={visualAcuityOptions}
+          visualAcuityOptions={distanceVisualAcuityOptions}
         />
         <PrescriptionRow
           label="ADD"
+          type="add"
           sphereOptions={addOptions}
           cylinderOptions={cylinderOptions}
           axisOptions={axisOptions}
-          visualAcuityOptions={visualAcuityOptions}
+          visualAcuityOptions={nearVisualAcuityOptions}
           showAllFields={false}
         />
       </TableBody>

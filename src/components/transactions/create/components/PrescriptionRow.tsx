@@ -4,6 +4,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 
 interface PrescriptionRowProps {
   label: string;
+  type?: 'od' | 'os' | 'add';
   sphereOptions: Array<{ value: string; label: string }>;
   cylinderOptions: Array<{ value: string; label: string }>;
   axisOptions: Array<{ value: string; label: string }>;
@@ -13,19 +14,27 @@ interface PrescriptionRowProps {
 
 export const PrescriptionRow = ({
   label,
+  type = 'od',
   sphereOptions,
   cylinderOptions,
   axisOptions,
   visualAcuityOptions,
   showAllFields = true
 }: PrescriptionRowProps) => {
+  const getSpherePlaceholder = () => {
+    switch(type) {
+      case 'add': return 'Select ADD';
+      default: return 'Select Sphere';
+    }
+  };
+
   return (
     <TableRow>
       <TableCell>{label}</TableCell>
       <TableCell>
         <Select>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select Sphere" className="text-gray-400" />
+            <SelectValue placeholder={getSpherePlaceholder()} className="text-gray-400" />
           </SelectTrigger>
           <SelectContent>
             {sphereOptions.map(option => (
@@ -69,7 +78,7 @@ export const PrescriptionRow = ({
           <TableCell>
             <Select>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select VA" className="text-gray-400" />
+                <SelectValue placeholder={type === 'add' ? "Select Near VA" : "Select VA"} className="text-gray-400" />
               </SelectTrigger>
               <SelectContent>
                 {visualAcuityOptions.map(option => (
