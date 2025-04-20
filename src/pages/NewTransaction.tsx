@@ -8,6 +8,7 @@ import PatientInfo from "@/components/transactions/create/PatientInfo";
 import OrderDetails from "@/components/transactions/create/OrderDetails";
 import RefractionDetails from "@/components/transactions/create/RefractionDetails";
 import DoctorRemarks from "@/components/transactions/create/DoctorRemarks";
+import FinancialDetails from "@/components/transactions/create/FinancialDetails";
 import { Patient } from "@/types";
 
 interface LocationState {
@@ -217,6 +218,7 @@ const NewTransactionPage = () => {
         <RefractionDetails />
         <DoctorRemarks />
         <OrderDetails initialType={transactionType} onTypeChange={setTransactionType} />
+        <FinancialDetails />
         
         <div className="flex justify-end">
           <Button onClick={handleSave} className="w-full md:w-auto">
