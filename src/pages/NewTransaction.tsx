@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import { usePatientData } from "@/hooks/usePatientData";
 import { useTransactionCode } from "@/hooks/useTransactionCode";
+import BreadcrumbNav from "@/components/layout/Breadcrumb";
 
 // Import components
 import PatientHeader from "@/components/transactions/create/PatientHeader";
@@ -32,8 +33,16 @@ const NewTransactionPage = () => {
     navigate("/transactions");
   };
 
+  const breadcrumbItems = [
+    { label: "Patients", href: "/patients" },
+    { label: patient ? `${patient.firstName} ${patient.lastName}` : "Loading...", href: `/patients/${patient?.code}` },
+    { label: transactionCode }
+  ];
+
   return (
     <div className="space-y-6 pb-16">
+      <BreadcrumbNav items={breadcrumbItems} />
+
       <div>
         <h2 className="text-3xl font-bold tracking-tight mb-1">New Transaction</h2>
         <p className="text-muted-foreground">Create a new patient transaction</p>
