@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -72,7 +71,7 @@ const renderRefractionTable = () => (
   <Table>
     <TableHeader>
       <TableRow>
-        <TableHead className="w-[100px]">Rx</TableHead>
+        <TableHead className="w-[100px] bg-[#9b87f5] text-white font-semibold">Rx</TableHead>
         <TableHead>Sphere</TableHead>
         <TableHead>Cylinder</TableHead>
         <TableHead>Axis</TableHead>
@@ -222,9 +221,13 @@ const renderRefractionTable = () => (
   </Table>
 );
 
-const sphereOptions = Array.from({ length: 601 }, (_, i) => {
-  const value = (i / 4 - 20).toFixed(2);
-  return { value, label: value === "0.00" ? "Plano" : value };
+const sphereOptions = Array.from({ length: 161 }, (_, i) => {
+  const value = ((i - 80) * 0.25).toFixed(2);
+  const formattedValue = value.startsWith('-') ? value : `+${value}`;
+  return { 
+    value: formattedValue, 
+    label: formattedValue === "+0.00" ? "Plano" : formattedValue 
+  };
 });
 
 const cylinderOptions = Array.from({ length: 24 }, (_, i) => {
