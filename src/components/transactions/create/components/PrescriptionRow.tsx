@@ -95,20 +95,24 @@ export const PrescriptionRow = ({
         </>
       )}
       {!showAllFields && (
-        <TableCell className="w-[200px]">
-          <Select>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Near VA" className="text-gray-400" />
-            </SelectTrigger>
-            <SelectContent>
-              {visualAcuityOptions.map(option => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </TableCell>
+        <>
+          <TableCell>{/* Empty Cylinder cell */}</TableCell>
+          <TableCell>{/* Empty Axis cell */}</TableCell>
+          <TableCell className="w-[200px]">
+            <Select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Near VA" className="text-gray-400" />
+              </SelectTrigger>
+              <SelectContent>
+                {visualAcuityOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </TableCell>
+        </>
       )}
     </TableRow>
   );
