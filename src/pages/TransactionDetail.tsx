@@ -1,28 +1,17 @@
 
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Transaction } from '@/types';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Edit } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import BreadcrumbNav from '@/components/layout/Breadcrumb';
-
-import { TransactionHeader } from '@/components/transactions/detail/TransactionHeader';
-import PatientInfo from '@/components/transactions/create/PatientInfo';
-import { OrderDetailsCard } from '@/components/transactions/detail/OrderDetailsCard';
-import RefractionDetails from '@/components/transactions/create/RefractionDetails';
-import DoctorRemarks from '@/components/transactions/create/DoctorRemarks';
-import { OrderNotesCard } from '@/components/transactions/detail/OrderNotesCard';
-import FinancialDetails from '@/components/transactions/create/FinancialDetails';
-import { findPayment } from '@/utils/paymentsUtils';
+import { TransactionView } from '@/components/transactions/detail/TransactionView';
 
 const TransactionDetail = () => {
   const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -68,16 +57,6 @@ const TransactionDetail = () => {
     };
     
     fetchTransactionData();
-    
-    const handleBalanceSheetUpdate = () => {
-      fetchTransactionData();
-    };
-    
-    window.addEventListener('balanceSheetUpdated', handleBalanceSheetUpdate);
-    
-    return () => {
-      window.removeEventListener('balanceSheetUpdated', handleBalanceSheetUpdate);
-    };
   }, [transactionCode, patientCode]);
 
   const handleClaimedToggle = () => {
@@ -104,21 +83,9 @@ const TransactionDetail = () => {
     });
   };
 
-  const handleEdit = () => {
-    navigate(`/transactions/edit/${transaction?.code}`, { 
-      state: { transaction } 
-    });
-  };
-
   if (loading) {
     return (
       <div className="space-y-4">
-        <BreadcrumbNav 
-          items={[
-            { label: 'Transactions', href: '/transactions' },
-            { label: 'Loading...' }
-          ]}
-        />
         <div className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">Loading transaction details...</p>
         </div>
@@ -129,11 +96,6 @@ const TransactionDetail = () => {
   if (!transaction) {
     return (
       <div className="space-y-4">
-        <BreadcrumbNav 
-          items={[
-            { label: 'Transactions', href: '/transactions' }
-          ]}
-        />
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Transaction not found</AlertTitle>
@@ -141,81 +103,11 @@ const TransactionDetail = () => {
             The transaction with code {transactionCode} could not be found.
           </AlertDescription>
         </Alert>
-        <Button onClick={() => navigate('/transactions')}>
-          Return to Transactions
-        </Button>
       </div>
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Transactions', href: '/transactions' },
-    { label: transaction.patientName, href: `/patients/${transaction.patientCode}` },
-    { label: transaction.code }
-  ];
-
-  return (
-    <div className="space-y-6 pb-16">
-      <div className="flex justify-between items-start">
-        <BreadcrumbNav items={breadcrumbItems} />
-        <Button onClick={handleEdit} variant="outline">
-          <Edit className="mr-2 h-4 w-4" />
-          Edit
-        </Button>
-      </div>
-      
-      <TransactionHeader 
-        transaction={transaction}
-        onClaimedToggle={handleClaimedToggle}
-      />
-      
-      <div className="grid gap-6">
-        <PatientInfo 
-          patient={{
-            id: transaction.patientCode,
-            code: transaction.patientCode,
-            firstName: transaction.firstName,
-            lastName: transaction.lastName,
-            age: 0,
-            email: "",
-            phone: "",
-            address: ""
-          }}
-          readOnly={true}
-        />
-
-        <OrderDetailsCard transaction={transaction} />
-        
-        <RefractionDetails 
-          initialData={{
-            previousRx: transaction.previousRx,
-            fullRx: transaction.fullRx,
-            prescribedPower: transaction.prescribedPower,
-            interpupillaryDistance: transaction.interpupillaryDistance
-          }}
-        />
-
-        <DoctorRemarks 
-          initialData={{
-            doctorId: transaction.doctorId,
-            remarks: transaction.doctorRemarks
-          }}
-        />
-
-        <FinancialDetails 
-          initialData={{
-            grossAmount: transaction.grossAmount,
-            deposit: transaction.deposit,
-            lensCapital: transaction.lensCapital,
-            edgingPrice: transaction.edgingPrice,
-            otherExpenses: transaction.otherExpenses
-          }}
-        />
-
-        <OrderNotesCard transaction={transaction} />
-      </div>
-    </div>
-  );
+  return <TransactionView transaction={transaction} onClaimedToggle={handleClaimedToggle} />;
 };
 
 export default TransactionDetail;
