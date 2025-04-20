@@ -8,6 +8,7 @@ export interface Patient {
   email: string;
   phone: string;
   address: string;
+  createdDate?: string; // Added to track when patients were created
 }
 
 export interface Transaction {

@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { Users, ShoppingBag, CreditCard, CheckCircle } from "lucide-react";
 import MetricCard from "./MetricCard";
 import { Transaction } from '@/types';
+import { format, subMonths, startOfMonth, endOfMonth, isSameMonth, isAfter, isBefore, parseISO } from 'date-fns';
+import { getAllPayments } from '@/utils/paymentsUtils';
 
 // Import the shared transactions data
 const sampleTransactions: Transaction[] = [
@@ -75,7 +77,8 @@ const samplePatients = [
     email: 'john@example.com',
     phone: '555-123-4567',
     address: '123 Main St, City, State',
-    code: 'PX-JD-0000001'
+    code: 'PX-JD-0000001',
+    createdDate: '2025-01-15'
   }, 
   {
     id: '67890',
@@ -85,7 +88,8 @@ const samplePatients = [
     email: 'jane@example.com',
     phone: '555-987-6543',
     address: '456 Oak St, City, State',
-    code: 'PX-JS-0000001'
+    code: 'PX-JS-0000001',
+    createdDate: '2025-02-20'
   },
   {
     id: '54321',
@@ -95,7 +99,8 @@ const samplePatients = [
     email: 'oscar@example.com',
     phone: '555-555-1111',
     address: '789 Pine St, City, State',
-    code: 'PX-OS-0000001'
+    code: 'PX-OS-0000001',
+    createdDate: '2025-03-10'
   }
 ];
 
@@ -104,6 +109,9 @@ const MetricsOverview = () => {
   const [pendingPayments, setPendingPayments] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [monthlyRevenueComparison, setMonthlyRevenueComparison] = useState<string>('');
+  const [newPatientsThisMonth, setNewPatientsThisMonth] = useState(0);
 
   // Listen for balance sheet updates to refresh metrics
   useEffect(() => {
@@ -131,6 +139,72 @@ const MetricsOverview = () => {
     setPendingCount(count);
   }, [transactions, refreshTrigger]);
 
+  // Calculate monthly revenue and comparison with previous month
+  useEffect(() => {
+    const currentDate = new Date();
+    const currentMonthStart = startOfMonth(currentDate);
+    const currentMonthEnd = endOfMonth(currentDate);
+    const lastMonthStart = startOfMonth(subMonths(currentDate, 1));
+    const lastMonthEnd = endOfMonth(subMonths(currentDate, 1));
+    
+    // Get all payments (including balance payments)
+    const allPayments = getAllPayments();
+
+    // Calculate revenue for current month (deposits + balance payments)
+    const currentMonthDeposits = transactions
+      .filter(tx => {
+        const txDate = parseISO(tx.date);
+        return isAfter(txDate, currentMonthStart) && isBefore(txDate, currentMonthEnd);
+      })
+      .reduce((sum, tx) => sum + tx.deposit, 0);
+    
+    const currentMonthBalancePayments = allPayments
+      .filter(payment => {
+        const paymentDate = parseISO(payment.paymentDate);
+        return isAfter(paymentDate, currentMonthStart) && isBefore(paymentDate, currentMonthEnd);
+      })
+      .reduce((sum, payment) => sum + payment.amount, 0);
+    
+    const currentMonthTotal = currentMonthDeposits + currentMonthBalancePayments;
+    
+    // Calculate revenue for previous month
+    const lastMonthDeposits = transactions
+      .filter(tx => {
+        const txDate = parseISO(tx.date);
+        return isAfter(txDate, lastMonthStart) && isBefore(txDate, lastMonthEnd);
+      })
+      .reduce((sum, tx) => sum + tx.deposit, 0);
+    
+    const lastMonthBalancePayments = allPayments
+      .filter(payment => {
+        const paymentDate = parseISO(payment.paymentDate);
+        return isAfter(paymentDate, lastMonthStart) && isBefore(paymentDate, lastMonthEnd);
+      })
+      .reduce((sum, payment) => sum + payment.amount, 0);
+    
+    const lastMonthTotal = lastMonthDeposits + lastMonthBalancePayments;
+    
+    // Set monthly revenue
+    setMonthlyRevenue(currentMonthTotal);
+    
+    // Calculate comparison percentage
+    if (lastMonthTotal > 0) {
+      const percentageChange = ((currentMonthTotal - lastMonthTotal) / lastMonthTotal) * 100;
+      setMonthlyRevenueComparison(`${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(0)}% from last month`);
+    } else {
+      setMonthlyRevenueComparison('—');
+    }
+    
+    // Calculate new patients this month
+    const newPatients = samplePatients.filter(patient => {
+      const createdDate = parseISO(patient.createdDate);
+      return isSameMonth(createdDate, currentDate);
+    }).length;
+    
+    setNewPatientsThisMonth(newPatients);
+    
+  }, [transactions, refreshTrigger]);
+
   // Function to format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-PH', {
@@ -140,29 +214,28 @@ const MetricsOverview = () => {
     }).format(amount).replace('PHP', '₱');
   };
 
-  // Calculate monthly revenue (use current month transactions)
+  // Calculate monthly transactions count
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
   
-  const monthlyRevenue = transactions
+  const monthlyTransactionsCount = transactions
     .filter(tx => {
       const txDate = new Date(tx.date);
       return txDate.getMonth() + 1 === currentMonth && txDate.getFullYear() === currentYear;
-    })
-    .reduce((sum, tx) => sum + tx.deposit, 0);
+    }).length;
 
   const metrics = [
     {
       title: "Total Patients",
       value: samplePatients.length.toString(),
-      description: "+5 this month",
+      description: `+${newPatientsThisMonth} this month`,
       icon: Users,
       iconColor: "text-blue-500",
     },
     {
       title: "Monthly Revenue",
       value: formatCurrency(monthlyRevenue),
-      description: "+8% from last month",
+      description: monthlyRevenueComparison,
       icon: ShoppingBag,
       iconColor: "text-[#9E0214]",
     },
@@ -175,10 +248,7 @@ const MetricsOverview = () => {
     },
     {
       title: "Total Transactions This Month",
-      value: transactions.filter(tx => {
-        const txDate = new Date(tx.date);
-        return txDate.getMonth() + 1 === currentMonth && txDate.getFullYear() === currentYear;
-      }).length.toString(),
+      value: monthlyTransactionsCount.toString(),
       description: "Current month",
       icon: CheckCircle,
       iconColor: "text-green-500",
