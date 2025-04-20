@@ -71,7 +71,7 @@ const renderRefractionTable = () => (
   <Table>
     <TableHeader>
       <TableRow>
-        <TableHead className="w-[100px] bg-[#9b87f5] text-white font-semibold">Rx</TableHead>
+        <TableHead className="w-[100px] font-semibold">Rx</TableHead>
         <TableHead>Sphere</TableHead>
         <TableHead>Cylinder</TableHead>
         <TableHead>Axis</TableHead>
@@ -82,9 +82,9 @@ const renderRefractionTable = () => (
       <TableRow>
         <TableCell>OD</TableCell>
         <TableCell>
-          <Select defaultValue="0.00">
+          <Select>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Sphere" />
+              <SelectValue placeholder="Select Sphere" className="text-gray-400" />
             </SelectTrigger>
             <SelectContent>
               {sphereOptions.map(option => (
@@ -242,7 +242,8 @@ const axisOptions = Array.from({ length: 180 }, (_, i) => {
 
 const addOptions = Array.from({ length: 9 }, (_, i) => {
   const value = ((i + 4) * 0.25).toFixed(2);
-  return { value, label: value };
+  const formattedValue = value.startsWith('-') ? value : `+${value}`;
+  return { value: formattedValue, label: formattedValue };
 });
 
 const visualAcuityOptions = [
