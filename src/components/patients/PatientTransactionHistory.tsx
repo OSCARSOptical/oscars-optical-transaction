@@ -29,7 +29,7 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   
-  // Mock transactions data - in a real app this would come from a shared data source or API
+  // Mock transactions data with updated properties to match the Transaction type
   const allTransactions: Transaction[] = [
     {
       id: "1",
@@ -42,7 +42,13 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
       type: "Eye Exam",
       grossAmount: 150.00,
       deposit: 50.00,
-      balance: 100.00
+      balance: 100.00,
+      lensCapital: 0,
+      edgingPrice: 0,
+      otherExpenses: 0,
+      totalExpenses: 0,
+      claimed: false,
+      dateClaimed: null
     },
     {
       id: "2",
@@ -55,7 +61,13 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
       type: "Frame Replacement",
       grossAmount: 300.00,
       deposit: 150.00,
-      balance: 150.00
+      balance: 150.00,
+      lensCapital: 100,
+      edgingPrice: 50,
+      otherExpenses: 25,
+      totalExpenses: 175,
+      claimed: true,
+      dateClaimed: "2025-04-10"
     }
   ];
 
@@ -90,10 +102,11 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-PH', {
       style: 'currency',
-      currency: 'USD'
-    }).format(amount);
+      currency: 'PHP',
+      currencyDisplay: 'symbol',
+    }).format(amount).replace('PHP', '₱');
   };
 
   return (
