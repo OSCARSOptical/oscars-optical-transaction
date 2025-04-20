@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { format, parse } from "date-fns";
 import { Transaction } from "@/types";
 import { getAllBalanceSheetEntries } from "@/utils/balanceSheetUtils";
+import { getAllPayments, Payment } from "@/utils/paymentsUtils";
 
 interface GroupedData {
   transactions: Transaction[];
@@ -31,8 +32,9 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
     return format(transactionDate, 'MM-yyyy') === format(selectedMonth, 'MM-yyyy');
   });
 
-  // Get balance sheet entries
+  // Get balance sheet entries and payments
   const balanceSheetEntries = getAllBalanceSheetEntries();
+  const allPayments = getAllPayments();
 
   // Group transactions by date and incorporate balance sheet entries
   const groupedData: Record<string, GroupedData> = filteredTransactions.reduce((acc, transaction) => {
@@ -46,12 +48,17 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
     return acc;
   }, {} as Record<string, GroupedData>);
 
-  // Add balance sheet entries to the grouped data
+  // Process balance payments and add them to grouped data
+  const processedDates = new Set<string>();
+  
+  // First, add any in-memory balance sheet entries
   Object.entries(balanceSheetEntries).forEach(([date, entries]) => {
     const dateMonth = date.substring(0, 7);
     const selectedMonthStr = format(selectedMonth, 'yyyy-MM');
     
     if (dateMonth === selectedMonthStr) {
+      processedDates.add(date);
+      
       if (!groupedData[date]) {
         groupedData[date] = {
           transactions: [],
@@ -64,15 +71,20 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
           // Find original transaction to get patient information
           const originalTransaction = filteredTransactions.find(t => t.code === entry.transactionId);
           
-          if (originalTransaction) {
+          if (originalTransaction || entry.patientCode) {
+            const patientCode = entry.patientCode || originalTransaction?.patientCode;
+            const patientName = originalTransaction?.patientName || "Patient";
+            const firstName = originalTransaction?.firstName || "";
+            const lastName = originalTransaction?.lastName || "";
+            
             groupedData[date].transactions.push({
               id: `balance-${entry.transactionId}-${Date.now()}`,
               code: entry.description,
               date: date,
-              patientCode: originalTransaction.patientCode,
-              patientName: originalTransaction.patientName,
-              firstName: originalTransaction.firstName,
-              lastName: originalTransaction.lastName,
+              patientCode: patientCode,
+              patientName: patientName,
+              firstName: firstName,
+              lastName: lastName,
               type: "Balance Payment",
               grossAmount: entry.grossAmount,
               deposit: entry.deposit,
@@ -88,6 +100,59 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
           }
         }
       });
+    }
+  });
+  
+  // Next, check for persisted payments that might not be in memory
+  allPayments.forEach((payment: Payment) => {
+    const { paymentDate, transactionCode, patientCode, amount } = payment;
+    
+    // Only process if it's for the selected month and not already added
+    const paymentMonth = paymentDate.substring(0, 7);
+    const selectedMonthStr = format(selectedMonth, 'yyyy-MM');
+    
+    if (paymentMonth === selectedMonthStr && !processedDates.has(paymentDate)) {
+      // Find original transaction to get additional info
+      const originalTransaction = filteredTransactions.find(t => t.code === transactionCode);
+      
+      if (!groupedData[paymentDate]) {
+        groupedData[paymentDate] = {
+          transactions: [],
+          date: paymentDate
+        };
+      }
+      
+      // Only add if it's not already there (avoid duplicates)
+      const exists = groupedData[paymentDate].transactions.some(
+        tx => tx.isBalancePayment && tx.code === `${transactionCode} - Balance`
+      );
+      
+      if (!exists) {
+        const patientName = originalTransaction?.patientName || "Patient";
+        const firstName = originalTransaction?.firstName || "";
+        const lastName = originalTransaction?.lastName || "";
+        
+        groupedData[paymentDate].transactions.push({
+          id: `balance-${transactionCode}-${Date.now()}`,
+          code: `${transactionCode} - Balance`,
+          date: paymentDate,
+          patientCode: patientCode,
+          patientName: patientName,
+          firstName: firstName,
+          lastName: lastName,
+          type: "Balance Payment",
+          grossAmount: 0,
+          deposit: amount,
+          balance: 0,
+          lensCapital: 0,
+          edgingPrice: 0,
+          otherExpenses: 0,
+          totalExpenses: 0,
+          claimed: true,
+          dateClaimed: paymentDate,
+          isBalancePayment: true
+        });
+      }
     }
   });
 

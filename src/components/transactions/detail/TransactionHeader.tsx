@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 import { UnclaimConfirmDialog } from '../UnclaimConfirmDialog';
+import { addPayment, removePayment, findPayment } from '@/utils/paymentsUtils';
 
 interface TransactionHeaderProps {
   transaction: Transaction;
@@ -31,11 +32,12 @@ export function TransactionHeader({ transaction, onClaimedToggle }: TransactionH
     const balancePaid = localTransaction.balance;
     const today = new Date().toISOString().split('T')[0];
     
-    // Add balance sheet entry
+    // Add balance sheet entry with patient code for navigation
     addBalanceSheetEntry({
       date: today,
       transactionId: localTransaction.code,
-      balancePaid: balancePaid
+      balancePaid: balancePaid,
+      patientCode: localTransaction.patientCode
     });
     
     // Update local state
@@ -43,7 +45,8 @@ export function TransactionHeader({ transaction, onClaimedToggle }: TransactionH
       ...localTransaction,
       claimed: true,
       dateClaimed: today,
-      balance: 0
+      balance: 0,
+      deposit: localTransaction.deposit + balancePaid // Optionally update deposit (total collected)
     });
     
     // Call parent handler to update parent state
@@ -66,15 +69,18 @@ export function TransactionHeader({ transaction, onClaimedToggle }: TransactionH
       transactionId: localTransaction.code
     });
     
-    // Restore original balance
-    const restoredBalance = localTransaction.grossAmount - localTransaction.deposit;
+    // Find the payment amount to restore (should be the same as was paid)
+    const payment = findPayment(localTransaction.code, 'balance');
+    const amountToRestore = payment?.amount || 
+      (localTransaction.grossAmount - localTransaction.deposit + localTransaction.balance);
     
     // Update local state
     setLocalTransaction({
       ...localTransaction,
       claimed: false,
       dateClaimed: null,
-      balance: restoredBalance
+      balance: amountToRestore,
+      deposit: localTransaction.deposit - amountToRestore // Restore original deposit
     });
     
     // Call parent handler to update parent state

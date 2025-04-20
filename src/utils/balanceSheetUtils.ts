@@ -1,4 +1,6 @@
+
 import { Transaction } from '@/types';
+import { addPayment, removePayment } from './paymentsUtils';
 
 // In-memory storage for balance sheet entries
 // In a real app, this would use a database or API calls
@@ -8,6 +10,7 @@ interface BalanceSheetEntry {
   date: string;
   transactionId: string;
   balancePaid: number;
+  patientCode: string;  // Added patientCode for navigation
 }
 
 interface RemoveEntryParams {
@@ -16,9 +19,9 @@ interface RemoveEntryParams {
 }
 
 /**
- * Adds a balance entry to the balance sheet
+ * Adds a balance entry to the balance sheet and creates a payment record
  */
-export const addBalanceSheetEntry = ({ date, transactionId, balancePaid }: BalanceSheetEntry) => {
+export const addBalanceSheetEntry = ({ date, transactionId, balancePaid, patientCode }: BalanceSheetEntry) => {
   if (!balanceSheetEntries[date]) {
     balanceSheetEntries[date] = [];
   }
@@ -32,7 +35,16 @@ export const addBalanceSheetEntry = ({ date, transactionId, balancePaid }: Balan
     netIncome: balancePaid,
     isBalancePayment: true,
     transactionId,
-    // Note: Additional data needed for navigation will come from the original transaction
+    patientCode, // Store patientCode for navigation
+  });
+  
+  // Persist the payment
+  addPayment({
+    transactionCode: transactionId,
+    patientCode,
+    paymentType: 'balance',
+    amount: balancePaid,
+    paymentDate: date
   });
   
   console.log(`Added balance sheet entry for ${date}:`, balanceSheetEntries[date]);
@@ -40,7 +52,7 @@ export const addBalanceSheetEntry = ({ date, transactionId, balancePaid }: Balan
 };
 
 /**
- * Removes a balance entry from the balance sheet
+ * Removes a balance entry from the balance sheet and deletes the payment record
  */
 export const removeBalanceSheetEntry = ({ date, transactionId }: RemoveEntryParams) => {
   if (balanceSheetEntries[date]) {
@@ -52,6 +64,9 @@ export const removeBalanceSheetEntry = ({ date, transactionId }: RemoveEntryPara
       delete balanceSheetEntries[date];
     }
   }
+  
+  // Remove the payment record
+  removePayment(transactionId, 'balance');
   
   console.log(`Removed balance sheet entry for ${date}, transaction ${transactionId}`);
   triggerBalanceSheetUpdate();
@@ -81,3 +96,4 @@ const triggerBalanceSheetUpdate = () => {
   });
   window.dispatchEvent(event);
 };
+

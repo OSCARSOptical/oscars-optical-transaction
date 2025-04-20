@@ -12,6 +12,7 @@ import { PatientCard } from '@/components/transactions/detail/PatientCard';
 import { FinancialCard } from '@/components/transactions/detail/FinancialCard';
 import { InfoCard } from '@/components/transactions/detail/InfoCard';
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
+import { findPayment } from '@/utils/paymentsUtils';
 
 const TransactionDetail = () => {
   const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
@@ -20,74 +21,84 @@ const TransactionDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Fetch transaction data whenever the transaction code changes
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      const mockTransaction: Transaction = {
-        id: "1",
-        code: transactionCode || "TX25-04-00001",
-        date: "2025-04-10",
-        patientCode: "PX-JD-0000001",
-        patientName: "John Doe",
-        firstName: "John",
-        lastName: "Doe",
-        type: "Complete",
-        grossAmount: 7500.00,
-        deposit: 2500.00,
-        balance: 5000.00,
-        lensCapital: 1200.00,
-        edgingPrice: 150.00,
-        otherExpenses: 50.00,
-        totalExpenses: 1400.00,
-        claimed: true,
-        dateClaimed: "2025-04-15"
-      };
+    const fetchTransactionData = () => {
+      setLoading(true);
       
-      setTransaction(mockTransaction);
-      setLoading(false);
-    }, 500);
-  }, [transactionCode]);
+      // In a real app, this would be an API call that fetches the latest data
+      setTimeout(() => {
+        let mockTransaction: Transaction = {
+          id: "1",
+          code: transactionCode || "TX25-04-00001",
+          date: "2025-04-10",
+          patientCode: patientCode || "PX-JD-0000001",
+          patientName: "John Doe",
+          firstName: "John",
+          lastName: "Doe",
+          type: "Complete",
+          grossAmount: 7500.00,
+          deposit: 2500.00,
+          balance: 5000.00,
+          lensCapital: 1200.00,
+          edgingPrice: 150.00,
+          otherExpenses: 50.00,
+          totalExpenses: 1400.00,
+          claimed: false,
+          dateClaimed: null
+        };
+        
+        // Check if there's a payment record for this transaction
+        const payment = findPayment(transactionCode || "", 'balance');
+        
+        if (payment) {
+          // If payment exists, update the transaction to reflect claimed status
+          mockTransaction = {
+            ...mockTransaction,
+            claimed: true,
+            dateClaimed: payment.paymentDate,
+            balance: 0,
+            deposit: mockTransaction.deposit + payment.amount
+          };
+        }
+        
+        setTransaction(mockTransaction);
+        setLoading(false);
+      }, 500);
+    };
+    
+    fetchTransactionData();
+    
+    // Set up event listener for balance sheet updates to refresh data
+    const handleBalanceSheetUpdate = () => {
+      fetchTransactionData();
+    };
+    
+    window.addEventListener('balanceSheetUpdated', handleBalanceSheetUpdate);
+    
+    return () => {
+      window.removeEventListener('balanceSheetUpdated', handleBalanceSheetUpdate);
+    };
+  }, [transactionCode, patientCode]);
 
   const handleClaimedToggle = () => {
     if (!transaction) return;
     
-    if (transaction.claimed) {
-      // Unclaiming a transaction
-      if (transaction.dateClaimed) {
-        removeBalanceSheetEntry({
-          date: transaction.dateClaimed,
-          transactionId: transaction.code
-        });
-      }
+    // This function now just triggers a re-fetch of the transaction
+    // The actual claiming/unclaiming logic is in the TransactionHeader component
+    setTransaction(prevTransaction => {
+      if (!prevTransaction) return null;
       
-      // Restore the balance
-      const restoredBalance = transaction.grossAmount - transaction.deposit;
-      
-      setTransaction({
-        ...transaction,
-        claimed: false,
-        dateClaimed: null,
-        balance: restoredBalance
-      });
-    } else {
-      // Claiming a transaction
-      const today = new Date().toISOString().split('T')[0];
-      const balancePaid = transaction.balance;
-      
-      // Add balance sheet entry
-      addBalanceSheetEntry({
-        date: today,
-        transactionId: transaction.code,
-        balancePaid
-      });
-      
-      setTransaction({
-        ...transaction,
-        claimed: true,
-        dateClaimed: today,
-        balance: 0
-      });
-    }
+      return {
+        ...prevTransaction,
+        claimed: !prevTransaction.claimed,
+        dateClaimed: !prevTransaction.claimed ? new Date().toISOString().split('T')[0] : null,
+        balance: !prevTransaction.claimed ? 0 : prevTransaction.grossAmount - prevTransaction.deposit,
+        deposit: !prevTransaction.claimed ? 
+          prevTransaction.deposit + prevTransaction.balance : 
+          prevTransaction.deposit - prevTransaction.balance
+      };
+    });
     
     toast({
       title: "✓ Saved!",
