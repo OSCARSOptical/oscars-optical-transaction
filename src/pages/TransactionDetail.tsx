@@ -1,36 +1,32 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
-import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import { useEffect, useState } from 'react';
 import { Transaction } from '@/types';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import BreadcrumbNav from '@/components/layout/Breadcrumb';
+
 import { TransactionHeader } from '@/components/transactions/detail/TransactionHeader';
-import { PatientCard } from '@/components/transactions/detail/PatientCard';
-import { FinancialCard } from '@/components/transactions/detail/FinancialCard';
-import { InfoCard } from '@/components/transactions/detail/InfoCard';
+import { PatientInfo } from '@/components/transactions/create/PatientInfo';
 import { OrderDetailsCard } from '@/components/transactions/detail/OrderDetailsCard';
-import { RefractionCard } from '@/components/transactions/detail/RefractionCard';
-import { DoctorRemarksCard } from '@/components/transactions/detail/DoctorRemarksCard';
+import RefractionDetails from '@/components/transactions/create/RefractionDetails';
+import DoctorRemarks from '@/components/transactions/create/DoctorRemarks';
 import { OrderNotesCard } from '@/components/transactions/detail/OrderNotesCard';
-import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
-import { findPayment } from '@/utils/paymentsUtils';
+import FinancialDetails from '@/components/transactions/create/FinancialDetails';
 
 const TransactionDetail = () => {
   const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Fetch transaction data whenever the transaction code changes
   useEffect(() => {
     const fetchTransactionData = () => {
       setLoading(true);
       
-      // In a real app, this would be an API call that fetches the latest data
       setTimeout(() => {
         let mockTransaction: Transaction = {
           id: "1",
@@ -52,11 +48,9 @@ const TransactionDetail = () => {
           dateClaimed: null
         };
         
-        // Check if there's a payment record for this transaction
         const payment = findPayment(transactionCode || "", 'balance');
         
         if (payment) {
-          // If payment exists, update the transaction to reflect claimed status
           mockTransaction = {
             ...mockTransaction,
             claimed: true,
@@ -73,7 +67,6 @@ const TransactionDetail = () => {
     
     fetchTransactionData();
     
-    // Set up event listener for balance sheet updates to refresh data
     const handleBalanceSheetUpdate = () => {
       fetchTransactionData();
     };
@@ -88,8 +81,6 @@ const TransactionDetail = () => {
   const handleClaimedToggle = () => {
     if (!transaction) return;
     
-    // This function now just triggers a re-fetch of the transaction
-    // The actual claiming/unclaiming logic is in the TransactionHeader component
     setTransaction(prevTransaction => {
       if (!prevTransaction) return null;
       
@@ -111,12 +102,18 @@ const TransactionDetail = () => {
     });
   };
 
+  const handleEdit = () => {
+    navigate(`/transactions/edit/${transaction?.code}`, { 
+      state: { transaction } 
+    });
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
         <BreadcrumbNav 
           items={[
-            { label: 'Patients', href: '/patients' },
+            { label: 'Transactions', href: '/transactions' },
             { label: 'Loading...' }
           ]}
         />
@@ -132,57 +129,92 @@ const TransactionDetail = () => {
       <div className="space-y-4">
         <BreadcrumbNav 
           items={[
-            { label: 'Patients', href: '/patients' }
+            { label: 'Transactions', href: '/transactions' }
           ]}
         />
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Transaction not found</AlertTitle>
           <AlertDescription>
             The transaction with code {transactionCode} could not be found.
           </AlertDescription>
         </Alert>
-        <Button onClick={() => navigate('/patients')}>
-          Return to Patients
+        <Button onClick={() => navigate('/transactions')}>
+          Return to Transactions
         </Button>
       </div>
     );
   }
 
+  const breadcrumbItems = [
+    { label: 'Transactions', href: '/transactions' },
+    { label: transaction.patientName, href: `/patients/${transaction.patientCode}` },
+    { label: transaction.code }
+  ];
+
   return (
-    <div className="space-y-6">
-      <BreadcrumbNav 
-        items={[
-          { label: 'Patients', href: '/patients' },
-          { label: transaction.patientName, href: `/patients/${transaction.patientCode}` },
-          { label: transaction.code }
-        ]}
-      />
+    <div className="space-y-6 pb-16">
+      <div className="flex justify-between items-start">
+        <BreadcrumbNav items={breadcrumbItems} />
+        <Button onClick={handleEdit} variant="outline">
+          <Edit className="mr-2 h-4 w-4" />
+          Edit
+        </Button>
+      </div>
       
       <TransactionHeader 
         transaction={transaction}
         onClaimedToggle={handleClaimedToggle}
       />
       
-      <PatientCard transaction={transaction} />
-      
-      <FinancialCard transaction={transaction} />
-      
-      <InfoCard title="Order Details">
+      <div className="grid gap-6">
+        <PatientInfo 
+          patient={{
+            id: transaction.patientCode,
+            code: transaction.patientCode,
+            firstName: transaction.firstName,
+            lastName: transaction.lastName,
+            age: 0,
+            email: "",
+            phone: "",
+            address: ""
+          }}
+          readOnly={true}
+        />
+
         <OrderDetailsCard transaction={transaction} />
-      </InfoCard>
-      
-      <InfoCard title="Refraction Details">
-        <RefractionCard transaction={transaction} />
-      </InfoCard>
-      
-      <InfoCard title="Doctor & Remarks">
-        <DoctorRemarksCard transaction={transaction} />
-      </InfoCard>
-      
-      <InfoCard title="Order Notes">
+        
+        <RefractionDetails 
+          readOnly={true}
+          initialData={{
+            previousRx: transaction.previousRx,
+            fullRx: transaction.fullRx,
+            prescribedPower: transaction.prescribedPower,
+            interpupillaryDistance: transaction.interpupillaryDistance
+          }}
+        />
+
+        <DoctorRemarks 
+          readOnly={true}
+          initialData={{
+            doctorId: transaction.doctorId,
+            remarks: transaction.doctorRemarks
+          }}
+        />
+
+        <FinancialDetails 
+          readOnly={true}
+          initialData={{
+            grossAmount: transaction.grossAmount,
+            deposit: transaction.deposit,
+            lensCapital: transaction.lensCapital,
+            edgingPrice: transaction.edgingPrice,
+            otherExpenses: transaction.otherExpenses
+          }}
+        />
+
         <OrderNotesCard transaction={transaction} />
-      </InfoCard>
+      </div>
     </div>
   );
 };
