@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -15,15 +14,23 @@ import OrderDetails from "@/components/transactions/create/OrderDetails";
 import RefractionDetails from "@/components/transactions/create/RefractionDetails";
 import DoctorRemarks from "@/components/transactions/create/DoctorRemarks";
 import FinancialDetails from "@/components/transactions/create/FinancialDetails";
+import { Patient } from "@/types";
 
 const NewTransactionPage = () => {
   const { patientId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { patient } = usePatientData(patientId);
+  const { patient: initialPatient } = usePatientData(patientId);
   const { generateTransactionCode } = useTransactionCode();
   const [transactionType, setTransactionType] = useState<string>("Complete");
   const [transactionCode] = useState<string>(generateTransactionCode());
+  const [patient, setPatient] = useState<Patient | undefined>(undefined);
+
+  // Update patient state whenever initialPatient changes
+  // This keeps us in sync with the initial data but allows for live updates
+  if (initialPatient && (!patient || patient.id !== initialPatient.id)) {
+    setPatient(initialPatient);
+  }
 
   const handleSave = () => {
     toast({
@@ -53,7 +60,9 @@ const NewTransactionPage = () => {
           patient={patient} 
           transactionCode={transactionCode}
         />
-        <PatientInfo patient={patient} />
+        <PatientInfo 
+          patient={patient} 
+        />
         <RefractionDetails />
         <DoctorRemarks />
         <OrderDetails initialType={transactionType} onTypeChange={setTransactionType} />
