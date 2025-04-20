@@ -1,4 +1,5 @@
 
+import { useLocation } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,17 @@ interface FloatingActionButtonProps {
 }
 
 const FloatingActionButton = ({ onClick }: FloatingActionButtonProps) => {
+  const location = useLocation();
+  const path = location.pathname;
+  
+  // Only show the FAB on Patients and Transactions pages
+  const showFAB = path === '/patients' || 
+                 path.startsWith('/patients/') || 
+                 path === '/transactions' || 
+                 path.startsWith('/transactions/');
+  
+  if (!showFAB) return null;
+  
   return (
     <Tooltip>
       <TooltipTrigger asChild>
