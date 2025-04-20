@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { MoreHorizontal, Check } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Transaction } from '@/types';
 
 interface TransactionTableProps {
@@ -62,25 +62,59 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   };
 
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
+    if (currentValue) return; // If already claimed, do nothing
+    
     const updatedTransactions = localTransactions.map(transaction => {
       if (transaction.id === id) {
+        // 1. Create a balance payment transaction (would be added to the database in a real app)
+        const today = new Date().toISOString().split('T')[0];
+        
+        // In a real app we would create a new transaction here with this data
+        const balancePaymentTransaction = {
+          id: `bp-${transaction.id}`, // Just for demo purposes
+          code: `BP-${transaction.code}`,
+          date: today,
+          patientCode: transaction.patientCode,
+          patientName: transaction.patientName,
+          firstName: transaction.firstName,
+          lastName: transaction.lastName,
+          type: transaction.type,
+          grossAmount: 0,
+          deposit: transaction.balance, // Move balance to deposit
+          balance: 0,
+          lensCapital: 0,
+          edgingPrice: 0,
+          otherExpenses: 0,
+          totalExpenses: 0,
+          claimed: true,
+          dateClaimed: today
+        };
+        
+        // 2. Update the original transaction
         const updatedTransaction = {
           ...transaction,
-          claimed: !currentValue,
-          dateClaimed: !currentValue ? new Date().toISOString() : null
+          claimed: true,
+          dateClaimed: today,
+          balance: 0 // Set balance to 0
         };
+        
+        // In a real app, we would dispatch an action to update the balance sheet
+        // and trigger a refresh of the dashboard stats
+        
+        // Show a toast notification
+        toast({
+          title: "✓ Payment Claimed!",
+          description: `Balance of ${formatCurrency(transaction.balance)} has been collected and recorded.`,
+          className: "bg-[#FFC42B] text-[#241715] rounded-lg",
+          duration: 3000,
+        });
+        
         return updatedTransaction;
       }
       return transaction;
     });
     
     setLocalTransactions(updatedTransactions);
-    
-    toast({
-      title: "✓ Saved!",
-      className: "bg-[#FFC42B] text-[#241715] rounded-lg",
-      duration: 2000,
-    });
   };
 
   return (
@@ -133,7 +167,6 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
                     onCheckedChange={() => handleClaimedToggle(transaction.id, transaction.claimed)}
                     id={`claimed-${transaction.id}`}
                   />
-                  {transaction.claimed && <Check className="h-4 w-4 text-green-500" />}
                 </div>
               </TableCell>
               <TableCell>

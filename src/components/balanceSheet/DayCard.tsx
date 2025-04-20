@@ -18,7 +18,7 @@ interface DayCardProps {
 export function DayCard({ date, transactions }: DayCardProps) {
   const navigate = useNavigate();
   const dateObj = parse(date, 'yyyy-MM-dd', new Date());
-  const formattedDate = format(dateObj, "MMMM d yyyy");
+  const formattedDate = format(dateObj, "MMMM d, yyyy");
   const dayName = format(dateObj, "EEEE");
   
   const totalGrossAmount = transactions.reduce((sum, tx) => sum + tx.grossAmount, 0);
@@ -42,26 +42,6 @@ export function DayCard({ date, transactions }: DayCardProps) {
             <span className="font-bold">{formattedDate}</span>
             <span className="text-muted-foreground ml-2 font-normal">{dayName}</span>
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Gross Amount</span>
-              <p className="font-semibold">{formatCurrency(totalGrossAmount)}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Deposits Received</span>
-              <p className="font-semibold">{formatCurrency(totalDeposits)}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Total Expenses</span>
-              <p className="font-semibold">{formatCurrency(totalExpenses)}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Daily Net Income</span>
-              <p className={`font-semibold ${dailyNetIncome >= 0 ? 'text-[#009B29]' : 'text-[#9E0214]'}`}>
-                {formatCurrency(dailyNetIncome)}
-              </p>
-            </div>
-          </div>
         </div>
       </CardHeader>
       

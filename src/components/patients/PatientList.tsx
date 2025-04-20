@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -163,24 +164,47 @@ export function PatientList() {
               const latestTransaction = getLatestTransaction(patient.code);
               
               return (
-                <TableRow key={patient.id} className="cursor-pointer hover:bg-gray-50" onClick={() => navigate(`/patients/${patient.code}`)}>
+                <TableRow key={patient.id}>
                   <TableCell className="font-medium">
-                    {patient.firstName} {patient.lastName}
+                    <a 
+                      href={`/patients/${patient.code}`}
+                      className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/patients/${patient.code}`);
+                      }}
+                    >
+                      {patient.firstName} {patient.lastName}
+                    </a>
                   </TableCell>
-                  <TableCell>{patient.code}</TableCell>
+                  <TableCell>
+                    <a 
+                      href={`/patients/${patient.code}`}
+                      className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/patients/${patient.code}`);
+                      }}
+                    >
+                      {patient.code}
+                    </a>
+                  </TableCell>
                   <TableCell>{patient.age}</TableCell>
                   <TableCell>{patient.phone}</TableCell>
                   <TableCell>{patient.email}</TableCell>
-                  <TableCell 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (latestTransaction) {
-                        navigate(`/transactions/${latestTransaction.code}`);
-                      }
-                    }}
-                    className={latestTransaction ? "text-[#9E0214] hover:underline" : ""}
-                  >
-                    {latestTransaction ? latestTransaction.code : "—"}
+                  <TableCell>
+                    {latestTransaction ? (
+                      <a 
+                        href={`/transactions/${latestTransaction.code}`}
+                        className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate(`/transactions/${latestTransaction.code}`);
+                        }}
+                      >
+                        {latestTransaction.code}
+                      </a>
+                    ) : "—"}
                   </TableCell>
                 </TableRow>
               );
