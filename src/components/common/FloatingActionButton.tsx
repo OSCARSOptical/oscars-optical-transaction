@@ -1,3 +1,4 @@
+
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ const FloatingActionButton = ({ onClick }: FloatingActionButtonProps) => {
           onClick={onClick}
           size="icon"
           className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-[#9E0214] hover:bg-[#7c0110]"
+          aria-label="Add New Transaction"
         >
           <Plus className="h-6 w-6" />
         </Button>

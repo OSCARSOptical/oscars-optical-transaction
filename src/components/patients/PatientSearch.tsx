@@ -22,33 +22,43 @@ const PatientSearch = ({ onSelect, onBack }: PatientSearchProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<Patient[]>([]);
   
-  // Simulated database - in a real app, this would come from your backend
-  const mockPatients: Patient[] = [
+  // Use the same sample data as in PatientList
+  const samplePatients: Patient[] = [
     {
-      id: "1",
-      code: "PX-JD-0000001",
-      firstName: "Jane",
-      lastName: "Doe",
-      age: 38,
-      email: "jane@example.com",
-      phone: "+1234567890",
-      address: "123 Main St"
+      id: '12345',
+      firstName: 'John',
+      lastName: 'Doe',
+      age: 35,
+      email: 'john@example.com',
+      phone: '555-123-4567',
+      address: '123 Main St, City, State',
+      code: 'PX-JD-0000001'
+    }, 
+    {
+      id: '67890',
+      firstName: 'Jane',
+      lastName: 'Smith',
+      age: 28,
+      email: 'jane@example.com',
+      phone: '555-987-6543',
+      address: '456 Oak St, City, State',
+      code: 'PX-JS-0000001'
     },
     {
-      id: "2",
-      code: "PX-JS-0000001",
-      firstName: "Janet",
-      lastName: "Smith",
-      age: 35,
-      email: "janet@example.com",
-      phone: "+1234567891",
-      address: "456 Oak Ave"
+      id: '54321',
+      firstName: 'Oscar',
+      lastName: 'Santos',
+      age: 40,
+      email: 'oscar@example.com',
+      phone: '555-555-1111',
+      address: '789 Pine St, City, State',
+      code: 'PX-OS-0000001'
     }
   ];
 
   // Show most recent patients by default
   useEffect(() => {
-    setResults(mockPatients);
+    setResults(samplePatients);
   }, []);
 
   const handleSearch = (value: string) => {
@@ -56,11 +66,11 @@ const PatientSearch = ({ onSelect, onBack }: PatientSearchProps) => {
     const query = value.toLowerCase();
     
     if (!query) {
-      setResults(mockPatients);
+      setResults(samplePatients);
       return;
     }
 
-    const filtered = mockPatients.filter(patient => {
+    const filtered = samplePatients.filter(patient => {
       const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
       const nameParts = query.split(' ');
       

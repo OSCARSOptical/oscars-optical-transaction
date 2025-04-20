@@ -1,7 +1,13 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogDescription 
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Patient } from "@/types";
 import PatientSearch from "../patients/PatientSearch";
@@ -101,6 +107,9 @@ const NewTransactionModal = ({ isOpen, onClose }: NewTransactionModalProps) => {
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Add New Transaction</DialogTitle>
+          <DialogDescription>
+            Choose an existing patient or add a new one to create a transaction.
+          </DialogDescription>
         </DialogHeader>
         {renderContent()}
       </DialogContent>
