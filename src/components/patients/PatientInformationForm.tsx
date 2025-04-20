@@ -1,5 +1,6 @@
 
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Patient } from '@/types';
 
 interface PatientInformationFormProps {
@@ -38,10 +39,36 @@ export function PatientInformationForm({ patient, isEditing, onPatientChange }: 
           />
         </div>
         <div>
+          <label className="text-sm font-medium">Sex</label>
+          <Select 
+            value={patient.sex || 'Other'} 
+            onValueChange={(value) => onPatientChange({ ...patient, sex: value as 'Male' | 'Female' | 'Other' })}
+            disabled={!isEditing}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select sex" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Male">Male</SelectItem>
+              <SelectItem value="Female">Female</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
           <label className="text-sm font-medium">Contact Number</label>
           <Input
             value={patient.phone}
             onChange={(e) => onPatientChange({ ...patient, phone: e.target.value })}
+            disabled={!isEditing}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium">Email</label>
+          <Input
+            type="email"
+            value={patient.email}
+            onChange={(e) => onPatientChange({ ...patient, email: e.target.value })}
             disabled={!isEditing}
           />
         </div>
@@ -50,15 +77,6 @@ export function PatientInformationForm({ patient, isEditing, onPatientChange }: 
           <Input
             value={patient.address}
             onChange={(e) => onPatientChange({ ...patient, address: e.target.value })}
-            disabled={!isEditing}
-          />
-        </div>
-        <div className="col-span-2">
-          <label className="text-sm font-medium">Email</label>
-          <Input
-            type="email"
-            value={patient.email}
-            onChange={(e) => onPatientChange({ ...patient, email: e.target.value })}
             disabled={!isEditing}
           />
         </div>

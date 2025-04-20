@@ -5,10 +5,33 @@ export interface Patient {
   firstName: string;
   lastName: string;
   age: number;
+  sex?: 'Male' | 'Female' | 'Other';
   email: string;
   phone: string;
   address: string;
-  createdDate?: string; // Added to track when patients were created
+  createdDate?: string;
+}
+
+export interface RefractionData {
+  OD: {
+    sphere: number | "Plano";
+    cylinder: number;
+    axis: number;
+    visualAcuity: string;
+  };
+  OS: {
+    sphere: number | "Plano";
+    cylinder: number;
+    axis: number;
+    visualAcuity: string;
+  };
+  ADD?: {
+    sphere?: number | "Plano";
+    cylinder?: number;
+    axis?: number;
+    visualAcuity?: string;
+    addPower?: number;
+  };
 }
 
 export interface Transaction {
@@ -20,6 +43,19 @@ export interface Transaction {
   firstName: string;
   lastName: string;
   type: 'Complete' | 'Frame Replacement' | 'Lens Replacement' | 'Eye Exam' | 'Medical Certificate' | 'Contact Lens' | 'Repair' | 'Return' | 'Balance Payment';
+  
+  // Order Details
+  refractiveIndex?: '1.56' | '1.61' | '1.67' | '1.74';
+  lensType?: 'SV' | 'KK' | 'Prog' | 'N/A';
+  lensCoating?: 'UC' | 'MC' | 'BB' | 'TRG' | 'BB TRG';
+  interpupillaryDistance?: number;
+
+  // Refraction
+  previousRx?: RefractionData;
+  fullRx?: RefractionData;
+  prescribedPower?: RefractionData;
+
+  // Financials
   grossAmount: number;
   deposit: number;
   balance: number;
@@ -27,7 +63,23 @@ export interface Transaction {
   edgingPrice: number;
   otherExpenses: number;
   totalExpenses: number;
+  netIncome?: number;
+  
+  // Doctor & Notes
+  doctorId?: string;
+  doctorRemarks?: string;
+  orderNotes?: string;
+  
+  // Claiming
   claimed: boolean;
   dateClaimed: string | null;
   isBalancePayment?: boolean;
+}
+
+export interface DailyTransaction {
+  date: string;
+  transactions: Transaction[];
+  dailyGross: number;
+  dailyExpenses: number;
+  dailyNet: number;
 }
