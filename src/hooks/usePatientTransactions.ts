@@ -41,6 +41,25 @@ const allTransactions: Transaction[] = [
     totalExpenses: 175,
     claimed: true,
     dateClaimed: "2025-04-10"
+  },
+  {
+    id: "3",
+    code: "TX25-04-00003",
+    date: "2025-04-11",
+    patientCode: "PX-OS-0000001",
+    patientName: "Oscar Santos",
+    firstName: "Oscar",
+    lastName: "Santos",
+    type: "Frame Replacement",
+    grossAmount: 6800.00,
+    deposit: 6800.00,
+    balance: 0.00,
+    lensCapital: 2800.00,
+    edgingPrice: 200.00,
+    otherExpenses: 100.00,
+    totalExpenses: 3100.00,
+    claimed: false,
+    dateClaimed: null
   }
 ];
 
@@ -53,6 +72,8 @@ export function usePatientTransactions(patientCode: string) {
     const fetchTransactions = async () => {
       try {
         setLoading(true);
+        console.log("Fetching transactions for patient:", patientCode);
+        
         // Simulate API call delay
         await new Promise(resolve => setTimeout(resolve, 500));
         
@@ -61,6 +82,7 @@ export function usePatientTransactions(patientCode: string) {
           transaction => transaction.patientCode === patientCode
         );
         
+        console.log("Found transactions:", patientTransactions.length);
         setTransactions(patientTransactions);
         setError(null);
       } catch (err) {
@@ -71,9 +93,13 @@ export function usePatientTransactions(patientCode: string) {
       }
     };
 
-    fetchTransactions();
+    if (patientCode) {
+      fetchTransactions();
+    } else {
+      setTransactions([]);
+      setLoading(false);
+    }
   }, [patientCode]);
 
   return { transactions, loading, error };
 }
-

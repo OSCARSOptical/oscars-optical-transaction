@@ -197,11 +197,11 @@ export function PatientList() {
                   <TableCell>
                     {latestTransaction ? (
                       <a 
-                        href={`/transactions/${latestTransaction.code}`}
+                        href={`/patients/${patient.code}/transactions/${latestTransaction.code}`}
                         className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
                         onClick={(e) => {
                           e.preventDefault();
-                          navigate(`/transactions/${latestTransaction.code}`);
+                          navigate(`/patients/${patient.code}/transactions/${latestTransaction.code}`);
                         }}
                       >
                         {latestTransaction.code}
