@@ -8,6 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useNavigate } from "react-router-dom";
 
 interface DayCardProps {
   date: string;
@@ -15,6 +16,7 @@ interface DayCardProps {
 }
 
 export function DayCard({ date, transactions }: DayCardProps) {
+  const navigate = useNavigate();
   const dateObj = parse(date, 'yyyy-MM-dd', new Date());
   const formattedDate = format(dateObj, "MMMM d yyyy");
   const dayName = format(dateObj, "EEEE");

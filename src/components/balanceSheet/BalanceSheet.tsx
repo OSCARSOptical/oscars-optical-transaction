@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { format, parse } from "date-fns";
@@ -111,25 +110,6 @@ export function BalanceSheet() {
     netIncome: filteredTransactions.reduce((sum, tx) => sum + tx.deposit - tx.totalExpenses, 0)
   };
 
-  // Calculate running balance for each day
-  let runningBalance = 0;
-  const daysWithBalance = [...sortedDates].reverse().map(date => {
-    const dayData = groupedData[date];
-    
-    const dayDeposits = dayData.transactions.reduce((sum, tx) => sum + tx.deposit, 0);
-    const dayExpenses = dayData.transactions.reduce((sum, tx) => sum + tx.totalExpenses, 0);
-    const dayNetIncome = dayDeposits - dayExpenses;
-    
-    const startingBalance = runningBalance;
-    runningBalance += dayNetIncome;
-    
-    return {
-      ...dayData,
-      startingBalance,
-      endingBalance: runningBalance
-    };
-  }).reverse();
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -149,14 +129,12 @@ export function BalanceSheet() {
       
       <MonthlySummary totals={monthlyTotals} />
       
-      {daysWithBalance.length > 0 ? (
-        daysWithBalance.map((dayData, index) => (
+      {sortedDates.length > 0 ? (
+        sortedDates.map((date) => (
           <DayCard
-            key={dayData.date}
-            date={dayData.date}
-            transactions={dayData.transactions}
-            startingBalance={dayData.startingBalance}
-            endingBalance={dayData.endingBalance}
+            key={date}
+            date={date}
+            transactions={groupedData[date].transactions}
           />
         ))
       ) : (
