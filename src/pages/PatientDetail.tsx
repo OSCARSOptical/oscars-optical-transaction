@@ -69,7 +69,7 @@ const PatientDetailPage = () => {
           email: storedEmail || foundPatient.email,
           phone: storedPhone || foundPatient.phone,
           address: storedAddress || foundPatient.address,
-          sex: (storedSex as 'Male' | 'Female' | 'Other') || foundPatient.sex
+          sex: (storedSex as 'Male' | 'Female') || foundPatient.sex
         });
       } else {
         setPatient(foundPatient);

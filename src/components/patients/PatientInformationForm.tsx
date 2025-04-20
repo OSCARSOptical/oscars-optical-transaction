@@ -41,8 +41,8 @@ export function PatientInformationForm({ patient, isEditing, onPatientChange }: 
         <div>
           <label className="text-sm font-medium">Sex</label>
           <Select 
-            value={patient.sex || 'Other'} 
-            onValueChange={(value) => onPatientChange({ ...patient, sex: value as 'Male' | 'Female' | 'Other' })}
+            value={patient.sex || 'Male'} 
+            onValueChange={(value) => onPatientChange({ ...patient, sex: value as 'Male' | 'Female' })}
             disabled={!isEditing}
           >
             <SelectTrigger>
@@ -51,7 +51,6 @@ export function PatientInformationForm({ patient, isEditing, onPatientChange }: 
             <SelectContent>
               <SelectItem value="Male">Male</SelectItem>
               <SelectItem value="Female">Female</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
