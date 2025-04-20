@@ -8,6 +8,7 @@ import { TransactionListHeader } from './TransactionListHeader';
 import { Transaction } from '@/types';
 
 // This would come from a shared data source in a real app
+// We're using the same data source as the PatientTransactionHistory component
 const sampleTransactions: Transaction[] = [
   {
     id: '1',
@@ -17,10 +18,10 @@ const sampleTransactions: Transaction[] = [
     patientName: 'John Doe',
     firstName: 'John',
     lastName: 'Doe',
-    type: 'Complete',
-    grossAmount: 75.00,
-    deposit: 25.00,
-    balance: 50.00
+    type: 'Eye Exam',
+    grossAmount: 150.00,
+    deposit: 50.00,
+    balance: 100.00
   },
   {
     id: '2',
@@ -30,10 +31,10 @@ const sampleTransactions: Transaction[] = [
     patientName: 'Jane Smith',
     firstName: 'Jane',
     lastName: 'Smith',
-    type: 'Eye Exam',
-    grossAmount: 120.50,
-    deposit: 60.25,
-    balance: 60.25
+    type: 'Frame Replacement',
+    grossAmount: 300.00,
+    deposit: 150.00,
+    balance: 150.00
   }
 ];
 

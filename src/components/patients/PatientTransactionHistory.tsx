@@ -115,7 +115,14 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
             transactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell>{formatDate(transaction.date)}</TableCell>
-                <TableCell>{transaction.code}</TableCell>
+                <TableCell>
+                  <span 
+                    className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+                    onClick={() => navigate(`/transactions/${transaction.code}`)}
+                  >
+                    {transaction.code}
+                  </span>
+                </TableCell>
                 <TableCell>{transaction.type}</TableCell>
                 <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
