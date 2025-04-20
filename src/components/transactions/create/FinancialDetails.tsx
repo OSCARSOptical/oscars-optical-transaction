@@ -1,26 +1,51 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatCurrency } from "@/utils/formatters";
+import { Label } from "@/components/ui/label";
 
-const FinancialDetails = () => {
-  const [grossAmount, setGrossAmount] = useState<number>(0);
-  const [deposit, setDeposit] = useState<number>(0);
-  const [lensCapital, setLensCapital] = useState<number>(0);
-  const [edgingPrice, setEdgingPrice] = useState<number>(0);
-  const [otherExpenses, setOtherExpenses] = useState<number>(0);
+interface FinancialDetailsProps {
+  readOnly?: boolean;
+  initialData?: {
+    grossAmount?: number;
+    deposit?: number;
+    lensCapital?: number;
+    edgingPrice?: number;
+    otherExpenses?: number;
+  };
+}
 
-  const balance = grossAmount - deposit;
-  const totalExpenses = lensCapital + edgingPrice + otherExpenses;
-  const netIncome = deposit - totalExpenses;
+const FinancialDetails = ({ readOnly = false, initialData }: FinancialDetailsProps) => {
+  const [grossAmount, setGrossAmount] = useState<number>(initialData?.grossAmount || 0);
+  const [deposit, setDeposit] = useState<number>(initialData?.deposit || 0);
+  const [balance, setBalance] = useState<number>(0);
+  const [lensCapital, setLensCapital] = useState<number>(initialData?.lensCapital || 0);
+  const [edgingPrice, setEdgingPrice] = useState<number>(initialData?.edgingPrice || 0);
+  const [otherExpenses, setOtherExpenses] = useState<number>(initialData?.otherExpenses || 0);
+  const [totalExpenses, setTotalExpenses] = useState<number>(0);
+  const [netIncome, setNetIncome] = useState<number>(0);
 
-  const handleNumberInput = (value: string, setter: (num: number) => void) => {
-    const numValue = value === "" ? 0 : Number(value);
-    if (!isNaN(numValue)) {
-      setter(numValue);
-    }
+  useEffect(() => {
+    // Calculate balance
+    const calculatedBalance = grossAmount - deposit;
+    setBalance(calculatedBalance);
+    
+    // Calculate total expenses
+    const calculatedTotalExpenses = lensCapital + edgingPrice + otherExpenses;
+    setTotalExpenses(calculatedTotalExpenses);
+    
+    // Calculate net income
+    const calculatedNetIncome = deposit - calculatedTotalExpenses;
+    setNetIncome(calculatedNetIncome);
+  }, [grossAmount, deposit, lensCapital, edgingPrice, otherExpenses]);
+
+  // Format number for display
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      minimumFractionDigits: 2
+    }).format(value);
   };
 
   return (
@@ -29,103 +54,107 @@ const FinancialDetails = () => {
         <CardTitle className="text-lg font-medium">Financial Details</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell>Gross Amount</TableCell>
-              <TableCell className="text-right">
+        <div className="grid gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="grossAmount">Gross Amount</Label>
+              <Input
+                id="grossAmount"
+                type="number"
+                step="0.01"
+                value={grossAmount}
+                onChange={readOnly ? undefined : (e) => setGrossAmount(parseFloat(e.target.value) || 0)}
+                readOnly={readOnly}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="deposit">Deposit</Label>
+              <Input
+                id="deposit"
+                type="number"
+                step="0.01"
+                value={deposit}
+                onChange={readOnly ? undefined : (e) => setDeposit(parseFloat(e.target.value) || 0)}
+                readOnly={readOnly}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="balance">Balance</Label>
+              <Input
+                id="balance"
+                type="number"
+                value={balance}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+          </div>
+          
+          <div className="pt-4 border-t">
+            <h3 className="font-medium mb-2">Expenses</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="lensCapital">Lens Capital</Label>
                 <Input
+                  id="lensCapital"
                   type="number"
-                  min="0"
-                  value={grossAmount || ""}
-                  onChange={(e) => handleNumberInput(e.target.value, setGrossAmount)}
-                  className="w-32 text-right ml-auto"
+                  step="0.01"
+                  value={lensCapital}
+                  onChange={readOnly ? undefined : (e) => setLensCapital(parseFloat(e.target.value) || 0)}
+                  readOnly={readOnly}
                 />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Deposit</TableCell>
-              <TableCell className="text-right">
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edgingPrice">Edging Price</Label>
                 <Input
+                  id="edgingPrice"
                   type="number"
-                  min="0"
-                  max={grossAmount}
-                  value={deposit || ""}
-                  onChange={(e) => handleNumberInput(e.target.value, setDeposit)}
-                  className="w-32 text-right ml-auto"
+                  step="0.01"
+                  value={edgingPrice}
+                  onChange={readOnly ? undefined : (e) => setEdgingPrice(parseFloat(e.target.value) || 0)}
+                  readOnly={readOnly}
                 />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Balance</TableCell>
-              <TableCell className="text-right font-medium">
-                {formatCurrency(balance)}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">Expenses</TableCell>
-              <TableCell className="text-right"></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-8">Lens Capital</TableCell>
-              <TableCell className="text-right">
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="otherExpenses">Other Expenses</Label>
                 <Input
+                  id="otherExpenses"
                   type="number"
-                  min="0"
-                  value={lensCapital || ""}
-                  onChange={(e) => handleNumberInput(e.target.value, setLensCapital)}
-                  className="w-32 text-right ml-auto"
+                  step="0.01"
+                  value={otherExpenses}
+                  onChange={readOnly ? undefined : (e) => setOtherExpenses(parseFloat(e.target.value) || 0)}
+                  readOnly={readOnly}
                 />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-8">Edging Price</TableCell>
-              <TableCell className="text-right">
-                <Input
-                  type="number"
-                  min="0"
-                  value={edgingPrice || ""}
-                  onChange={(e) => handleNumberInput(e.target.value, setEdgingPrice)}
-                  className="w-32 text-right ml-auto"
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-8">Other Expenses</TableCell>
-              <TableCell className="text-right">
-                <Input
-                  type="number"
-                  min="0"
-                  value={otherExpenses || ""}
-                  onChange={(e) => handleNumberInput(e.target.value, setOtherExpenses)}
-                  className="w-32 text-right ml-auto"
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow className="font-medium">
-              <TableCell>Total Expenses</TableCell>
-              <TableCell className="text-right">
-                {formatCurrency(totalExpenses)}
-              </TableCell>
-            </TableRow>
-            <TableRow className="font-bold">
-              <TableCell>Net Income</TableCell>
-              <TableCell className="text-right">
-                {formatCurrency(netIncome)}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+            <div className="space-y-2">
+              <Label htmlFor="totalExpenses">Total Expenses</Label>
+              <Input
+                id="totalExpenses"
+                type="number"
+                value={totalExpenses}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="netIncome">Net Income</Label>
+              <Input
+                id="netIncome"
+                type="number"
+                value={netIncome}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
 };
 
 export default FinancialDetails;
-

@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Transaction } from '@/types';
@@ -8,12 +9,13 @@ import { useToast } from "@/hooks/use-toast";
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
 
 import { TransactionHeader } from '@/components/transactions/detail/TransactionHeader';
-import { PatientInfo } from '@/components/transactions/create/PatientInfo';
+import PatientInfo from '@/components/transactions/create/PatientInfo';
 import { OrderDetailsCard } from '@/components/transactions/detail/OrderDetailsCard';
 import RefractionDetails from '@/components/transactions/create/RefractionDetails';
 import DoctorRemarks from '@/components/transactions/create/DoctorRemarks';
 import { OrderNotesCard } from '@/components/transactions/detail/OrderNotesCard';
 import FinancialDetails from '@/components/transactions/create/FinancialDetails';
+import { findPayment } from '@/utils/paymentsUtils';
 
 const TransactionDetail = () => {
   const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
@@ -185,7 +187,6 @@ const TransactionDetail = () => {
         <OrderDetailsCard transaction={transaction} />
         
         <RefractionDetails 
-          readOnly={true}
           initialData={{
             previousRx: transaction.previousRx,
             fullRx: transaction.fullRx,
@@ -195,7 +196,6 @@ const TransactionDetail = () => {
         />
 
         <DoctorRemarks 
-          readOnly={true}
           initialData={{
             doctorId: transaction.doctorId,
             remarks: transaction.doctorRemarks
@@ -203,7 +203,6 @@ const TransactionDetail = () => {
         />
 
         <FinancialDetails 
-          readOnly={true}
           initialData={{
             grossAmount: transaction.grossAmount,
             deposit: transaction.deposit,
