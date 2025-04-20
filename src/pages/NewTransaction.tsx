@@ -1,7 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Save } from "lucide-react";
 import PatientHeader from "@/components/transactions/create/PatientHeader";
 import PatientInfo from "@/components/transactions/create/PatientInfo";
 import TransactionDetails from "@/components/transactions/create/TransactionDetails";
@@ -24,32 +25,34 @@ const NewTransactionPage = () => {
   const [transactionType, setTransactionType] = useState<string>("Complete");
   const [patient, setPatient] = useState<Patient | undefined>();
   const [transactionCode, setTransactionCode] = useState<string>("");
-  
-  // Generate a transaction code based on the current date and existing transactions
+
+  const handleSave = () => {
+    toast({
+      title: "Success",
+      description: `Transaction ${transactionCode} has been saved.`,
+    });
+    navigate("/transactions");
+  };
+
   const generateTransactionCode = () => {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     
-    // Format: TX25-04-00001 (for first transaction of April 2025)
     const prefix = `TX${year}-${month}`;
     
-    // Find all existing transaction codes for this month/year
     const existingCodes: string[] = [];
     
-    // Add the mock transactions from usePatientTransactions hook
     const sampleTransactions = [
       { code: "TX25-04-00001" },
       { code: "TX25-04-00002" },
       { code: "TX25-04-00003" }
     ];
     
-    // Add sample transactions to existing codes
     sampleTransactions.forEach(tx => {
       existingCodes.push(tx.code);
     });
     
-    // Also check localStorage for any additional transactions
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith(`transaction_`) && key.endsWith('_code')) {
@@ -60,7 +63,6 @@ const NewTransactionPage = () => {
       }
     }
     
-    // Find the highest sequence number
     let maxSequence = 0;
     existingCodes.forEach(code => {
       const sequencePart = code.split('-')[2];
@@ -72,14 +74,12 @@ const NewTransactionPage = () => {
       }
     });
     
-    // Generate next sequence number (padded to 5 digits)
     const nextSequence = (maxSequence + 1).toString().padStart(5, "0");
     
     return `${prefix}-${nextSequence}`;
   };
 
   useEffect(() => {
-    // Try to get patient from location state first (from direct navigation)
     const state = location.state as LocationState | undefined;
     if (state?.patient) {
       setPatient(state.patient);
@@ -87,7 +87,6 @@ const NewTransactionPage = () => {
       return;
     }
     
-    // If not in location state, try to get from localStorage (for page refreshes)
     if (patientId) {
       const mockPatient = {
         id: patientId,
@@ -137,6 +136,13 @@ const NewTransactionPage = () => {
         )}
         <DoctorRemarks />
         <OrderNotes />
+        
+        <div className="flex justify-end">
+          <Button onClick={handleSave} className="w-full md:w-auto">
+            <Save className="mr-2" />
+            Save Transaction
+          </Button>
+        </div>
       </div>
     </div>
   );
