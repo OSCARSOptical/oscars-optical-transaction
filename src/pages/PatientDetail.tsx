@@ -15,7 +15,8 @@ const samplePatients: Patient[] = [
     email: 'john@example.com',
     phone: '555-123-4567',
     address: '123 Main St, City, State',
-    code: 'PX-JD-0000001'
+    code: 'PX-JD-0000001',
+    sex: 'Male'
   }, 
   {
     id: '67890',
@@ -25,7 +26,8 @@ const samplePatients: Patient[] = [
     email: 'jane@example.com',
     phone: '555-987-6543',
     address: '456 Oak St, City, State',
-    code: 'PX-JS-0000001'
+    code: 'PX-JS-0000001',
+    sex: 'Female'
   },
   {
     id: '54321',
@@ -35,7 +37,8 @@ const samplePatients: Patient[] = [
     email: 'oscar@example.com',
     phone: '555-555-1111',
     address: '789 Pine St, City, State',
-    code: 'PX-OS-0000001'
+    code: 'PX-OS-0000001',
+    sex: 'Male'
   }
 ];
 
@@ -51,12 +54,22 @@ const PatientDetailPage = () => {
       // Check for localStorage updates
       const storedFirstName = localStorage.getItem(`patient_${foundPatient.id}_firstName`);
       const storedLastName = localStorage.getItem(`patient_${foundPatient.id}_lastName`);
+      const storedAge = localStorage.getItem(`patient_${foundPatient.id}_age`);
+      const storedEmail = localStorage.getItem(`patient_${foundPatient.id}_email`);
+      const storedPhone = localStorage.getItem(`patient_${foundPatient.id}_phone`);
+      const storedAddress = localStorage.getItem(`patient_${foundPatient.id}_address`);
+      const storedSex = localStorage.getItem(`patient_${foundPatient.id}_sex`);
       
-      if (storedFirstName || storedLastName) {
+      if (storedFirstName || storedLastName || storedAge || storedEmail || storedPhone || storedAddress || storedSex) {
         setPatient({
           ...foundPatient,
           firstName: storedFirstName || foundPatient.firstName,
-          lastName: storedLastName || foundPatient.lastName
+          lastName: storedLastName || foundPatient.lastName,
+          age: storedAge ? parseInt(storedAge) : foundPatient.age,
+          email: storedEmail || foundPatient.email,
+          phone: storedPhone || foundPatient.phone,
+          address: storedAddress || foundPatient.address,
+          sex: (storedSex as 'Male' | 'Female' | 'Other') || foundPatient.sex
         });
       } else {
         setPatient(foundPatient);

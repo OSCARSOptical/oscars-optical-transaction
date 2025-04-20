@@ -101,7 +101,7 @@ const NewTransactionPage = () => {
         email: storedEmail || state.patient.email,
         phone: storedPhone || state.patient.phone,
         address: storedAddress || state.patient.address,
-        sex: (storedSex as 'Male' | 'Female' | 'Other') || state.patient.sex
+        sex: (storedSex as 'Male' | 'Female' | 'Other') || state.patient.sex || 'Other'
       };
       
       setPatient(updatedPatient);
@@ -120,7 +120,8 @@ const NewTransactionPage = () => {
           email: 'john@example.com',
           phone: '555-123-4567',
           address: '123 Main St, City, State',
-          code: 'PX-JD-0000001'
+          code: 'PX-JD-0000001',
+          sex: 'Male' as 'Male' | 'Female' | 'Other'
         }, 
         {
           id: '67890',
@@ -130,7 +131,8 @@ const NewTransactionPage = () => {
           email: 'jane@example.com',
           phone: '555-987-6543',
           address: '456 Oak St, City, State',
-          code: 'PX-JS-0000001'
+          code: 'PX-JS-0000001',
+          sex: 'Female' as 'Male' | 'Female' | 'Other'
         },
         {
           id: '54321',
@@ -140,7 +142,8 @@ const NewTransactionPage = () => {
           email: 'oscar@example.com',
           phone: '555-555-1111',
           address: '789 Pine St, City, State',
-          code: 'PX-OS-0000001'
+          code: 'PX-OS-0000001',
+          sex: 'Male' as 'Male' | 'Female' | 'Other'
         }
       ];
       
