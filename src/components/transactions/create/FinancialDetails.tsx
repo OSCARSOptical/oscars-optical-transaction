@@ -45,7 +45,7 @@ const FinancialDetails = () => {
                   min="0"
                   value={grossAmount || ""}
                   onChange={(e) => handleNumberInput(e.target.value, setGrossAmount)}
-                  className="w-32 text-right"
+                  className="w-32 text-right ml-auto"
                 />
               </TableCell>
             </TableRow>
@@ -58,7 +58,7 @@ const FinancialDetails = () => {
                   max={grossAmount}
                   value={deposit || ""}
                   onChange={(e) => handleNumberInput(e.target.value, setDeposit)}
-                  className="w-32 text-right"
+                  className="w-32 text-right ml-auto"
                 />
               </TableCell>
             </TableRow>
@@ -80,7 +80,7 @@ const FinancialDetails = () => {
                   min="0"
                   value={lensCapital || ""}
                   onChange={(e) => handleNumberInput(e.target.value, setLensCapital)}
-                  className="w-32 text-right"
+                  className="w-32 text-right ml-auto"
                 />
               </TableCell>
             </TableRow>
@@ -92,7 +92,7 @@ const FinancialDetails = () => {
                   min="0"
                   value={edgingPrice || ""}
                   onChange={(e) => handleNumberInput(e.target.value, setEdgingPrice)}
-                  className="w-32 text-right"
+                  className="w-32 text-right ml-auto"
                 />
               </TableCell>
             </TableRow>
@@ -104,7 +104,7 @@ const FinancialDetails = () => {
                   min="0"
                   value={otherExpenses || ""}
                   onChange={(e) => handleNumberInput(e.target.value, setOtherExpenses)}
-                  className="w-32 text-right"
+                  className="w-32 text-right ml-auto"
                 />
               </TableCell>
             </TableRow>
@@ -128,3 +128,4 @@ const FinancialDetails = () => {
 };
 
 export default FinancialDetails;
+
