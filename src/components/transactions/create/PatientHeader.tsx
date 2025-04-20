@@ -9,21 +9,14 @@ import { useNavigate } from "react-router-dom";
 
 interface PatientHeaderProps {
   patient?: Patient;
+  transactionCode?: string;
 }
 
-const PatientHeader = ({ patient }: PatientHeaderProps) => {
+const PatientHeader = ({ patient, transactionCode }: PatientHeaderProps) => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState(patient?.firstName || "");
   const [lastName, setLastName] = useState(patient?.lastName || "");
-
-  const generateTransactionCode = () => {
-    const date = new Date();
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const random = Math.floor(Math.random() * 9999).toString().padStart(4, "0");
-    return `TX${year}-${month}-${random}`;
-  };
 
   if (!patient?.code) {
     return null;
@@ -63,7 +56,7 @@ const PatientHeader = ({ patient }: PatientHeaderProps) => {
       </CardHeader>
       <CardContent className="flex justify-between items-center">
         <div>Patient Code: {patient.code}</div>
-        <div>Transaction Code: {generateTransactionCode()}</div>
+        <div>Transaction Code: {transactionCode}</div>
       </CardContent>
     </Card>
   );

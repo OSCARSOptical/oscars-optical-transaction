@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -5,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Patient } from "@/types";
 import PatientSearch from "../patients/PatientSearch";
 import NewPatientForm from "../patients/NewPatientForm";
+import { useToast } from "@/hooks/use-toast";
 
 interface NewTransactionModalProps {
   isOpen: boolean;
@@ -16,8 +18,9 @@ type Mode = "select" | "search" | "new";
 const NewTransactionModal = ({ isOpen, onClose }: NewTransactionModalProps) => {
   const [mode, setMode] = useState<Mode>("select");
   const navigate = useNavigate();
+  const { toast } = useToast();
   
-  const handlePatientSelect = (patient: Patient) => {
+  const savePatientToLocalStorage = (patient: Patient) => {
     localStorage.setItem(`patient_${patient.id}_code`, patient.code);
     localStorage.setItem(`patient_${patient.id}_firstName`, patient.firstName);
     localStorage.setItem(`patient_${patient.id}_lastName`, patient.lastName);
@@ -25,9 +28,16 @@ const NewTransactionModal = ({ isOpen, onClose }: NewTransactionModalProps) => {
     localStorage.setItem(`patient_${patient.id}_email`, patient.email);
     localStorage.setItem(`patient_${patient.id}_phone`, patient.phone);
     localStorage.setItem(`patient_${patient.id}_address`, patient.address);
+  };
+  
+  const handlePatientSelect = (patient: Patient) => {
+    savePatientToLocalStorage(patient);
     
+    // Navigate to the new transaction page with patient data
     onClose();
-    navigate(`/transactions/new/${patient.id}`);
+    navigate(`/transactions/new/${patient.id}`, { 
+      state: { patient } 
+    });
   };
 
   const handlePatientSave = (patientData: Omit<Patient, "id">) => {
@@ -37,16 +47,23 @@ const NewTransactionModal = ({ isOpen, onClose }: NewTransactionModalProps) => {
       ...patientData
     };
     
-    localStorage.setItem(`patient_${newId}_code`, newPatient.code);
-    localStorage.setItem(`patient_${newId}_firstName`, newPatient.firstName);
-    localStorage.setItem(`patient_${newId}_lastName`, newPatient.lastName);
-    localStorage.setItem(`patient_${newId}_age`, newPatient.age.toString());
-    localStorage.setItem(`patient_${newId}_email`, newPatient.email);
-    localStorage.setItem(`patient_${newId}_phone`, newPatient.phone);
-    localStorage.setItem(`patient_${newId}_address`, newPatient.address);
+    savePatientToLocalStorage(newPatient);
     
+    // Verify patient code was generated successfully
+    if (!newPatient.code) {
+      toast({
+        title: "Error",
+        description: "Patient code generation failed",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Navigate to the new transaction page with patient data
     onClose();
-    navigate(`/transactions/new/${newId}`);
+    navigate(`/transactions/new/${newId}`, { 
+      state: { patient: newPatient } 
+    });
   };
 
   const renderContent = () => {

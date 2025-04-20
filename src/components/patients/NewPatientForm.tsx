@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Patient } from "@/types";
+import { useToast } from "@/hooks/use-toast";
 
 interface NewPatientFormProps {
   onSave: (patient: Omit<Patient, "id">) => void;
@@ -18,17 +19,56 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const { toast } = useToast();
 
   const generatePatientCode = (first: string, last: string) => {
     if (!first || !last) return "";
+    
     const prefix = "PX";
-    const initials = `${first[0]}${last[0]}`.toUpperCase();
-    const random = Math.floor(Math.random() * 99999).toString().padStart(5, "0");
-    return `${prefix}-${initials}-${random}`;
+    const initials = `${first[0]}${last.split(' ')[0][0]}`.toUpperCase();
+    
+    // Get all existing patient codes with the same initials
+    const existingCodes: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(`patient_`) && key.endsWith('_code')) {
+        const code = localStorage.getItem(key);
+        if (code && code.startsWith(`${prefix}-${initials}-`)) {
+          existingCodes.push(code);
+        }
+      }
+    }
+    
+    // Find the highest sequence number for these initials
+    let maxSequence = 0;
+    existingCodes.forEach(code => {
+      const sequencePart = code.split('-')[2];
+      if (sequencePart) {
+        const sequence = parseInt(sequencePart);
+        if (!isNaN(sequence) && sequence > maxSequence) {
+          maxSequence = sequence;
+        }
+      }
+    });
+    
+    // Generate next sequence number (padded to 7 digits)
+    const nextSequence = (maxSequence + 1).toString().padStart(7, "0");
+    
+    return `${prefix}-${initials}-${nextSequence}`;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!firstName || !lastName) {
+      toast({
+        title: "Missing information",
+        description: "First name and last name are required",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const patientCode = generatePatientCode(firstName, lastName);
     onSave({
       code: patientCode,
