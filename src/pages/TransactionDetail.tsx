@@ -11,6 +11,10 @@ import { TransactionHeader } from '@/components/transactions/detail/TransactionH
 import { PatientCard } from '@/components/transactions/detail/PatientCard';
 import { FinancialCard } from '@/components/transactions/detail/FinancialCard';
 import { InfoCard } from '@/components/transactions/detail/InfoCard';
+import { OrderDetailsCard } from '@/components/transactions/detail/OrderDetailsCard';
+import { RefractionCard } from '@/components/transactions/detail/RefractionCard';
+import { DoctorRemarksCard } from '@/components/transactions/detail/DoctorRemarksCard';
+import { OrderNotesCard } from '@/components/transactions/detail/OrderNotesCard';
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 import { findPayment } from '@/utils/paymentsUtils';
 
@@ -164,13 +168,21 @@ const TransactionDetail = () => {
       
       <FinancialCard transaction={transaction} />
       
-      <InfoCard title="Order Details" />
+      <InfoCard title="Order Details">
+        <OrderDetailsCard transaction={transaction} />
+      </InfoCard>
       
-      <InfoCard title="Refraction Details" />
+      <InfoCard title="Refraction Details">
+        <RefractionCard transaction={transaction} />
+      </InfoCard>
       
-      <InfoCard title="Doctor & Remarks" />
+      <InfoCard title="Doctor & Remarks">
+        <DoctorRemarksCard transaction={transaction} />
+      </InfoCard>
       
-      <InfoCard title="Order Notes" />
+      <InfoCard title="Order Notes">
+        <OrderNotesCard transaction={transaction} />
+      </InfoCard>
     </div>
   );
 };

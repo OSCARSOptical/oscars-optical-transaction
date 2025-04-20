@@ -16,7 +16,7 @@ export function InfoCard({ title, children }: InfoCardProps) {
         {children ? (
           children
         ) : (
-          <p className="text-muted-foreground">Additional details would go here.</p>
+          <p className="text-muted-foreground">No information available.</p>
         )}
       </CardContent>
     </Card>

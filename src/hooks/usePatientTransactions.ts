@@ -21,7 +21,27 @@ const allTransactions: Transaction[] = [
     otherExpenses: 50.00,
     totalExpenses: 1400.00,
     claimed: false,
-    dateClaimed: null
+    dateClaimed: null,
+    refractiveIndex: "1.61",
+    lensType: "Prog",
+    lensCoating: "BB TRG",
+    interpupillaryDistance: 62.5,
+    previousRx: {
+      OD: { sphere: -2.25, cylinder: -0.75, axis: 180, visualAcuity: "20/40" },
+      OS: { sphere: -2.50, cylinder: -0.50, axis: 175, visualAcuity: "20/40" }
+    },
+    fullRx: {
+      OD: { sphere: -2.50, cylinder: -0.75, axis: 180, visualAcuity: "20/20" },
+      OS: { sphere: -2.75, cylinder: -0.50, axis: 175, visualAcuity: "20/20" }
+    },
+    prescribedPower: {
+      OD: { sphere: -2.50, cylinder: -0.75, axis: 180, visualAcuity: "20/20" },
+      OS: { sphere: -2.75, cylinder: -0.50, axis: 175, visualAcuity: "20/20" },
+      ADD: { addPower: 1.50 }
+    },
+    doctorId: "DR-JB-001",
+    doctorRemarks: "Patient may need updated prescription in 6 months due to progressive myopia.",
+    orderNotes: "Customer preferred titanium frame. Delivery estimate: 5-7 business days."
   },
   {
     id: "2",
@@ -40,7 +60,17 @@ const allTransactions: Transaction[] = [
     otherExpenses: 25,
     totalExpenses: 175,
     claimed: true,
-    dateClaimed: "2025-04-10"
+    dateClaimed: "2025-04-10",
+    refractiveIndex: "1.56",
+    lensType: "SV",
+    lensCoating: "MC",
+    interpupillaryDistance: 64.0,
+    prescribedPower: {
+      OD: { sphere: -1.25, cylinder: -0.25, axis: 90, visualAcuity: "20/20" },
+      OS: { sphere: -1.00, cylinder: -0.25, axis: 85, visualAcuity: "20/20" }
+    },
+    doctorId: "DR-MK-002",
+    orderNotes: "Reusing previous lenses in new frame. Customer chose brown tortoise frame."
   },
   {
     id: "3",
@@ -59,7 +89,27 @@ const allTransactions: Transaction[] = [
     otherExpenses: 100.00,
     totalExpenses: 3100.00,
     claimed: false,
-    dateClaimed: null
+    dateClaimed: null,
+    refractiveIndex: "1.67",
+    lensType: "Prog",
+    lensCoating: "BB TRG",
+    interpupillaryDistance: 66.0,
+    previousRx: {
+      OD: { sphere: -3.75, cylinder: -1.25, axis: 175, visualAcuity: "20/40" },
+      OS: { sphere: -4.00, cylinder: -1.00, axis: 5, visualAcuity: "20/40" }
+    },
+    fullRx: {
+      OD: { sphere: -4.00, cylinder: -1.25, axis: 175, visualAcuity: "20/20" },
+      OS: { sphere: -4.25, cylinder: -1.00, axis: 5, visualAcuity: "20/20" }
+    },
+    prescribedPower: {
+      OD: { sphere: -4.00, cylinder: -1.25, axis: 175, visualAcuity: "20/20" },
+      OS: { sphere: -4.25, cylinder: -1.00, axis: 5, visualAcuity: "20/20" },
+      ADD: { addPower: 2.00 }
+    },
+    doctorId: "DR-AL-003",
+    doctorRemarks: "High myope, recommend polycarbonate lenses and annual check-ups.",
+    orderNotes: "Customer preferred lightweight frame due to high prescription. Upgraded to premium anti-reflective coating."
   }
 ];
 
