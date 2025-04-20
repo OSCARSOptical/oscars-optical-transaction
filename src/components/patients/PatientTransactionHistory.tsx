@@ -1,4 +1,3 @@
-
 import { TableCell, TableRow, Table, TableHeader, TableHead, TableBody } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -36,8 +35,8 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
   }
 
   return (
-    <div className="space-y-4">
-      <Table>
+    <div className="space-y-4 overflow-auto">
+      <Table className="min-w-[1180px]">
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
@@ -46,8 +45,8 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
             <TableHead className="text-right">Gross Amount</TableHead>
             <TableHead className="text-right">Deposit</TableHead>
             <TableHead className="text-right">Balance</TableHead>
-            <TableHead className="text-right">Claimed</TableHead>
-            <TableHead className="text-right">Claimed On</TableHead>
+            <TableHead className="text-center w-[80px]">Claimed</TableHead>
+            <TableHead className="text-right w-[110px]">Claimed On</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
@@ -74,10 +73,13 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
                 <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
-                <TableCell className="text-right">
-                  {transaction.claimed && (
-                    <Check className="h-4 w-4 ml-auto" />
-                  )}
+                <TableCell className="text-center">
+                  <input
+                    type="checkbox"
+                    checked={transaction.claimed}
+                    disabled
+                    className="accent-[#9E0214] scale-90"
+                  />
                 </TableCell>
                 <TableCell className="text-right">
                   {formatClaimDate(transaction.claimed ? transaction.dateClaimed : null)}
