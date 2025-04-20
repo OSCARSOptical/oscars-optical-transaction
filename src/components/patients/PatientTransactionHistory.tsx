@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Transaction } from "@/types";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PatientTransactionHistoryProps {
   patientCode: string;
@@ -42,7 +42,6 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
       type: "Eye Exam",
       grossAmount: 150.00,
       deposit: 50.00,
-      depositDate: "2025-04-10", // Added missing depositDate field
       balance: 100.00,
       lensCapital: 0,
       edgingPrice: 0,
@@ -62,7 +61,6 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
       type: "Frame Replacement",
       grossAmount: 300.00,
       deposit: 150.00,
-      depositDate: "2025-04-08", // Added missing depositDate field
       balance: 150.00,
       lensCapital: 100,
       edgingPrice: 50,

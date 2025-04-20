@@ -13,7 +13,7 @@ export interface Patient {
 export interface Transaction {
   id: string;
   code: string; // Now will be formatted as TX[YY]-[MM]-[5-digit sequence]
-  date: string; // orderDate
+  date: string;
   patientCode: string;
   patientName: string;
   firstName: string;
@@ -21,7 +21,6 @@ export interface Transaction {
   type: 'Complete' | 'Frame Replacement' | 'Lens Replacement' | 'Eye Exam' | 'Medical Certificate' | 'Contact Lens' | 'Repair' | 'Return';
   grossAmount: number;
   deposit: number;
-  depositDate: string; // New field for when the payment is logged
   balance: number;
   lensCapital: number;
   edgingPrice: number;
@@ -29,5 +28,4 @@ export interface Transaction {
   totalExpenses: number;
   claimed: boolean;
   dateClaimed: string | null;
-  sameDay?: boolean; // Computed flag
 }
