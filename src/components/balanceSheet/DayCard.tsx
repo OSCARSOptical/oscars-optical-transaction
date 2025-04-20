@@ -40,7 +40,7 @@ export function DayCard({ date, transactions }: DayCardProps) {
         <div className="flex flex-col space-y-1.5">
           <h3 className="text-lg">
             <span className="font-bold">{formattedDate}</span>
-            <span className="text-muted-foreground ml-2 font-normal">{dayName}</span>
+            <span className="text-muted-foreground ml-2 font-normal">| {dayName}</span>
           </h3>
         </div>
       </CardHeader>

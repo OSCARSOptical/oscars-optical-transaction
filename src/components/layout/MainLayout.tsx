@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import AppHeader from './AppHeader';
@@ -60,7 +61,7 @@ export function MainLayout() {
       location.pathname === '/transactions' ||
       location.pathname.startsWith('/patients/') ||
       location.pathname.startsWith('/transactions/')
-    );
+    ) && !location.pathname.includes('/balance-sheet');
   };
 
   if (

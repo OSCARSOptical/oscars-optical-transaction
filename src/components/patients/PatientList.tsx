@@ -139,12 +139,14 @@ export function PatientList() {
           <User className="mr-2 h-5 w-5 text-crimson-600" />
           Patients
         </CardTitle>
-        <div className="flex items-center space-x-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search patients..." className="pl-9 w-[250px]" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-          </div>
-          
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input 
+            placeholder="Search by Name or Patient ID" 
+            className="pl-9 w-[250px]" 
+            value={searchQuery} 
+            onChange={e => setSearchQuery(e.target.value)} 
+          />
         </div>
       </CardHeader>
       <CardContent>
@@ -218,4 +220,5 @@ export function PatientList() {
       </CardContent>
     </Card>;
 }
+
 export default PatientList;

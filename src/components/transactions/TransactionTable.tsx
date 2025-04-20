@@ -9,6 +9,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { MoreHorizontal } from "lucide-react";
 import { Transaction } from '@/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -19,6 +29,8 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   const navigate = useNavigate();
   const { toast } = useToast();
   const [localTransactions, setLocalTransactions] = useState<Transaction[]>(transactions);
+  const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
+  const [transactionToUnclaim, setTransactionToUnclaim] = useState<string | null>(null);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '—';
@@ -62,8 +74,14 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   };
 
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
-    if (currentValue) return; // If already claimed, do nothing
+    if (currentValue) {
+      // If already claimed, we need to confirm before unclaiming
+      setTransactionToUnclaim(id);
+      setShowUnclaimDialog(true);
+      return;
+    }
     
+    // If not claimed, proceed with claiming
     const updatedTransactions = localTransactions.map(transaction => {
       if (transaction.id === id) {
         // 1. Create a balance payment transaction (would be added to the database in a real app)
@@ -98,9 +116,6 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
           balance: 0 // Set balance to 0
         };
         
-        // In a real app, we would dispatch an action to update the balance sheet
-        // and trigger a refresh of the dashboard stats
-        
         // Show a toast notification
         toast({
           title: "✓ Payment Claimed!",
@@ -117,79 +132,128 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     setLocalTransactions(updatedTransactions);
   };
 
+  const handleUnclaimConfirm = () => {
+    if (!transactionToUnclaim) return;
+    
+    const updatedTransactions = localTransactions.map(transaction => {
+      if (transaction.id === transactionToUnclaim) {
+        // Restore the balance (in a real app, we would also delete the balance sheet entry)
+        const restoredTransaction = {
+          ...transaction,
+          claimed: false,
+          dateClaimed: null,
+          // In a real app, we would need to restore the original balance
+          balance: 5000.00 // For demo purposes using a hard-coded value
+        };
+        
+        toast({
+          title: "Claim Removed",
+          description: "Transaction restored to unclaimed status and balance sheet entry removed.",
+          variant: "default"
+        });
+        
+        return restoredTransaction;
+      }
+      return transaction;
+    });
+    
+    setLocalTransactions(updatedTransactions);
+    setShowUnclaimDialog(false);
+    setTransactionToUnclaim(null);
+  };
+
   return (
-    <div className="relative overflow-x-auto">
-      <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-r from-transparent to-gray-50 pointer-events-none z-10"></div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Transaction ID</TableHead>
-            <TableHead>Patient Name</TableHead>
-            <TableHead>Patient ID</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead className="text-right">Gross Amount</TableHead>
-            <TableHead className="text-right">Deposit</TableHead>
-            <TableHead className="text-right">Balance</TableHead>
-            <TableHead>Claimed</TableHead>
-            <TableHead className="w-[60px]"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {localTransactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{formatDate(transaction.date)}</TableCell>
-              <TableCell>
-                <span 
-                  className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-                  onClick={() => navigate(`/transactions/${transaction.code}`)}
-                >
-                  {transaction.code}
-                </span>
-              </TableCell>
-              <TableCell>{transaction.patientName}</TableCell>
-              <TableCell>{transaction.patientCode}</TableCell>
-              <TableCell>
-                <Badge 
-                  variant="outline" 
-                  className={getTypeColor(transaction.type)}
-                >
-                  {transaction.type}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
-              <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
-              <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
-              <TableCell>
-                <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                  <Checkbox 
-                    checked={transaction.claimed} 
-                    onCheckedChange={() => handleClaimedToggle(transaction.id, transaction.claimed)}
-                    id={`claimed-${transaction.id}`}
-                  />
-                </div>
-              </TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem 
-                      onClick={() => navigate(`/transactions/${transaction.code}`)}
-                      className="cursor-pointer"
-                    >
-                      View Full Transaction
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+    <>
+      <div className="relative overflow-x-auto">
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-r from-transparent to-gray-50 pointer-events-none z-10"></div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Transaction ID</TableHead>
+              <TableHead>Patient Name</TableHead>
+              <TableHead>Patient ID</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="text-right">Gross Amount</TableHead>
+              <TableHead className="text-right">Deposit</TableHead>
+              <TableHead className="text-right">Balance</TableHead>
+              <TableHead>Claimed</TableHead>
+              <TableHead>Claim Date</TableHead>
+              <TableHead className="w-[60px]"></TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {localTransactions.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>{formatDate(transaction.date)}</TableCell>
+                <TableCell>
+                  <span 
+                    className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+                    onClick={() => navigate(`/transactions/${transaction.code}`)}
+                  >
+                    {transaction.code}
+                  </span>
+                </TableCell>
+                <TableCell>{transaction.patientName}</TableCell>
+                <TableCell>{transaction.patientCode}</TableCell>
+                <TableCell>
+                  <Badge 
+                    variant="outline" 
+                    className={getTypeColor(transaction.type)}
+                  >
+                    {transaction.type}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                    <Checkbox 
+                      checked={transaction.claimed} 
+                      onCheckedChange={() => handleClaimedToggle(transaction.id, transaction.claimed)}
+                      id={`claimed-${transaction.id}`}
+                    />
+                  </div>
+                </TableCell>
+                <TableCell>{formatDate(transaction.dateClaimed)}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem 
+                        onClick={() => navigate(`/transactions/${transaction.code}`)}
+                        className="cursor-pointer"
+                      >
+                        View Full Transaction
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <AlertDialog open={showUnclaimDialog} onOpenChange={setShowUnclaimDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Claim?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Remove claim and delete balance-sheet entry for this transaction? This will restore the balance amount in the transaction.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowUnclaimDialog(false)}>No</AlertDialogCancel>
+            <AlertDialogAction onClick={handleUnclaimConfirm}>Yes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
