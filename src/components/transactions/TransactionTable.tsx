@@ -59,9 +59,9 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
       <TableHeader>
         <TableRow>
           <TableHead>Date</TableHead>
-          <TableHead>Transaction Code</TableHead>
+          <TableHead>Transaction ID</TableHead>
           <TableHead>Patient Name</TableHead>
-          <TableHead>Patient Code</TableHead>
+          <TableHead>Patient ID</TableHead>
           <TableHead>Type</TableHead>
           <TableHead className="text-right">Gross Amount</TableHead>
           <TableHead className="text-right">Deposit</TableHead>

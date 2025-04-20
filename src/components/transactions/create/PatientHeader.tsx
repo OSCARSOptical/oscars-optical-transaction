@@ -55,8 +55,8 @@ const PatientHeader = ({ patient, transactionCode }: PatientHeaderProps) => {
         </Button>
       </CardHeader>
       <CardContent className="flex justify-between items-center">
-        <div>Patient Code: {patient.code}</div>
-        <div>Transaction Code: {transactionCode}</div>
+        <div>Patient ID: {patient.code}</div>
+        <div>Transaction ID: {transactionCode}</div>
       </CardContent>
     </Card>
   );

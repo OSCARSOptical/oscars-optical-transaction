@@ -28,7 +28,7 @@ const PatientSearchResults = ({ matches }: PatientSearchResultsProps) => {
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
-          <TableHead>Patient Code</TableHead>
+          <TableHead>Patient ID</TableHead>
           <TableHead>Date of Birth</TableHead>
           <TableHead>Action</TableHead>
         </TableRow>

@@ -1,7 +1,7 @@
 
 export interface Patient {
   id: string;
-  code: string;
+  code: string; // Now will be formatted as PX-[FirstInitial][LastInitial]-[7-digit sequence]
   firstName: string;
   lastName: string;
   age: number;
@@ -12,7 +12,7 @@ export interface Patient {
 
 export interface Transaction {
   id: string;
-  code: string; // Format: TXYY-MM-XXXX
+  code: string; // Now will be formatted as TX[YY]-[MM]-[5-digit sequence]
   date: string;
   patientCode: string;
   patientName: string;

@@ -33,9 +33,9 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
   const allTransactions: Transaction[] = [
     {
       id: "1",
-      code: "TX25-04-0001",
+      code: "TX25-04-00001",
       date: "2025-04-10",
-      patientCode: "PX-JD-12345",
+      patientCode: "PX-JD-0000001",
       patientName: "John Doe",
       firstName: "John",
       lastName: "Doe",
@@ -46,9 +46,9 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
     },
     {
       id: "2",
-      code: "TX25-04-0002",
+      code: "TX25-04-00002",
       date: "2025-04-08",
-      patientCode: "PX-JS-67890",
+      patientCode: "PX-JS-0000001",
       patientName: "Jane Smith",
       firstName: "Jane",
       lastName: "Smith",
@@ -73,7 +73,7 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
     if (hasCodeMismatch) {
       toast({
         title: "Data Error",
-        description: "Mismatch between transaction and patient code—please check the patient link.",
+        description: "Mismatch between transaction and patient ID—please check the patient link.",
         variant: "destructive"
       });
     }
@@ -102,7 +102,7 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
-            <TableHead>Transaction Code</TableHead>
+            <TableHead>Transaction ID</TableHead>
             <TableHead>Type</TableHead>
             <TableHead className="text-right">Gross Amount</TableHead>
             <TableHead className="text-right">Deposit</TableHead>

@@ -11,11 +11,11 @@ import { Patient, Transaction } from '@/types';
 const generatePatientCode = (firstName: string, lastName: string, id: string): string => {
   const firstInitial = firstName.charAt(0).toUpperCase();
   const lastInitial = lastName.charAt(0).toUpperCase();
-  const numericPart = id.slice(-5).padStart(5, '0');
+  const numericPart = id.slice(-7).padStart(7, '0');
   return `PX-${firstInitial}${lastInitial}-${numericPart}`;
 };
 
-// Sample data with the new structure
+// Sample data with the new format
 const samplePatients: Patient[] = [{
   id: '12345',
   firstName: 'John',
@@ -24,7 +24,7 @@ const samplePatients: Patient[] = [{
   email: 'john@example.com',
   phone: '(555) 123-4567',
   address: '123 Main St, City, State',
-  code: 'PX-JD-12345'
+  code: 'PX-JD-0000001'
 }, {
   id: '67890',
   firstName: 'Jane',
@@ -33,16 +33,16 @@ const samplePatients: Patient[] = [{
   email: 'jane@example.com',
   phone: '(555) 987-6543',
   address: '456 Oak St, City, State',
-  code: 'PX-JS-67890'
+  code: 'PX-JS-0000001'
 }];
 
-// Sample transactions that match our patients
+// Sample transactions that match our patients with new format
 const sampleTransactions: Transaction[] = [
   {
     id: '1',
-    code: 'TX25-04-0001',
+    code: 'TX25-04-00001',
     date: '2025-04-10',
-    patientCode: 'PX-JD-12345',
+    patientCode: 'PX-JD-0000001',
     patientName: 'John Doe',
     firstName: 'John',
     lastName: 'Doe',
@@ -53,9 +53,9 @@ const sampleTransactions: Transaction[] = [
   },
   {
     id: '2',
-    code: 'TX25-04-0002',
+    code: 'TX25-04-00002',
     date: '2025-04-08',
-    patientCode: 'PX-JS-67890',
+    patientCode: 'PX-JS-0000001',
     patientName: 'Jane Smith',
     firstName: 'Jane',
     lastName: 'Smith',
@@ -108,11 +108,11 @@ export function PatientList() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Patient Code</TableHead>
+              <TableHead>Patient ID</TableHead>
               <TableHead>Age</TableHead>
               <TableHead>Contact Number</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Transaction Code</TableHead>
+              <TableHead>Transaction ID</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

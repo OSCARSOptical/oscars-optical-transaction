@@ -26,7 +26,7 @@ const PatientSearch = ({ onSelect, onBack }: PatientSearchProps) => {
   const mockPatients: Patient[] = [
     {
       id: "1",
-      code: "PX-JD-00012",
+      code: "PX-JD-0000001",
       firstName: "Jane",
       lastName: "Doe",
       age: 38,
@@ -36,7 +36,7 @@ const PatientSearch = ({ onSelect, onBack }: PatientSearchProps) => {
     },
     {
       id: "2",
-      code: "PX-JS-00045",
+      code: "PX-JS-0000001",
       firstName: "Janet",
       lastName: "Smith",
       age: 35,
@@ -82,7 +82,7 @@ const PatientSearch = ({ onSelect, onBack }: PatientSearchProps) => {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
-          placeholder="Search by patient code, first name, or last name..."
+          placeholder="Search by patient ID, first name, or last name..."
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
           className="pl-9"
@@ -93,7 +93,7 @@ const PatientSearch = ({ onSelect, onBack }: PatientSearchProps) => {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Patient Code</TableHead>
+            <TableHead>Patient ID</TableHead>
             <TableHead>Contact</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
