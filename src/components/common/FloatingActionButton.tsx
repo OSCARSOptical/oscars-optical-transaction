@@ -1,4 +1,3 @@
-
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,12 +5,20 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useLocation } from "react-router-dom";
 
 interface FloatingActionButtonProps {
   onClick: () => void;
 }
 
 const FloatingActionButton = ({ onClick }: FloatingActionButtonProps) => {
+  const location = useLocation();
+  
+  // Hide FAB on balance sheet page
+  if (location.pathname === '/balance-sheet') {
+    return null;
+  }
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>

@@ -1,35 +1,28 @@
 
-import { useNavigate } from "react-router-dom";
 import { format, parse } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Transaction } from "@/types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DayCardProps {
   date: string;
   transactions: Transaction[];
-  startingBalance: number;
-  endingBalance: number;
 }
 
-export function DayCard({ date, transactions, startingBalance, endingBalance }: DayCardProps) {
-  const navigate = useNavigate();
-  
-  // Parse and format the date
+export function DayCard({ date, transactions }: DayCardProps) {
   const dateObj = parse(date, 'yyyy-MM-dd', new Date());
-  const formattedDate = format(dateObj, 'EEEE, MMMM d, yyyy');
+  const formattedDate = format(dateObj, "MMMM d yyyy");
+  const dayName = format(dateObj, "EEEE");
   
-  // Calculate totals
   const totalGrossAmount = transactions.reduce((sum, tx) => sum + tx.grossAmount, 0);
   const totalDeposits = transactions.reduce((sum, tx) => sum + tx.deposit, 0);
-  const totalBalance = transactions.reduce((sum, tx) => sum + tx.balance, 0);
   const totalExpenses = transactions.reduce((sum, tx) => sum + tx.totalExpenses, 0);
   const dailyNetIncome = totalDeposits - totalExpenses;
-  
-  // Handle transaction code click
-  const handleTransactionClick = (transactionCode: string) => {
-    navigate(`/transactions/${transactionCode}`);
-  };
   
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-PH', {
@@ -42,52 +35,45 @@ export function DayCard({ date, transactions, startingBalance, endingBalance }: 
   return (
     <Card className="shadow-sm border border-gray-100 mb-6">
       <CardHeader className="pb-3">
-        <CardTitle className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div className="text-2xl font-bold">{formattedDate}</div>
-          <div className="flex flex-col md:flex-row md:space-x-6 space-y-1 md:space-y-0 text-sm mt-2 md:mt-0">
-            <div className="flex flex-col">
+        <div className="flex flex-col space-y-1.5">
+          <h3 className="text-lg">
+            <span className="font-bold">{formattedDate}</span>
+            <span className="text-muted-foreground ml-2 font-normal">{dayName}</span>
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
               <span className="text-muted-foreground">Gross Amount</span>
-              <span className="font-semibold">{formatCurrency(totalGrossAmount)}</span>
+              <p className="font-semibold">{formatCurrency(totalGrossAmount)}</p>
             </div>
-            <div className="flex flex-col">
+            <div>
               <span className="text-muted-foreground">Deposits Received</span>
-              <span className="font-semibold">{formatCurrency(totalDeposits)}</span>
+              <p className="font-semibold">{formatCurrency(totalDeposits)}</p>
             </div>
-            <div className="flex flex-col">
+            <div>
               <span className="text-muted-foreground">Total Expenses</span>
-              <span className="font-semibold">{formatCurrency(totalExpenses)}</span>
+              <p className="font-semibold">{formatCurrency(totalExpenses)}</p>
             </div>
-            <div className="flex flex-col">
+            <div>
               <span className="text-muted-foreground">Daily Net Income</span>
-              <span className={`font-semibold ${dailyNetIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`font-semibold ${dailyNetIncome >= 0 ? 'text-[#009B29]' : 'text-[#9E0214]'}`}>
                 {formatCurrency(dailyNetIncome)}
-              </span>
+              </p>
             </div>
-          </div>
-        </CardTitle>
-        <div className="grid grid-cols-2 gap-4 mt-3">
-          <div className="flex flex-col">
-            <span className="text-sm text-muted-foreground">Starting Balance</span>
-            <span className="font-semibold">{formatCurrency(startingBalance)}</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm text-muted-foreground">Ending Balance</span>
-            <span className="font-semibold">{formatCurrency(endingBalance)}</span>
           </div>
         </div>
       </CardHeader>
       
       <CardContent>
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[240px]">Description</TableHead>
-                <TableHead className="text-right">Gross Amount</TableHead>
-                <TableHead className="text-right">Deposit</TableHead>
-                <TableHead className="text-right">Balance</TableHead>
-                <TableHead className="text-right">Total Expenses</TableHead>
-                <TableHead className="text-right">Daily Net Income</TableHead>
+                <TableHead className="min-w-[220px]">Description</TableHead>
+                <TableHead className="w-[120px] text-right">Gross Amount</TableHead>
+                <TableHead className="w-[120px] text-right">Deposit</TableHead>
+                <TableHead className="w-[120px] text-right">Balance</TableHead>
+                <TableHead className="w-[120px] text-right">Expenses</TableHead>
+                <TableHead className="w-[120px] text-right">Net Income</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -96,45 +82,49 @@ export function DayCard({ date, transactions, startingBalance, endingBalance }: 
                 
                 return (
                   <TableRow key={transaction.id}>
-                    <TableCell>
-                      <button 
-                        className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-                        onClick={() => handleTransactionClick(transaction.code)}
-                      >
-                        {transaction.code}
-                      </button>
+                    <TableCell className="min-w-[220px] truncate">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 text-left"
+                            onClick={() => navigate(`/transactions/${transaction.code}`)}
+                          >
+                            {transaction.code}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{transaction.code}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
                     <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
                     <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
                     <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
                     <TableCell className="text-right">{formatCurrency(transaction.totalExpenses)}</TableCell>
                     <TableCell className="text-right">
-                      <span className={netIncome >= 0 ? 'text-green-600' : 'text-red-600'}>
+                      <span className={netIncome >= 0 ? 'text-[#009B29]' : 'text-[#9E0214]'}>
                         {formatCurrency(netIncome)}
                       </span>
                     </TableCell>
                   </TableRow>
                 );
               })}
+              <TableRow className="border-t border-gray-200 font-medium">
+                <TableCell>Total</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalGrossAmount)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalDeposits)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(transactions.reduce((sum, tx) => sum + tx.balance, 0))}</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalExpenses)}</TableCell>
+                <TableCell className="text-right">
+                  <span className={dailyNetIncome >= 0 ? 'text-[#009B29]' : 'text-[#9E0214]'}>
+                    {formatCurrency(dailyNetIncome)}
+                  </span>
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </div>
       </CardContent>
-      
-      <CardFooter className="border-t pt-4">
-        <div className="w-full grid grid-cols-6 text-sm font-medium">
-          <div>Total</div>
-          <div className="text-right">{formatCurrency(totalGrossAmount)}</div>
-          <div className="text-right">{formatCurrency(totalDeposits)}</div>
-          <div className="text-right">{formatCurrency(totalBalance)}</div>
-          <div className="text-right">{formatCurrency(totalExpenses)}</div>
-          <div className="text-right">
-            <span className={dailyNetIncome >= 0 ? 'text-green-600' : 'text-red-600'}>
-              {formatCurrency(dailyNetIncome)}
-            </span>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
