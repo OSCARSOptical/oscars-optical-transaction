@@ -36,6 +36,7 @@ const TransactionDetail = () => {
         type: "Complete",
         grossAmount: 7500.00,
         deposit: 2500.00,
+        depositDate: "2025-04-10", // Added missing depositDate field
         balance: 5000.00,
         lensCapital: 1200.00,
         edgingPrice: 150.00,

@@ -21,6 +21,7 @@ const sampleTransactions: Transaction[] = [
     type: 'Complete',
     grossAmount: 7500.00,
     deposit: 2500.00,
+    depositDate: '2025-04-10', // Added missing depositDate field
     balance: 5000.00,
     lensCapital: 1200.00,
     edgingPrice: 150.00,
@@ -40,6 +41,7 @@ const sampleTransactions: Transaction[] = [
     type: 'Eye Exam',
     grossAmount: 1205.00,
     deposit: 1205.00,
+    depositDate: '2025-04-08', // Added missing depositDate field
     balance: 0.00,
     lensCapital: 0.00,
     edgingPrice: 0.00,
@@ -59,6 +61,7 @@ const sampleTransactions: Transaction[] = [
     type: 'Frame Replacement',
     grossAmount: 6800.00,
     deposit: 6800.00,
+    depositDate: '2025-04-15', // Added missing depositDate field - using a different date from order date to show late collection
     balance: 0.00,
     lensCapital: 2800.00,
     edgingPrice: 200.00,
