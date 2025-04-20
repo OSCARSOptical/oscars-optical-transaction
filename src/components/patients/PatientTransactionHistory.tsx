@@ -2,10 +2,12 @@
 import { TableCell, TableRow, Table, TableHeader, TableHead, TableBody } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 import { MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { usePatientTransactions } from "@/hooks/usePatientTransactions";
+import { formatDate, formatCurrency } from "@/utils/formatters";
 
 interface PatientTransactionHistoryProps {
   patientCode: string;
@@ -16,20 +18,13 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
   const { toast } = useToast();
   const { transactions, loading, error } = usePatientTransactions(patientCode);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+  const formatClaimDate = (date: string | null) => {
+    if (!date) return "—";
+    return new Date(date).toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: '2-digit'
     });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
-      currencyDisplay: 'symbol',
-    }).format(amount).replace('PHP', '₱');
   };
 
   if (error) {
@@ -51,13 +46,15 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
             <TableHead className="text-right">Gross Amount</TableHead>
             <TableHead className="text-right">Deposit</TableHead>
             <TableHead className="text-right">Balance</TableHead>
+            <TableHead className="text-right">Claimed</TableHead>
+            <TableHead className="text-right">Claimed On</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-6">
+              <TableCell colSpan={9} className="text-center py-6">
                 Loading transactions...
               </TableCell>
             </TableRow>
@@ -77,6 +74,14 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
                 <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
+                <TableCell className="text-right">
+                  {transaction.claimed && (
+                    <Check className="h-4 w-4 ml-auto" />
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  {formatClaimDate(transaction.claimed ? transaction.dateClaimed : null)}
+                </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -97,7 +102,7 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-6">
+              <TableCell colSpan={9} className="text-center py-6">
                 No transactions found for this patient.
               </TableCell>
             </TableRow>
