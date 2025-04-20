@@ -178,7 +178,7 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
               <TableHead className="text-right">Deposit</TableHead>
               <TableHead className="text-right">Balance</TableHead>
               <TableHead>Claimed</TableHead>
-              <TableHead>Claim Date</TableHead>
+              <TableHead>Claimed on</TableHead>
               <TableHead className="w-[60px]"></TableHead>
             </TableRow>
           </TableHeader>

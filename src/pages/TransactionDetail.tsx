@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import { useEffect, useState } from 'react';
@@ -20,11 +19,8 @@ const TransactionDetail = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // In a real app, fetch transaction by code from API
-    // For now, we'll simulate a loading state with setTimeout
     setLoading(true);
     setTimeout(() => {
-      // Mock data
       const mockTransaction: Transaction = {
         id: "1",
         code: transactionCode || "TX25-04-00001",
@@ -157,7 +153,6 @@ const TransactionDetail = () => {
         ]}
       />
       
-      {/* Transaction Header Card */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-xl font-bold">Transaction {transaction.code}</CardTitle>
@@ -191,7 +186,7 @@ const TransactionDetail = () => {
                 {transaction.claimed && (
                   <div className="flex items-center space-x-2">
                     <Check className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-500">{formatDate(transaction.dateClaimed)}</span>
+                    <span className="text-sm text-gray-500">Claimed on {formatDate(transaction.dateClaimed)}</span>
                   </div>
                 )}
               </div>
@@ -200,7 +195,6 @@ const TransactionDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Patient Information Card */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium">Patient Information</CardTitle>
@@ -222,7 +216,6 @@ const TransactionDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Financial Details Card */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium">Financial Details</CardTitle>
@@ -277,7 +270,6 @@ const TransactionDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Order Details Card */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium">Order Details</CardTitle>
@@ -287,7 +279,6 @@ const TransactionDetail = () => {
         </CardContent>
       </Card>
       
-      {/* Refraction Details Card */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium">Refraction Details</CardTitle>
@@ -297,7 +288,6 @@ const TransactionDetail = () => {
         </CardContent>
       </Card>
       
-      {/* Doctor & Remarks Card */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium">Doctor & Remarks</CardTitle>
@@ -307,7 +297,6 @@ const TransactionDetail = () => {
         </CardContent>
       </Card>
       
-      {/* Order Notes Card */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium">Order Notes</CardTitle>
