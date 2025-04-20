@@ -1,11 +1,11 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut, Menu, User } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 interface User {
@@ -13,7 +13,12 @@ interface User {
   email: string;
 }
 
-export function AppHeader({ toggleSidebar }: { toggleSidebar: () => void }) {
+interface AppHeaderProps {
+  toggleSidebar: () => void;
+  children?: ReactNode;
+}
+
+export function AppHeader({ toggleSidebar, children }: AppHeaderProps) {
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -32,6 +37,7 @@ export function AppHeader({ toggleSidebar }: { toggleSidebar: () => void }) {
     toast({
       title: "Logged out",
       description: "You have been successfully logged out.",
+      className: "bg-[#FFC42B] text-[#241715]",
     });
     navigate('/login');
   };
@@ -61,8 +67,10 @@ export function AppHeader({ toggleSidebar }: { toggleSidebar: () => void }) {
         />
       </div>
 
-      {user && (
-        <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4">
+        {children}
+        
+        {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -99,8 +107,8 @@ export function AppHeader({ toggleSidebar }: { toggleSidebar: () => void }) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 }

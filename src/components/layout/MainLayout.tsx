@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import AppHeader from './AppHeader';
@@ -6,11 +5,14 @@ import Sidebar from './Sidebar';
 import { cn } from '@/lib/utils';
 import FloatingActionButton from '../common/FloatingActionButton';
 import NewTransactionModal from '../transactions/NewTransactionModal';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 export function MainLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNewTransactionModalOpen, setIsNewTransactionModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,7 +33,36 @@ export function MainLayout() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Return without FAB for auth pages
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      e.preventDefault();
+      
+      // Check for exact Patient ID match (PX-XX-XXXXXXX format)
+      if (searchQuery.match(/^PX-[A-Z]{2}-\d{7}$/)) {
+        navigate(`/patients/${searchQuery}`);
+        return;
+      }
+      
+      // Check for exact Transaction ID match (TXXX-XX-XXXXX format)
+      if (searchQuery.match(/^TX\d{2}-\d{2}-\d{5}$/)) {
+        navigate(`/transactions/${searchQuery}`);
+        return;
+      }
+      
+      // Otherwise, go to patients with search filter
+      navigate(`/patients?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const shouldShowFAB = () => {
+    return (
+      location.pathname === '/patients' ||
+      location.pathname === '/transactions' ||
+      location.pathname.startsWith('/patients/') ||
+      location.pathname.startsWith('/transactions/')
+    );
+  };
+
   if (
     location.pathname === '/login' ||
     location.pathname === '/register' ||
@@ -42,7 +73,18 @@ export function MainLayout() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AppHeader toggleSidebar={toggleSidebar} />
+      <AppHeader toggleSidebar={toggleSidebar}>
+        <div className="relative hidden md:block w-80">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search by patient or transaction ID, name..."
+            className="pl-9 w-full"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearch}
+          />
+        </div>
+      </AppHeader>
       <Sidebar isOpen={isSidebarOpen} />
       <main
         className={cn(
@@ -52,9 +94,11 @@ export function MainLayout() {
       >
         <Outlet />
       </main>
-      <FloatingActionButton 
-        onClick={() => setIsNewTransactionModalOpen(true)} 
-      />
+      {shouldShowFAB() && (
+        <FloatingActionButton 
+          onClick={() => setIsNewTransactionModalOpen(true)} 
+        />
+      )}
       <NewTransactionModal 
         isOpen={isNewTransactionModalOpen}
         onClose={() => setIsNewTransactionModalOpen(false)}

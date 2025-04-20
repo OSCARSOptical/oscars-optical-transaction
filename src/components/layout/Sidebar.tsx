@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { 
   Home, 
@@ -11,14 +12,23 @@ import {
   BarChart4, 
   Settings,
   FilePlus,
-  PieChart
+  PieChart,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useState } from 'react';
 
 interface SidebarProps {
   isOpen: boolean;
 }
 
-const navItems = [
+// Primary navigation items
+const primaryNavItems = [
   {
     title: "Dashboard",
     icon: Home,
@@ -39,6 +49,10 @@ const navItems = [
     icon: BarChart4,
     href: "/balance-sheet",
   },
+];
+
+// Secondary navigation items (more menu)
+const secondaryNavItems = [
   {
     title: "Reports",
     icon: PieChart,
@@ -49,11 +63,44 @@ const navItems = [
     icon: FilePlus,
     href: "/new-entry",
   },
+  {
+    title: "Settings",
+    icon: Settings,
+    href: "/settings",
+  },
 ];
 
 export function Sidebar({ isOpen }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+
+  const NavButton = ({ item, index }: { item: { title: string; icon: any; href: string }; index: number }) => {
+    const isActive = location.pathname === item.href;
+    
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            className={cn(
+              "relative flex h-10 w-full items-center justify-start px-4 py-2",
+              isActive 
+                ? "bg-[#f8e4e6] text-black font-medium before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-[#9E0214] before:content-['']" 
+                : "text-gray-600 hover:bg-crimson-50 hover:text-crimson-700"
+            )}
+            onClick={() => navigate(item.href)}
+          >
+            <item.icon className="mr-2 h-5 w-5" />
+            {item.title}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={10} className="z-50">
+          {item.title}
+        </TooltipContent>
+      </Tooltip>
+    );
+  };
 
   return (
     <div
@@ -67,33 +114,36 @@ export function Sidebar({ isOpen }: SidebarProps) {
       </div>
       <ScrollArea className="flex-1 py-4">
         <nav className="grid gap-1 px-2">
-          {navItems.map((item, index) => (
-            <Button
-              key={index}
-              variant="ghost"
-              className={cn(
-                "flex h-10 items-center justify-start px-4 py-2",
-                location.pathname === item.href 
-                  ? "bg-crimson-50 text-crimson-700 font-medium" 
-                  : "text-gray-600 hover:bg-crimson-50 hover:text-crimson-700"
-              )}
-              onClick={() => navigate(item.href)}
-            >
-              <item.icon className="mr-2 h-5 w-5" />
-              {item.title}
-            </Button>
+          {primaryNavItems.map((item, index) => (
+            <NavButton key={index} item={item} index={index} />
           ))}
-        </nav>
-        <Separator className="my-4" />
-        <nav className="grid gap-1 px-2">
-          <Button
-            variant="ghost"
-            className="flex h-10 items-center justify-start px-4 py-2 text-gray-600 hover:bg-crimson-50 hover:text-crimson-700"
-            onClick={() => navigate('/settings')}
+          
+          <Collapsible
+            open={isMoreOpen}
+            onOpenChange={setIsMoreOpen}
+            className="mt-1"
           >
-            <Settings className="mr-2 h-5 w-5" />
-            Settings
-          </Button>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex h-10 w-full items-center justify-between px-4 py-2 text-gray-600 hover:bg-crimson-50 hover:text-crimson-700"
+              >
+                <div className="flex items-center">
+                  <span className="mr-2">More</span>
+                </div>
+                {isMoreOpen ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-2 py-1">
+              {secondaryNavItems.map((item, index) => (
+                <NavButton key={index} item={item} index={index} />
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
         </nav>
       </ScrollArea>
     </div>
