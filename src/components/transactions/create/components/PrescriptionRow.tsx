@@ -94,7 +94,22 @@ export const PrescriptionRow = ({
           </TableCell>
         </>
       )}
-      {!showAllFields && <TableCell colSpan={3} />}
+      {!showAllFields && (
+        <TableCell colSpan={3}>
+          <Select>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Near VA" className="text-gray-400" />
+            </SelectTrigger>
+            <SelectContent>
+              {visualAcuityOptions.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </TableCell>
+      )}
     </TableRow>
   );
 };

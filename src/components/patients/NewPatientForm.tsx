@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Patient } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,6 +17,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [age, setAge] = useState("");
+  const [sex, setSex] = useState<'Male' | 'Female'>('Male');
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -78,6 +80,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
       phone,
       address,
       age: parseInt(age) || 0,
+      sex
     });
   };
 
@@ -113,8 +116,8 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
           />
         </div>
 
-        {/* Row 2: Age and Contact Number */}
-        <div className="col-span-6 space-y-2">
+        {/* Row 2: Age, Sex and Contact Number */}
+        <div className="col-span-4 space-y-2">
           <Label htmlFor="age">Age</Label>
           <Input
             id="age"
@@ -124,7 +127,22 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
             onChange={(e) => setAge(e.target.value)}
           />
         </div>
-        <div className="col-span-6 space-y-2">
+        <div className="col-span-4 space-y-2">
+          <Label htmlFor="sex">Sex</Label>
+          <Select 
+            value={sex} 
+            onValueChange={(value) => setSex(value as 'Male' | 'Female')}
+          >
+            <SelectTrigger id="sex">
+              <SelectValue placeholder="Select sex" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Male">Male</SelectItem>
+              <SelectItem value="Female">Female</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="col-span-4 space-y-2">
           <Label htmlFor="phone">Contact Number</Label>
           <Input
             id="phone"

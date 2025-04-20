@@ -5,7 +5,7 @@ export interface Patient {
   firstName: string;
   lastName: string;
   age: number;
-  sex?: 'Male' | 'Female' | 'Other';
+  sex?: 'Male' | 'Female';
   email: string;
   phone: string;
   address: string;

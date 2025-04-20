@@ -26,7 +26,7 @@ const PatientInfo = ({ patient }: PatientInfoProps) => {
     firstName: "",
     lastName: "",
     age: 0,
-    sex: 'Other' as 'Male' | 'Female' | 'Other',
+    sex: 'Male' as 'Male' | 'Female',
     email: "",
     phone: "",
     address: ""
@@ -112,10 +112,10 @@ const PatientInfo = ({ patient }: PatientInfoProps) => {
             <div>
               <label className="text-sm font-medium">Sex</label>
               <Select 
-                value={currentPatient.sex || 'Other'} 
+                value={currentPatient.sex || 'Male'} 
                 onValueChange={(value) => setPatientData({ 
                   ...currentPatient, 
-                  sex: value as 'Male' | 'Female' | 'Other' 
+                  sex: value as 'Male' | 'Female' 
                 })}
                 disabled={!isEditing}
               >
@@ -125,7 +125,6 @@ const PatientInfo = ({ patient }: PatientInfoProps) => {
                 <SelectContent>
                   <SelectItem value="Male">Male</SelectItem>
                   <SelectItem value="Female">Female</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>

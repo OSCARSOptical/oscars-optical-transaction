@@ -35,7 +35,7 @@ export const usePatientData = (patientId: string | undefined) => {
         email: storedEmail || state.patient.email,
         phone: storedPhone || state.patient.phone,
         address: storedAddress || state.patient.address,
-        sex: (storedSex as 'Male' | 'Female' | 'Other') || state.patient.sex || 'Other'
+        sex: (storedSex as 'Male' | 'Female') || state.patient.sex || 'Male'
       };
       
       setPatient(updatedPatient);
@@ -54,7 +54,7 @@ export const usePatientData = (patientId: string | undefined) => {
           phone: '555-123-4567',
           address: '123 Main St, City, State',
           code: 'PX-JD-0000001',
-          sex: 'Male' as 'Male' | 'Female' | 'Other'
+          sex: 'Male' as 'Male' | 'Female'
         }, 
         {
           id: '67890',
@@ -65,7 +65,7 @@ export const usePatientData = (patientId: string | undefined) => {
           phone: '555-987-6543',
           address: '456 Oak St, City, State',
           code: 'PX-JS-0000001',
-          sex: 'Female' as 'Male' | 'Female' | 'Other'
+          sex: 'Female' as 'Male' | 'Female'
         },
         {
           id: '54321',
@@ -76,7 +76,7 @@ export const usePatientData = (patientId: string | undefined) => {
           phone: '555-555-1111',
           address: '789 Pine St, City, State',
           code: 'PX-OS-0000001',
-          sex: 'Male' as 'Male' | 'Female' | 'Other'
+          sex: 'Male' as 'Male' | 'Female'
         }
       ];
       
@@ -101,7 +101,7 @@ export const usePatientData = (patientId: string | undefined) => {
           email: storedEmail || samplePatient.email,
           phone: storedPhone || samplePatient.phone,
           address: storedAddress || samplePatient.address,
-          sex: (storedSex as 'Male' | 'Female' | 'Other') || samplePatient.sex
+          sex: (storedSex as 'Male' | 'Female') || samplePatient.sex
         };
         
         setPatient(updatedPatient);
@@ -121,7 +121,7 @@ export const usePatientData = (patientId: string | undefined) => {
           email: localStorage.getItem(`patient_${patientId}_email`) || "",
           phone: localStorage.getItem(`patient_${patientId}_phone`) || "",
           address: localStorage.getItem(`patient_${patientId}_address`) || "",
-          sex: (localStorage.getItem(`patient_${patientId}_sex`) as 'Male' | 'Female' | 'Other') || 'Other'
+          sex: (localStorage.getItem(`patient_${patientId}_sex`) as 'Male' | 'Female') || 'Male'
         };
         
         setPatient(mockPatient);
