@@ -18,7 +18,7 @@ export interface Transaction {
   patientName: string;
   firstName: string;
   lastName: string;
-  type: 'Complete' | 'Frame Replacement' | 'Lens Replacement' | 'Eye Exam' | 'Medical Certificate' | 'Contact Lens' | 'Repair' | 'Return';
+  type: 'Complete' | 'Frame Replacement' | 'Lens Replacement' | 'Eye Exam' | 'Medical Certificate' | 'Contact Lens' | 'Repair' | 'Return' | 'Balance Payment';
   grossAmount: number;
   deposit: number;
   balance: number;
@@ -28,4 +28,5 @@ export interface Transaction {
   totalExpenses: number;
   claimed: boolean;
   dateClaimed: string | null;
+  isBalancePayment?: boolean;
 }
