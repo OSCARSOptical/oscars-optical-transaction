@@ -45,7 +45,7 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
             <TableHead className="text-right">Gross Amount</TableHead>
             <TableHead className="text-right">Deposit</TableHead>
             <TableHead className="text-right">Balance</TableHead>
-            <TableHead className="text-center w-[80px]">Claimed</TableHead>
+            <TableHead className="text-center w-[64px]">Claimed</TableHead>
             <TableHead className="text-right w-[110px]">Claimed On</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
@@ -74,12 +74,9 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
                 <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
                 <TableCell className="text-center">
-                  <input
-                    type="checkbox"
-                    checked={transaction.claimed}
-                    disabled
-                    className="accent-[#9E0214] scale-90"
-                  />
+                  {transaction.claimed && (
+                    <Check className="mx-auto h-4 w-4 text-[#9E0214]" strokeWidth={3} />
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   {formatClaimDate(transaction.claimed ? transaction.dateClaimed : null)}
