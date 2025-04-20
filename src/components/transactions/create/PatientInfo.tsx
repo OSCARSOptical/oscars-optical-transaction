@@ -12,9 +12,10 @@ import PatientInfoFields from "./patient-info/PatientInfoFields";
 interface PatientInfoProps {
   patient?: Patient;
   onPatientUpdate?: (updatedPatient: Patient) => void;
+  readOnly?: boolean;
 }
 
-const PatientInfo = ({ patient: initialPatient, onPatientUpdate }: PatientInfoProps) => {
+const PatientInfo = ({ patient: initialPatient, onPatientUpdate, readOnly = false }: PatientInfoProps) => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [patientData, setPatientData] = useState<Patient | undefined>(initialPatient);

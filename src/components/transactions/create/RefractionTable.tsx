@@ -8,13 +8,26 @@ import {
 } from "./utils/refractionOptions";
 import { distanceVisualAcuityOptions, nearVisualAcuityOptions } from "./constants/visualAcuityOptions";
 import { PrescriptionRow } from "./components/PrescriptionRow";
+import { RefractionData } from "@/types";
+
+interface RefractionTableProps {
+  data?: RefractionData;
+  onChange?: (data: RefractionData) => void;
+  showAddPower?: boolean;
+  readOnly?: boolean;
+}
 
 const sphereOptions = generateSphereOptions();
 const cylinderOptions = generateCylinderOptions();
 const axisOptions = generateAxisOptions();
 const addOptions = generateAddOptions();
 
-export const RefractionTable = () => {
+export const RefractionTable = ({ 
+  data, 
+  onChange, 
+  showAddPower = false, 
+  readOnly = false 
+}: RefractionTableProps) => {
   return (
     <Table>
       <TableHeader>
@@ -34,6 +47,9 @@ export const RefractionTable = () => {
           cylinderOptions={cylinderOptions}
           axisOptions={axisOptions}
           visualAcuityOptions={distanceVisualAcuityOptions}
+          value={data?.OD}
+          onChange={onChange}
+          readOnly={readOnly}
         />
         <PrescriptionRow
           label="OS"
@@ -42,16 +58,24 @@ export const RefractionTable = () => {
           cylinderOptions={cylinderOptions}
           axisOptions={axisOptions}
           visualAcuityOptions={distanceVisualAcuityOptions}
+          value={data?.OS}
+          onChange={onChange}
+          readOnly={readOnly}
         />
-        <PrescriptionRow
-          label="ADD"
-          type="add"
-          sphereOptions={addOptions}
-          cylinderOptions={cylinderOptions}
-          axisOptions={axisOptions}
-          visualAcuityOptions={nearVisualAcuityOptions}
-          showAllFields={false}
-        />
+        {(showAddPower || data?.ADD) && (
+          <PrescriptionRow
+            label="ADD"
+            type="add"
+            sphereOptions={addOptions}
+            cylinderOptions={cylinderOptions}
+            axisOptions={axisOptions}
+            visualAcuityOptions={nearVisualAcuityOptions}
+            value={data?.ADD}
+            onChange={onChange}
+            showAllFields={false}
+            readOnly={readOnly}
+          />
+        )}
       </TableBody>
     </Table>
   );
