@@ -78,7 +78,10 @@ export const PrescriptionRow = ({
           <TableCell>
             <Select>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={type === 'add' ? "Select Near VA" : "Select VA"} className="text-gray-400" />
+                <SelectValue 
+                  placeholder={type === 'add' ? "Select Near VA" : "Select VA"} 
+                  className="text-gray-400" 
+                />
               </SelectTrigger>
               <SelectContent>
                 {visualAcuityOptions.map(option => (
