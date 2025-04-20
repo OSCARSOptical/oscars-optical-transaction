@@ -12,6 +12,14 @@ interface MonthlySummaryProps {
 }
 
 export function MonthlySummary({ totals }: MonthlySummaryProps) {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      currencyDisplay: 'symbol',
+    }).format(amount).replace('PHP', '₱');
+  };
+
   return (
     <Card className="sticky top-0 z-10 shadow-sm border border-gray-100 bg-white">
       <CardContent className="p-4">
@@ -22,7 +30,7 @@ export function MonthlySummary({ totals }: MonthlySummaryProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Monthly Gross Sales</p>
-              <h3 className="text-xl font-bold">${totals.grossSales.toFixed(2)}</h3>
+              <h3 className="text-xl font-bold">{formatCurrency(totals.grossSales)}</h3>
             </div>
           </div>
           
@@ -32,7 +40,7 @@ export function MonthlySummary({ totals }: MonthlySummaryProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Monthly Deposits</p>
-              <h3 className="text-xl font-bold">${totals.deposits.toFixed(2)}</h3>
+              <h3 className="text-xl font-bold">{formatCurrency(totals.deposits)}</h3>
             </div>
           </div>
           
@@ -42,7 +50,7 @@ export function MonthlySummary({ totals }: MonthlySummaryProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Monthly Expenses</p>
-              <h3 className="text-xl font-bold">${totals.expenses.toFixed(2)}</h3>
+              <h3 className="text-xl font-bold">{formatCurrency(totals.expenses)}</h3>
             </div>
           </div>
           
@@ -53,7 +61,7 @@ export function MonthlySummary({ totals }: MonthlySummaryProps) {
             <div>
               <p className="text-sm font-medium text-muted-foreground">Monthly Net Income</p>
               <h3 className={`text-xl font-bold ${totals.netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${totals.netIncome.toFixed(2)}
+                {formatCurrency(totals.netIncome)}
               </h3>
             </div>
           </div>

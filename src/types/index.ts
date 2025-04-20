@@ -22,4 +22,10 @@ export interface Transaction {
   grossAmount: number;
   deposit: number;
   balance: number;
+  lensCapital: number;
+  edgingPrice: number;
+  otherExpenses: number;
+  totalExpenses: number;
+  claimed: boolean;
+  dateClaimed: string | null;
 }

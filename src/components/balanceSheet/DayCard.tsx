@@ -5,23 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Transaction } from "@/types";
 
-interface Expense {
-  id: string;
-  date: string;
-  description: string;
-  amount: number;
-  category: 'lens capital' | 'edging price' | 'other';
-}
-
 interface DayCardProps {
   date: string;
   transactions: Transaction[];
-  expenses: Expense[];
   startingBalance: number;
   endingBalance: number;
 }
 
-export function DayCard({ date, transactions, expenses, startingBalance, endingBalance }: DayCardProps) {
+export function DayCard({ date, transactions, startingBalance, endingBalance }: DayCardProps) {
   const navigate = useNavigate();
   
   // Parse and format the date
@@ -32,12 +23,20 @@ export function DayCard({ date, transactions, expenses, startingBalance, endingB
   const totalGrossAmount = transactions.reduce((sum, tx) => sum + tx.grossAmount, 0);
   const totalDeposits = transactions.reduce((sum, tx) => sum + tx.deposit, 0);
   const totalBalance = transactions.reduce((sum, tx) => sum + tx.balance, 0);
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalExpenses = transactions.reduce((sum, tx) => sum + tx.totalExpenses, 0);
   const dailyNetIncome = totalDeposits - totalExpenses;
   
   // Handle transaction code click
   const handleTransactionClick = (transactionCode: string) => {
     navigate(`/transactions/${transactionCode}`);
+  };
+  
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      currencyDisplay: 'symbol',
+    }).format(amount).replace('PHP', '₱');
   };
   
   return (
@@ -48,20 +47,20 @@ export function DayCard({ date, transactions, expenses, startingBalance, endingB
           <div className="flex flex-col md:flex-row md:space-x-6 space-y-1 md:space-y-0 text-sm mt-2 md:mt-0">
             <div className="flex flex-col">
               <span className="text-muted-foreground">Gross Amount</span>
-              <span className="font-semibold">${totalGrossAmount.toFixed(2)}</span>
+              <span className="font-semibold">{formatCurrency(totalGrossAmount)}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-muted-foreground">Deposits Received</span>
-              <span className="font-semibold">${totalDeposits.toFixed(2)}</span>
+              <span className="font-semibold">{formatCurrency(totalDeposits)}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-muted-foreground">Total Expenses</span>
-              <span className="font-semibold">${totalExpenses.toFixed(2)}</span>
+              <span className="font-semibold">{formatCurrency(totalExpenses)}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-muted-foreground">Daily Net Income</span>
               <span className={`font-semibold ${dailyNetIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${dailyNetIncome.toFixed(2)}
+                {formatCurrency(dailyNetIncome)}
               </span>
             </div>
           </div>
@@ -69,11 +68,11 @@ export function DayCard({ date, transactions, expenses, startingBalance, endingB
         <div className="grid grid-cols-2 gap-4 mt-3">
           <div className="flex flex-col">
             <span className="text-sm text-muted-foreground">Starting Balance</span>
-            <span className="font-semibold">${startingBalance.toFixed(2)}</span>
+            <span className="font-semibold">{formatCurrency(startingBalance)}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-sm text-muted-foreground">Ending Balance</span>
-            <span className="font-semibold">${endingBalance.toFixed(2)}</span>
+            <span className="font-semibold">{formatCurrency(endingBalance)}</span>
           </div>
         </div>
       </CardHeader>
@@ -93,13 +92,7 @@ export function DayCard({ date, transactions, expenses, startingBalance, endingB
             </TableHeader>
             <TableBody>
               {transactions.map((transaction) => {
-                // For each transaction, find related expenses
-                const transactionExpenses = expenses.filter(expense => 
-                  expense.date === transaction.date
-                );
-                
-                const expenseTotal = transactionExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-                const netIncome = transaction.deposit - expenseTotal;
+                const netIncome = transaction.deposit - transaction.totalExpenses;
                 
                 return (
                   <TableRow key={transaction.id}>
@@ -111,39 +104,17 @@ export function DayCard({ date, transactions, expenses, startingBalance, endingB
                         {transaction.code}
                       </button>
                     </TableCell>
-                    <TableCell className="text-right">${transaction.grossAmount.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${transaction.deposit.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${transaction.balance.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${expenseTotal.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(transaction.grossAmount)}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(transaction.totalExpenses)}</TableCell>
                     <TableCell className="text-right">
                       <span className={netIncome >= 0 ? 'text-green-600' : 'text-red-600'}>
-                        ${netIncome.toFixed(2)}
+                        {formatCurrency(netIncome)}
                       </span>
                     </TableCell>
                   </TableRow>
                 );
-              })}
-              
-              {expenses.map(expense => {
-                // Only show expenses not already attributed to transactions
-                const isTransactionExpense = transactions.some(tx => tx.date === expense.date);
-                if (!isTransactionExpense) {
-                  return (
-                    <TableRow key={expense.id}>
-                      <TableCell>{expense.description}</TableCell>
-                      <TableCell className="text-right">-</TableCell>
-                      <TableCell className="text-right">-</TableCell>
-                      <TableCell className="text-right">-</TableCell>
-                      <TableCell className="text-right">${expense.amount.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">
-                        <span className="text-red-600">
-                          -${expense.amount.toFixed(2)}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  );
-                }
-                return null;
               })}
             </TableBody>
           </Table>
@@ -153,13 +124,13 @@ export function DayCard({ date, transactions, expenses, startingBalance, endingB
       <CardFooter className="border-t pt-4">
         <div className="w-full grid grid-cols-6 text-sm font-medium">
           <div>Total</div>
-          <div className="text-right">${totalGrossAmount.toFixed(2)}</div>
-          <div className="text-right">${totalDeposits.toFixed(2)}</div>
-          <div className="text-right">${totalBalance.toFixed(2)}</div>
-          <div className="text-right">${totalExpenses.toFixed(2)}</div>
+          <div className="text-right">{formatCurrency(totalGrossAmount)}</div>
+          <div className="text-right">{formatCurrency(totalDeposits)}</div>
+          <div className="text-right">{formatCurrency(totalBalance)}</div>
+          <div className="text-right">{formatCurrency(totalExpenses)}</div>
           <div className="text-right">
             <span className={dailyNetIncome >= 0 ? 'text-green-600' : 'text-red-600'}>
-              ${dailyNetIncome.toFixed(2)}
+              {formatCurrency(dailyNetIncome)}
             </span>
           </div>
         </div>

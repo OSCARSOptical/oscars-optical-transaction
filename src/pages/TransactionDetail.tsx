@@ -5,7 +5,8 @@ import {
   Card, 
   CardContent, 
   CardHeader, 
-  CardTitle 
+  CardTitle, 
+  CardFooter
 } from "@/components/ui/card";
 import { 
   Tabs, 
@@ -17,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Edit2 } from "lucide-react";
+import { Edit2, Check, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { 
   Select,
@@ -26,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Transaction, Patient } from '@/types';
 import OrderDetails from '@/components/transactions/create/OrderDetails';
 
@@ -33,29 +35,60 @@ import OrderDetails from '@/components/transactions/create/OrderDetails';
 const mockTransactions: Transaction[] = [
   {
     id: "1",
-    code: "TX25-04-0001",
+    code: "TX25-04-00001",
     date: "2025-04-10",
-    patientCode: "PX-JD-12345",
+    patientCode: "PX-JD-0000001",
     patientName: "John Doe",
     firstName: "John",
     lastName: "Doe",
-    type: "Eye Exam",
-    grossAmount: 150.00,
-    deposit: 50.00,
-    balance: 100.00
+    type: "Complete",
+    grossAmount: 7500.00,
+    deposit: 2500.00,
+    balance: 5000.00,
+    lensCapital: 1200.00,
+    edgingPrice: 150.00,
+    otherExpenses: 50.00,
+    totalExpenses: 1400.00,
+    claimed: true,
+    dateClaimed: "2025-04-15"
   },
   {
     id: "2",
-    code: "TX25-04-0002",
+    code: "TX25-04-00002",
     date: "2025-04-08",
-    patientCode: "PX-JS-67890",
+    patientCode: "PX-JS-0000001",
     patientName: "Jane Smith",
     firstName: "Jane",
     lastName: "Smith",
+    type: "Eye Exam",
+    grossAmount: 1205.00,
+    deposit: 1205.00,
+    balance: 0.00,
+    lensCapital: 0.00,
+    edgingPrice: 0.00,
+    otherExpenses: 0.00,
+    totalExpenses: 0.00,
+    claimed: true,
+    dateClaimed: "2025-04-08"
+  },
+  {
+    id: "3",
+    code: "TX25-04-00003",
+    date: "2025-04-11",
+    patientCode: "PX-OS-0000001",
+    patientName: "Oscar Santos",
+    firstName: "Oscar",
+    lastName: "Santos",
     type: "Frame Replacement",
-    grossAmount: 300.00,
-    deposit: 150.00,
-    balance: 150.00
+    grossAmount: 6800.00,
+    deposit: 6800.00,
+    balance: 0.00,
+    lensCapital: 2800.00,
+    edgingPrice: 200.00,
+    otherExpenses: 100.00,
+    totalExpenses: 3100.00,
+    claimed: false,
+    dateClaimed: null
   }
 ];
 
@@ -66,9 +99,9 @@ const mockPatients: Patient[] = [
     lastName: 'Doe',
     age: 35,
     email: 'john@example.com',
-    phone: '(555) 123-4567',
+    phone: '555-123-4567',
     address: '123 Main St, City, State',
-    code: 'PX-JD-12345'
+    code: 'PX-JD-0000001'
   },
   {
     id: '67890',
@@ -76,9 +109,19 @@ const mockPatients: Patient[] = [
     lastName: 'Smith',
     age: 28,
     email: 'jane@example.com',
-    phone: '(555) 987-6543',
+    phone: '555-987-6543',
     address: '456 Oak St, City, State',
-    code: 'PX-JS-67890'
+    code: 'PX-JS-0000001'
+  },
+  {
+    id: '54321',
+    firstName: 'Oscar',
+    lastName: 'Santos',
+    age: 40,
+    email: 'oscar@example.com',
+    phone: '555-555-1111',
+    address: '789 Pine St, City, State',
+    code: 'PX-OS-0000001'
   }
 ];
 
@@ -95,6 +138,19 @@ const TransactionDetail = () => {
   const [doctorName, setDoctorName] = useState('Dr. Sarah Johnson');
   const [doctorRemarks, setDoctorRemarks] = useState('Patient reports occasional headaches when reading for extended periods. Recommended blue light filtering lenses.');
   const [orderNotes, setOrderNotes] = useState('Rush order. Patient needs glasses before international trip next week.');
+  const [lensCapital, setLensCapital] = useState(0);
+  const [edgingPrice, setEdgingPrice] = useState(0);
+  const [otherExpenses, setOtherExpenses] = useState(0);
+  const [claimed, setClaimed] = useState(false);
+  const [dateClaimed, setDateClaimed] = useState<string | null>(null);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      currencyDisplay: 'symbol',
+    }).format(amount).replace('PHP', '₱');
+  };
 
   useEffect(() => {
     // Find the transaction with the matching code
@@ -103,6 +159,11 @@ const TransactionDetail = () => {
     if (foundTransaction) {
       setTransaction(foundTransaction);
       setTransactionType(foundTransaction.type);
+      setLensCapital(foundTransaction.lensCapital);
+      setEdgingPrice(foundTransaction.edgingPrice);
+      setOtherExpenses(foundTransaction.otherExpenses);
+      setClaimed(foundTransaction.claimed);
+      setDateClaimed(foundTransaction.dateClaimed);
       
       // Find the associated patient
       const foundPatient = mockPatients.find(p => p.code === foundTransaction.patientCode);
@@ -149,6 +210,9 @@ const TransactionDetail = () => {
     }
     setIsEditing(!isEditing);
   };
+
+  // Calculate total expenses
+  const totalExpenses = lensCapital + edgingPrice + otherExpenses;
 
   // Determine if the Refraction card should be shown based on transaction type
   const shouldShowRefraction = () => {
@@ -206,8 +270,8 @@ const TransactionDetail = () => {
           </Button>
         </CardHeader>
         <CardContent className="flex justify-between items-center">
-          <div>Patient Code: {patient.code}</div>
-          <div>Transaction Code: {transaction.code}</div>
+          <div>Patient ID: {patient.code}</div>
+          <div>Transaction ID: {transaction.code}</div>
         </CardContent>
       </Card>
 
@@ -281,6 +345,101 @@ const TransactionDetail = () => {
                 type="date"
                 value={transaction.date}
                 readOnly
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="grossAmount">Gross Amount</Label>
+              <Input 
+                id="grossAmount" 
+                value={formatCurrency(transaction.grossAmount)} 
+                readOnly 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="deposit">Deposit</Label>
+              <Input 
+                id="deposit" 
+                value={formatCurrency(transaction.deposit)} 
+                readOnly 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="balance">Balance</Label>
+              <Input 
+                id="balance" 
+                value={formatCurrency(transaction.balance)} 
+                readOnly 
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="lensCapital">Lens Capital</Label>
+              <Input 
+                id="lensCapital" 
+                type="number" 
+                value={lensCapital} 
+                onChange={(e) => setLensCapital(Number(e.target.value))} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edgingPrice">Edging Price</Label>
+              <Input 
+                id="edgingPrice" 
+                type="number" 
+                value={edgingPrice} 
+                onChange={(e) => setEdgingPrice(Number(e.target.value))} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="otherExpenses">Other Expenses</Label>
+              <Input 
+                id="otherExpenses" 
+                type="number" 
+                value={otherExpenses} 
+                onChange={(e) => setOtherExpenses(Number(e.target.value))} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="totalExpenses">Total Expenses</Label>
+              <Input 
+                id="totalExpenses" 
+                value={formatCurrency(totalExpenses)} 
+                readOnly 
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="claimed" 
+                checked={claimed} 
+                onCheckedChange={(checked) => {
+                  const isChecked = checked === true;
+                  setClaimed(isChecked);
+                  if (isChecked && !dateClaimed) {
+                    // Set today's date if newly checked
+                    setDateClaimed(new Date().toISOString().split('T')[0]);
+                  } else if (!isChecked) {
+                    setDateClaimed(null);
+                  }
+                }} 
+              />
+              <Label htmlFor="claimed">Claimed</Label>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dateClaimed">Date Claimed</Label>
+              <Input
+                id="dateClaimed"
+                type="date"
+                value={dateClaimed || ''}
+                onChange={(e) => setDateClaimed(e.target.value)}
+                disabled={!claimed}
               />
             </div>
           </div>

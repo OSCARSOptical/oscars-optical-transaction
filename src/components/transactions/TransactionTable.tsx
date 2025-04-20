@@ -25,10 +25,11 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-PH', {
       style: 'currency',
-      currency: 'USD',
-    }).format(amount);
+      currency: 'PHP',
+      currencyDisplay: 'symbol',
+    }).format(amount).replace('PHP', '₱');
   };
 
   const getTypeColor = (type: string) => {
