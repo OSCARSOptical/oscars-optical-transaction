@@ -11,6 +11,7 @@ import { TransactionHeader } from '@/components/transactions/detail/TransactionH
 import { PatientCard } from '@/components/transactions/detail/PatientCard';
 import { FinancialCard } from '@/components/transactions/detail/FinancialCard';
 import { InfoCard } from '@/components/transactions/detail/InfoCard';
+import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 
 const TransactionDetail = () => {
   const { transactionCode } = useParams<{ transactionCode: string }>();
@@ -50,13 +51,43 @@ const TransactionDetail = () => {
   const handleClaimedToggle = () => {
     if (!transaction) return;
     
-    const updatedTransaction = {
-      ...transaction,
-      claimed: !transaction.claimed,
-      dateClaimed: !transaction.claimed ? new Date().toISOString() : null
-    };
-    
-    setTransaction(updatedTransaction);
+    if (transaction.claimed) {
+      // Unclaiming a transaction
+      if (transaction.dateClaimed) {
+        removeBalanceSheetEntry({
+          date: transaction.dateClaimed,
+          transactionId: transaction.code
+        });
+      }
+      
+      // Restore the balance
+      const restoredBalance = transaction.grossAmount - transaction.deposit;
+      
+      setTransaction({
+        ...transaction,
+        claimed: false,
+        dateClaimed: null,
+        balance: restoredBalance
+      });
+    } else {
+      // Claiming a transaction
+      const today = new Date().toISOString().split('T')[0];
+      const balancePaid = transaction.balance;
+      
+      // Add balance sheet entry
+      addBalanceSheetEntry({
+        date: today,
+        transactionId: transaction.code,
+        balancePaid
+      });
+      
+      setTransaction({
+        ...transaction,
+        claimed: true,
+        dateClaimed: today,
+        balance: 0
+      });
+    }
     
     toast({
       title: "✓ Saved!",

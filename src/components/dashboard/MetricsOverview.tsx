@@ -103,6 +103,20 @@ const MetricsOverview = () => {
   const [transactions, setTransactions] = useState<Transaction[]>(sampleTransactions);
   const [pendingPayments, setPendingPayments] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Listen for balance sheet updates to refresh metrics
+  useEffect(() => {
+    const handleBalanceSheetUpdate = () => {
+      setRefreshTrigger(prev => prev + 1);
+    };
+    
+    window.addEventListener('balanceSheetUpdated', handleBalanceSheetUpdate);
+    
+    return () => {
+      window.removeEventListener('balanceSheetUpdated', handleBalanceSheetUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     // Calculate total pending payments (balances on unclaimed transactions)
@@ -115,7 +129,7 @@ const MetricsOverview = () => {
     
     setPendingPayments(pending);
     setPendingCount(count);
-  }, [transactions]);
+  }, [transactions, refreshTrigger]);
 
   // Function to format currency
   const formatCurrency = (amount: number) => {
@@ -174,7 +188,7 @@ const MetricsOverview = () => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric, index) => (
-        <MetricCard key={index} {...metric} />
+        <MetricCard key={`${index}-${refreshTrigger}`} {...metric} />
       ))}
     </div>
   );

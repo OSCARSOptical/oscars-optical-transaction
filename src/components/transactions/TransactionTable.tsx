@@ -6,6 +6,7 @@ import { Transaction } from '@/types';
 import { formatCurrency } from '@/utils/formatters';
 import { UnclaimConfirmDialog } from './UnclaimConfirmDialog';
 import { TransactionTableRow } from './TransactionTableRow';
+import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -16,18 +17,32 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   const { toast } = useToast();
   const [localTransactions, setLocalTransactions] = useState<Transaction[]>(transactions);
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
-  const [transactionToUnclaim, setTransactionToUnclaim] = useState<string | null>(null);
+  const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
 
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
     if (currentValue) {
-      setTransactionToUnclaim(id);
-      setShowUnclaimDialog(true);
+      // Unclaiming - need to show confirmation dialog
+      const transaction = localTransactions.find(tx => tx.id === id);
+      if (transaction) {
+        setTransactionToUnclaim(transaction);
+        setShowUnclaimDialog(true);
+      }
       return;
     }
     
+    // Claiming the transaction
     const updatedTransactions = localTransactions.map(transaction => {
       if (transaction.id === id) {
         const today = new Date().toISOString().split('T')[0];
+        const balancePaid = transaction.balance;
+        
+        // Create a new balance sheet entry
+        addBalanceSheetEntry({
+          date: today,
+          transactionId: transaction.code,
+          balancePaid
+        });
+        
         const updatedTransaction = {
           ...transaction,
           claimed: true,
@@ -37,7 +52,7 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
         
         toast({
           title: "✓ Payment Claimed!",
-          description: `Balance of ${formatCurrency(transaction.balance)} has been collected and recorded.`,
+          description: `Balance of ${formatCurrency(balancePaid)} has been collected and recorded.`,
           className: "bg-[#FFC42B] text-[#241715] rounded-lg",
           duration: 3000,
         });
@@ -54,12 +69,24 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     if (!transactionToUnclaim) return;
     
     const updatedTransactions = localTransactions.map(transaction => {
-      if (transaction.id === transactionToUnclaim) {
+      if (transaction.id === transactionToUnclaim.id) {
+        // Remove the balance sheet entry
+        if (transactionToUnclaim.dateClaimed) {
+          removeBalanceSheetEntry({
+            date: transactionToUnclaim.dateClaimed,
+            transactionId: transactionToUnclaim.code
+          });
+        }
+        
+        // Restore the original balance - use balancePaid value from context or stored value
+        // For demo using a previously known value that was saved somewhere
+        const restoredBalance = transaction.grossAmount - transaction.deposit;
+        
         const restoredTransaction = {
           ...transaction,
           claimed: false,
           dateClaimed: null,
-          balance: 5000.00 // For demo purposes using a hard-coded value
+          balance: restoredBalance
         };
         
         toast({
