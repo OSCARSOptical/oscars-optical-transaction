@@ -44,9 +44,26 @@ const PatientDetailPage = () => {
   const [patient, setPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
-    // In a real app, this would fetch from an API
+    // Find the patient in sample data
     const foundPatient = samplePatients.find(p => p.code === patientCode);
-    setPatient(foundPatient || null);
+    
+    if (foundPatient) {
+      // Check for localStorage updates
+      const storedFirstName = localStorage.getItem(`patient_${foundPatient.id}_firstName`);
+      const storedLastName = localStorage.getItem(`patient_${foundPatient.id}_lastName`);
+      
+      if (storedFirstName || storedLastName) {
+        setPatient({
+          ...foundPatient,
+          firstName: storedFirstName || foundPatient.firstName,
+          lastName: storedLastName || foundPatient.lastName
+        });
+      } else {
+        setPatient(foundPatient);
+      }
+    } else {
+      setPatient(null);
+    }
   }, [patientCode]);
 
   return (
