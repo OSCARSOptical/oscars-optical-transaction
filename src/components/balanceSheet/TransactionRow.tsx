@@ -17,6 +17,16 @@ export function TransactionRow({ transaction, formatCurrency }: TransactionRowPr
   const navigate = useNavigate();
   const netIncome = transaction.deposit - transaction.totalExpenses;
   
+  const handleNavigateToTransaction = () => {
+    if (transaction.isBalancePayment && transaction.code.includes(' - Balance')) {
+      // Extract the original transaction code from the description
+      const originalCode = transaction.code.split(' - Balance')[0];
+      navigate(`/patients/${transaction.patientCode}/transactions/${originalCode}`);
+    } else {
+      navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`);
+    }
+  };
+  
   return (
     <TableRow>
       <TableCell className="min-w-[220px] truncate">
@@ -24,7 +34,7 @@ export function TransactionRow({ transaction, formatCurrency }: TransactionRowPr
           <TooltipTrigger asChild>
             <button 
               className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 text-left"
-              onClick={() => navigate(`/transactions/${transaction.code}`)}
+              onClick={handleNavigateToTransaction}
             >
               {transaction.code}
             </button>

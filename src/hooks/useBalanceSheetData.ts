@@ -61,26 +61,31 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
       
       entries.forEach(entry => {
         if (entry.isBalancePayment) {
-          groupedData[date].transactions.push({
-            id: `balance-${entry.transactionId}-${Date.now()}`,
-            code: entry.description,
-            date: date,
-            patientCode: "",
-            patientName: "",
-            firstName: "",
-            lastName: "",
-            type: "Balance Payment",
-            grossAmount: entry.grossAmount,
-            deposit: entry.deposit,
-            balance: entry.balance,
-            lensCapital: 0,
-            edgingPrice: 0,
-            otherExpenses: 0,
-            totalExpenses: entry.expenses,
-            claimed: true,
-            dateClaimed: date,
-            isBalancePayment: true
-          });
+          // Find original transaction to get patient information
+          const originalTransaction = filteredTransactions.find(t => t.code === entry.transactionId);
+          
+          if (originalTransaction) {
+            groupedData[date].transactions.push({
+              id: `balance-${entry.transactionId}-${Date.now()}`,
+              code: entry.description,
+              date: date,
+              patientCode: originalTransaction.patientCode,
+              patientName: originalTransaction.patientName,
+              firstName: originalTransaction.firstName,
+              lastName: originalTransaction.lastName,
+              type: "Balance Payment",
+              grossAmount: entry.grossAmount,
+              deposit: entry.deposit,
+              balance: entry.balance,
+              lensCapital: 0,
+              edgingPrice: 0,
+              otherExpenses: 0,
+              totalExpenses: entry.expenses,
+              claimed: true,
+              dateClaimed: date,
+              isBalancePayment: true
+            });
+          }
         }
       });
     }

@@ -1,4 +1,3 @@
-
 import { Transaction } from '@/types';
 
 // In-memory storage for balance sheet entries
@@ -20,12 +19,10 @@ interface RemoveEntryParams {
  * Adds a balance entry to the balance sheet
  */
 export const addBalanceSheetEntry = ({ date, transactionId, balancePaid }: BalanceSheetEntry) => {
-  // Create the day's entries if they don't exist
   if (!balanceSheetEntries[date]) {
     balanceSheetEntries[date] = [];
   }
   
-  // Add a new entry for this balance payment
   balanceSheetEntries[date].push({
     description: `${transactionId} - Balance`,
     grossAmount: 0,
@@ -34,13 +31,11 @@ export const addBalanceSheetEntry = ({ date, transactionId, balancePaid }: Balan
     expenses: 0,
     netIncome: balancePaid,
     isBalancePayment: true,
-    transactionId
+    transactionId,
+    // Note: Additional data needed for navigation will come from the original transaction
   });
   
-  // In a real app, you'd save this to a database
   console.log(`Added balance sheet entry for ${date}:`, balanceSheetEntries[date]);
-  
-  // Trigger any necessary UI updates (would be handled by a state management system)
   triggerBalanceSheetUpdate();
 };
 
@@ -48,22 +43,17 @@ export const addBalanceSheetEntry = ({ date, transactionId, balancePaid }: Balan
  * Removes a balance entry from the balance sheet
  */
 export const removeBalanceSheetEntry = ({ date, transactionId }: RemoveEntryParams) => {
-  // Find and remove the entry
   if (balanceSheetEntries[date]) {
     balanceSheetEntries[date] = balanceSheetEntries[date].filter(
       entry => !(entry.isBalancePayment && entry.description === `${transactionId} - Balance`)
     );
     
-    // Remove the day entirely if it's empty
     if (balanceSheetEntries[date].length === 0) {
       delete balanceSheetEntries[date];
     }
   }
   
-  // In a real app, you'd update this in a database
   console.log(`Removed balance sheet entry for ${date}, transaction ${transactionId}`);
-  
-  // Trigger any necessary UI updates
   triggerBalanceSheetUpdate();
 };
 
@@ -86,8 +76,6 @@ export const getAllBalanceSheetEntries = () => {
  * In a real app, this would use state management or context
  */
 const triggerBalanceSheetUpdate = () => {
-  // This would dispatch an action or update context
-  // For now, we'll just dispatch a custom event
   const event = new CustomEvent('balanceSheetUpdated', { 
     detail: { timestamp: new Date().getTime() } 
   });
