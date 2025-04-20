@@ -3,20 +3,22 @@ import { Transaction } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check } from "lucide-react";
+import { Check, Edit } from "lucide-react";
 import { formatDate, getTypeColor, formatCurrency } from '@/utils/formatters';
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 import { UnclaimConfirmDialog } from '../UnclaimConfirmDialog';
 import { addPayment, removePayment, findPayment } from '@/utils/paymentsUtils';
+import { Button } from "@/components/ui/button";
 
 interface TransactionHeaderProps {
   transaction: Transaction;
   onClaimedToggle: () => void;
+  onEdit?: () => void; // Added the onEdit property as optional
 }
 
-export function TransactionHeader({ transaction, onClaimedToggle }: TransactionHeaderProps) {
+export function TransactionHeader({ transaction, onClaimedToggle, onEdit }: TransactionHeaderProps) {
   const { toast } = useToast();
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [localTransaction, setLocalTransaction] = useState<Transaction>(transaction);
@@ -99,7 +101,20 @@ export function TransactionHeader({ transaction, onClaimedToggle }: TransactionH
     <>
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-xl font-bold">Transaction {localTransaction.code}</CardTitle>
+          <CardTitle className="text-xl font-bold flex justify-between items-center">
+            <span>Transaction {localTransaction.code}</span>
+            {onEdit && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onEdit}
+                className="gap-1"
+              >
+                <Edit className="h-4 w-4" />
+                Edit
+              </Button>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

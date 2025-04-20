@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { Transaction } from '@/types';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { TransactionView } from '@/components/transactions/detail/TransactionView';
+import { findPayment } from '@/utils/paymentsUtils';
 
 const TransactionDetail = () => {
   const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
