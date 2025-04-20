@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -6,13 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import PatientHeader from "@/components/transactions/create/PatientHeader";
 import PatientInfo from "@/components/transactions/create/PatientInfo";
-import TransactionDetails from "@/components/transactions/create/TransactionDetails";
 import OrderDetails from "@/components/transactions/create/OrderDetails";
 import RefractionDetails from "@/components/transactions/create/RefractionDetails";
 import DoctorRemarks from "@/components/transactions/create/DoctorRemarks";
-import OrderNotes from "@/components/transactions/create/OrderNotes";
 import { Patient } from "@/types";
-import { usePatientTransactions } from "@/hooks/usePatientTransactions";
 
 interface LocationState {
   patient?: Patient;
@@ -218,15 +214,9 @@ const NewTransactionPage = () => {
           transactionCode={transactionCode}
         />
         <PatientInfo patient={patient} />
-        <TransactionDetails 
-          onTypeChange={setTransactionType} 
-        />
-        <OrderDetails />
-        {transactionType !== "Frame Replacement" && transactionType !== "Repair" && (
-          <RefractionDetails />
-        )}
+        <RefractionDetails />
         <DoctorRemarks />
-        <OrderNotes />
+        <OrderDetails initialType={transactionType} onTypeChange={setTransactionType} />
         
         <div className="flex justify-end">
           <Button onClick={handleSave} className="w-full md:w-auto">
