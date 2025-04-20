@@ -96,4 +96,3 @@ const triggerBalanceSheetUpdate = () => {
   });
   window.dispatchEvent(event);
 };
-
