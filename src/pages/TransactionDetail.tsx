@@ -1,5 +1,5 @@
 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Transaction } from '@/types';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -13,6 +13,7 @@ const TransactionDetail = () => {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTransactionData = () => {
@@ -36,7 +37,12 @@ const TransactionDetail = () => {
           otherExpenses: 50.00,
           totalExpenses: 1400.00,
           claimed: false,
-          dateClaimed: null
+          dateClaimed: null,
+          refractiveIndex: "1.56",
+          lensType: "SV",
+          lensCoating: "UC",
+          interpupillaryDistance: 62,
+          orderNotes: "Sample order notes"
         };
         
         const payment = findPayment(transactionCode || "", 'balance');

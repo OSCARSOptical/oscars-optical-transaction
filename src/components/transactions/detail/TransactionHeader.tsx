@@ -4,26 +4,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Check, Edit } from "lucide-react";
-import { formatDate, getTypeColor, formatCurrency } from '@/utils/formatters';
+import { formatDate, getTypeColor } from '@/utils/formatters';
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 import { UnclaimConfirmDialog } from '../UnclaimConfirmDialog';
 import { addPayment, removePayment, findPayment } from '@/utils/paymentsUtils';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface TransactionHeaderProps {
   transaction: Transaction;
   onClaimedToggle: () => void;
-  onEdit?: () => void; // Added the onEdit property as optional
+  onEdit?: () => void;
+  readOnly?: boolean;
 }
 
-export function TransactionHeader({ transaction, onClaimedToggle, onEdit }: TransactionHeaderProps) {
+export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOnly = false }: TransactionHeaderProps) {
   const { toast } = useToast();
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [localTransaction, setLocalTransaction] = useState<Transaction>(transaction);
   
   const handleClaimedChange = (checked: boolean | string) => {
+    if (readOnly) return;
+    
     if (localTransaction.claimed) {
       // Show confirmation dialog for unclaiming
       setShowUnclaimDialog(true);
@@ -48,7 +52,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit }: Tran
       claimed: true,
       dateClaimed: today,
       balance: 0,
-      deposit: localTransaction.deposit + balancePaid // Optionally update deposit (total collected)
+      deposit: localTransaction.deposit + balancePaid
     });
     
     // Call parent handler to update parent state
@@ -56,7 +60,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit }: Tran
     
     toast({
       title: "✓ Payment Claimed!",
-      description: `Balance of ${formatCurrency(balancePaid)} has been collected and recorded.`,
+      description: `Balance of ${balancePaid.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })} has been collected and recorded.`,
       className: "bg-[#FFC42B] text-[#241715] rounded-lg",
       duration: 3000,
     });
@@ -82,7 +86,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit }: Tran
       claimed: false,
       dateClaimed: null,
       balance: amountToRestore,
-      deposit: localTransaction.deposit - amountToRestore // Restore original deposit
+      deposit: localTransaction.deposit - amountToRestore
     });
     
     // Call parent handler to update parent state
@@ -117,7 +121,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit }: Tran
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <h3 className="text-sm font-medium text-gray-500">Transaction Date</h3>
               <p className="text-lg font-medium">{formatDate(localTransaction.date)}</p>
@@ -135,17 +139,20 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit }: Tran
                   checked={localTransaction.claimed} 
                   onCheckedChange={handleClaimedChange}
                   id="claimed"
+                  disabled={readOnly}
                 />
                 <label htmlFor="claimed" className="text-sm cursor-pointer">
                   {localTransaction.claimed ? 'Claimed' : 'Not Claimed'}
                 </label>
-                {localTransaction.claimed && (
-                  <div className="flex items-center space-x-2">
-                    <Check className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-500">Claimed on {formatDate(localTransaction.dateClaimed)}</span>
-                  </div>
-                )}
               </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Claimed On</h3>
+              <p className="text-lg font-medium">
+                {localTransaction.claimed && localTransaction.dateClaimed 
+                  ? formatDate(localTransaction.dateClaimed) 
+                  : "—"}
+              </p>
             </div>
           </div>
         </CardContent>

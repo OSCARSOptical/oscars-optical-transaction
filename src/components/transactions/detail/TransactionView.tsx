@@ -5,12 +5,11 @@ import { useToast } from "@/hooks/use-toast";
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import { TransactionHeader } from './TransactionHeader';
 import PatientInfo from '@/components/transactions/create/PatientInfo';
-import { OrderDetailsCard } from './OrderDetailsCard';
+import OrderDetails from '@/components/transactions/create/OrderDetails';
 import RefractionDetails from '@/components/transactions/create/RefractionDetails';
 import DoctorRemarks from '@/components/transactions/create/DoctorRemarks';
-import { OrderNotesCard } from './OrderNotesCard';
 import FinancialDetails from '@/components/transactions/create/FinancialDetails';
-import { findPayment } from '@/utils/paymentsUtils';
+import PatientCard from '@/components/transactions/common/PatientCard';
 
 interface TransactionViewProps {
   transaction: Transaction;
@@ -23,7 +22,7 @@ export const TransactionView = ({ transaction, onClaimedToggle }: TransactionVie
 
   const breadcrumbItems = [
     { label: 'Transactions', href: '/transactions' },
-    { label: transaction.patientName, href: `/patients/${transaction.patientCode}` },
+    { label: `${transaction.firstName} ${transaction.lastName}`, href: `/patients/${transaction.patientCode}` },
     { label: transaction.code }
   ];
 
@@ -33,11 +32,24 @@ export const TransactionView = ({ transaction, onClaimedToggle }: TransactionVie
     });
   };
 
+  const patient = {
+    id: transaction.patientCode,
+    code: transaction.patientCode,
+    firstName: transaction.firstName,
+    lastName: transaction.lastName,
+    age: 0,
+    email: "",
+    phone: "",
+    address: ""
+  };
+
   return (
     <div className="space-y-6 pb-16">
       <div className="flex justify-between items-start">
         <BreadcrumbNav items={breadcrumbItems} />
       </div>
+      
+      <PatientCard patient={patient} />
       
       <TransactionHeader 
         transaction={transaction}
@@ -47,20 +59,22 @@ export const TransactionView = ({ transaction, onClaimedToggle }: TransactionVie
       
       <div className="grid gap-6">
         <PatientInfo 
-          patient={{
-            id: transaction.patientCode,
-            code: transaction.patientCode,
-            firstName: transaction.firstName,
-            lastName: transaction.lastName,
-            age: 0,
-            email: "",
-            phone: "",
-            address: ""
-          }}
+          patient={patient}
           readOnly={true}
         />
 
-        <OrderDetailsCard transaction={transaction} />
+        <OrderDetails 
+          readOnly={true}
+          initialData={{
+            transactionType: transaction.type,
+            transactionDate: transaction.date,
+            refractiveIndex: transaction.refractiveIndex,
+            lensType: transaction.lensType,
+            lensCoating: transaction.lensCoating,
+            interpupillaryDistance: transaction.interpupillaryDistance,
+            orderNotes: transaction.orderNotes
+          }}
+        />
         
         <RefractionDetails 
           readOnly={true}
@@ -90,8 +104,6 @@ export const TransactionView = ({ transaction, onClaimedToggle }: TransactionVie
             otherExpenses: transaction.otherExpenses
           }}
         />
-
-        <OrderNotesCard transaction={transaction} />
       </div>
     </div>
   );

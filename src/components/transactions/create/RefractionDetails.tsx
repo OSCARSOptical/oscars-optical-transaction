@@ -16,7 +16,7 @@ interface RefractionDetailsProps {
 }
 
 const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsProps) => {
-  const [activeTab, setActiveTab] = useState("prescribed");
+  const [activeTab, setActiveTab] = useState("previous");
   const [previousRx, setPreviousRx] = useState<RefractionData | undefined>(
     initialData?.previousRx
   );
@@ -25,9 +25,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
   );
   const [prescribedPower, setPrescribedPower] = useState<RefractionData | undefined>(
     initialData?.prescribedPower
-  );
-  const [ipd, setIPD] = useState<number | undefined>(
-    initialData?.interpupillaryDistance
   );
 
   const handlePreviousRxChange = (data: RefractionData) => {
@@ -48,12 +45,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
     }
   };
 
-  const handleIPDChange = (value: number) => {
-    if (!readOnly) {
-      setIPD(value);
-    }
-  };
-
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -62,14 +53,14 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
-            <TabsTrigger value="prescribed">Prescribed Power</TabsTrigger>
-            <TabsTrigger value="full">Full Rx</TabsTrigger>
             <TabsTrigger value="previous">Previous Rx</TabsTrigger>
+            <TabsTrigger value="full">Full Rx</TabsTrigger>
+            <TabsTrigger value="prescribed">Prescribed Power</TabsTrigger>
           </TabsList>
-          <TabsContent value="prescribed">
+          <TabsContent value="previous">
             <RefractionTable
-              data={prescribedPower}
-              onChange={handlePrescribedPowerChange}
+              data={previousRx}
+              onChange={handlePreviousRxChange}
               showAddPower={true}
               readOnly={readOnly}
             />
@@ -78,13 +69,15 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
             <RefractionTable
               data={fullRx}
               onChange={handleFullRxChange}
+              showAddPower={true}
               readOnly={readOnly}
             />
           </TabsContent>
-          <TabsContent value="previous">
+          <TabsContent value="prescribed">
             <RefractionTable
-              data={previousRx}
-              onChange={handlePreviousRxChange}
+              data={prescribedPower}
+              onChange={handlePrescribedPowerChange}
+              showAddPower={true}
               readOnly={readOnly}
             />
           </TabsContent>
