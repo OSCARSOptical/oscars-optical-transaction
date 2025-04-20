@@ -36,7 +36,7 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
         const today = new Date().toISOString().split('T')[0];
         const balancePaid = transaction.balance;
         
-        // Create a new balance sheet entry - now including patientCode
+        // Create a new balance sheet entry - make sure to include patientCode
         addBalanceSheetEntry({
           date: today,
           transactionId: transaction.code,

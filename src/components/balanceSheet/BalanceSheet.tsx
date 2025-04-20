@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Transaction } from "@/types";
 import { DayCard } from "./DayCard";
@@ -6,6 +7,7 @@ import { MonthlySummary } from "./MonthlySummary";
 import { BalanceSheetHeader } from "./BalanceSheetHeader";
 import { EmptyState } from "./EmptyState";
 import { useBalanceSheetData } from "@/hooks/useBalanceSheetData";
+import { backfillClaimedTransactionPayments } from "@/utils/balanceSheetUtils";
 
 // This would come from a shared data source in a real app
 const sampleTransactions: Transaction[] = [
@@ -70,6 +72,14 @@ const sampleTransactions: Transaction[] = [
 
 export function BalanceSheet() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  
+  // Run the backfill once when the component mounts
+  useEffect(() => {
+    const backfilledCount = backfillClaimedTransactionPayments(sampleTransactions);
+    if (backfilledCount > 0) {
+      console.log(`Created ${backfilledCount} payment records for previously claimed transactions.`);
+    }
+  }, []);
   
   const { groupedData, sortedDates, monthlyTotals } = useBalanceSheetData(selectedMonth, sampleTransactions);
   

@@ -1,6 +1,6 @@
 
 import { Transaction } from '@/types';
-import { addPayment, removePayment } from './paymentsUtils';
+import { addPayment, removePayment, findPayment } from './paymentsUtils';
 
 // In-memory storage for balance sheet entries
 // In a real app, this would use a database or API calls
@@ -70,6 +70,50 @@ export const removeBalanceSheetEntry = ({ date, transactionId }: RemoveEntryPara
   
   console.log(`Removed balance sheet entry for ${date}, transaction ${transactionId}`);
   triggerBalanceSheetUpdate();
+};
+
+/**
+ * Back-fill payment records for transactions that are already claimed
+ * but don't have corresponding payment records
+ */
+export const backfillClaimedTransactionPayments = (transactions: Transaction[]) => {
+  console.log("Running backfill for claimed transactions without payment records...");
+  
+  const claimedTransactions = transactions.filter(
+    tx => tx.claimed && tx.dateClaimed && !tx.isBalancePayment
+  );
+  
+  let backfillCount = 0;
+  
+  claimedTransactions.forEach(tx => {
+    // Check if a payment record already exists
+    const existingPayment = findPayment(tx.code, 'balance');
+    
+    if (!existingPayment && tx.dateClaimed) {
+      // Calculate what the balance payment amount would have been
+      // This is typically the original balance before claiming
+      const balancePaid = tx.grossAmount - tx.deposit;
+      
+      // Add the payment record
+      addPayment({
+        transactionCode: tx.code,
+        patientCode: tx.patientCode,
+        paymentType: 'balance',
+        amount: balancePaid > 0 ? balancePaid : 0, // Ensure we don't add negative amounts
+        paymentDate: tx.dateClaimed
+      });
+      
+      backfillCount++;
+    }
+  });
+  
+  console.log(`Backfill complete. Added ${backfillCount} missing payment records.`);
+  
+  if (backfillCount > 0) {
+    triggerBalanceSheetUpdate();
+  }
+  
+  return backfillCount;
 };
 
 /**

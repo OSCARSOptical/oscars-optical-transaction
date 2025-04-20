@@ -48,8 +48,8 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
     return acc;
   }, {} as Record<string, GroupedData>);
 
-  // Process balance payments and add them to grouped data
-  const processedDates = new Set<string>();
+  // Create a record of processed transactions to avoid duplicates
+  const processedBalancePayments = new Set<string>();
   
   // First, add any in-memory balance sheet entries
   Object.entries(balanceSheetEntries).forEach(([date, entries]) => {
@@ -57,8 +57,6 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
     const selectedMonthStr = format(selectedMonth, 'yyyy-MM');
     
     if (dateMonth === selectedMonthStr) {
-      processedDates.add(date);
-      
       if (!groupedData[date]) {
         groupedData[date] = {
           transactions: [],
@@ -68,8 +66,12 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
       
       entries.forEach(entry => {
         if (entry.isBalancePayment) {
+          // Create a composite key to track this balance payment
+          const paymentKey = `${entry.transactionId}-balance-${date}`;
+          processedBalancePayments.add(paymentKey);
+          
           // Find original transaction to get patient information
-          const originalTransaction = filteredTransactions.find(t => t.code === entry.transactionId);
+          const originalTransaction = sampleTransactions.find(t => t.code === entry.transactionId);
           
           if (originalTransaction || entry.patientCode) {
             const patientCode = entry.patientCode || originalTransaction?.patientCode;
@@ -79,7 +81,7 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
             
             groupedData[date].transactions.push({
               id: `balance-${entry.transactionId}-${Date.now()}`,
-              code: entry.description,
+              code: `${entry.transactionId} - Balance`,
               date: date,
               patientCode: patientCode,
               patientName: patientName,
@@ -103,31 +105,32 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
     }
   });
   
-  // Next, check for persisted payments that might not be in memory
+  // Next, add all persisted payments (those that haven't been processed yet)
   allPayments.forEach((payment: Payment) => {
     const { paymentDate, transactionCode, patientCode, amount } = payment;
     
-    // Only process if it's for the selected month and not already added
+    // Only process if it's for the selected month
     const paymentMonth = paymentDate.substring(0, 7);
     const selectedMonthStr = format(selectedMonth, 'yyyy-MM');
     
-    if (paymentMonth === selectedMonthStr && !processedDates.has(paymentDate)) {
-      // Find original transaction to get additional info
-      const originalTransaction = filteredTransactions.find(t => t.code === transactionCode);
+    if (paymentMonth === selectedMonthStr) {
+      // Create a composite key to check if we've already processed this payment
+      const paymentKey = `${transactionCode}-balance-${paymentDate}`;
       
-      if (!groupedData[paymentDate]) {
-        groupedData[paymentDate] = {
-          transactions: [],
-          date: paymentDate
-        };
-      }
-      
-      // Only add if it's not already there (avoid duplicates)
-      const exists = groupedData[paymentDate].transactions.some(
-        tx => tx.isBalancePayment && tx.code === `${transactionCode} - Balance`
-      );
-      
-      if (!exists) {
+      // Only add if not already processed (avoid duplicates)
+      if (!processedBalancePayments.has(paymentKey)) {
+        processedBalancePayments.add(paymentKey);
+        
+        // Find original transaction to get additional info
+        const originalTransaction = sampleTransactions.find(t => t.code === transactionCode);
+        
+        if (!groupedData[paymentDate]) {
+          groupedData[paymentDate] = {
+            transactions: [],
+            date: paymentDate
+          };
+        }
+        
         const patientName = originalTransaction?.patientName || "Patient";
         const firstName = originalTransaction?.firstName || "";
         const lastName = originalTransaction?.lastName || "";
