@@ -26,7 +26,7 @@ export function TransactionTableRow({
       <TableCell>
         <span 
           className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-          onClick={() => navigate(`/transactions/${transaction.code}`)}
+          onClick={() => navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`)}
         >
           {transaction.code}
         </span>
@@ -63,7 +63,7 @@ export function TransactionTableRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem 
-              onClick={() => navigate(`/transactions/${transaction.code}`)}
+              onClick={() => navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`)}
               className="cursor-pointer"
             >
               View Full Transaction

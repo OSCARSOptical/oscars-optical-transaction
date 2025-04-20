@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -37,7 +36,11 @@ const App = () => (
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/balance-sheet" element={<BalanceSheetPage />} />
             <Route path="/patients/:patientCode" element={<PatientDetailPage />} />
-            <Route path="/transactions/:transactionCode" element={<TransactionDetail />} />
+            <Route path="/patients/:patientCode/transactions/:transactionCode" element={<TransactionDetail />} />
+            <Route 
+              path="/transactions/:transactionCode" 
+              element={<TransactionDetail />} 
+            />
             <Route path="/transactions/new" element={<NewTransaction />} />
             <Route path="/transactions/new/:patientId" element={<NewTransaction />} />
             <Route path="*" element={<NotFound />} />

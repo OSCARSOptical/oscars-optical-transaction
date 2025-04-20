@@ -14,7 +14,7 @@ import { InfoCard } from '@/components/transactions/detail/InfoCard';
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 
 const TransactionDetail = () => {
-  const { transactionCode } = useParams<{ transactionCode: string }>();
+  const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -101,7 +101,7 @@ const TransactionDetail = () => {
       <div className="space-y-4">
         <BreadcrumbNav 
           items={[
-            { label: 'Transactions', href: '/transactions' },
+            { label: 'Patients', href: '/patients' },
             { label: 'Loading...' }
           ]}
         />
@@ -117,7 +117,7 @@ const TransactionDetail = () => {
       <div className="space-y-4">
         <BreadcrumbNav 
           items={[
-            { label: 'Transactions', href: '/transactions' }
+            { label: 'Patients', href: '/patients' }
           ]}
         />
         <Alert variant="destructive" className="mb-4">
@@ -127,8 +127,8 @@ const TransactionDetail = () => {
             The transaction with code {transactionCode} could not be found.
           </AlertDescription>
         </Alert>
-        <Button onClick={() => navigate('/transactions')}>
-          Return to Transactions
+        <Button onClick={() => navigate('/patients')}>
+          Return to Patients
         </Button>
       </div>
     );
@@ -138,7 +138,7 @@ const TransactionDetail = () => {
     <div className="space-y-6">
       <BreadcrumbNav 
         items={[
-          { label: 'Transactions', href: '/transactions' },
+          { label: 'Patients', href: '/patients' },
           { label: transaction.patientName, href: `/patients/${transaction.patientCode}` },
           { label: transaction.code }
         ]}
