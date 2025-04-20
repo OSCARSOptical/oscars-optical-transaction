@@ -95,7 +95,7 @@ export const PrescriptionRow = ({
         </>
       )}
       {!showAllFields && (
-        <TableCell colSpan={3}>
+        <TableCell className="w-[200px]">
           <Select>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select Near VA" className="text-gray-400" />
