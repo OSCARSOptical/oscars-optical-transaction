@@ -10,9 +10,10 @@ import { usePatientTransactions } from "@/hooks/usePatientTransactions";
 
 interface PatientInfoProps {
   patient?: Patient;
+  onPatientUpdate?: (updatedPatient: Patient) => void;
 }
 
-const PatientInfo = ({ patient }: PatientInfoProps) => {
+const PatientInfo = ({ patient, onPatientUpdate }: PatientInfoProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { patientId } = useParams();
@@ -69,6 +70,11 @@ const PatientInfo = ({ patient }: PatientInfoProps) => {
     }
     
     setPatientData(updatedPatient);
+    
+    // Propagate changes to parent component for real-time updates
+    if (onPatientUpdate) {
+      onPatientUpdate(updatedPatient);
+    }
   };
 
   const handleSave = () => {
@@ -115,6 +121,11 @@ const PatientInfo = ({ patient }: PatientInfoProps) => {
     });
     
     setIsEditing(false);
+    
+    // Final update to parent to ensure consistency
+    if (onPatientUpdate) {
+      onPatientUpdate(patientData);
+    }
   };
 
   return (

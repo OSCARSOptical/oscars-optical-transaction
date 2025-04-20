@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -27,10 +28,16 @@ const NewTransactionPage = () => {
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
 
   // Update patient state whenever initialPatient changes
-  // This keeps us in sync with the initial data but allows for live updates
-  if (initialPatient && (!patient || patient.id !== initialPatient.id)) {
-    setPatient(initialPatient);
-  }
+  useEffect(() => {
+    if (initialPatient && (!patient || patient.id !== initialPatient.id)) {
+      setPatient(initialPatient);
+    }
+  }, [initialPatient, patient]);
+
+  // Handle patient updates from PatientInfo component
+  const handlePatientUpdate = (updatedPatient: Patient) => {
+    setPatient(updatedPatient);
+  };
 
   const handleSave = () => {
     toast({
@@ -61,7 +68,8 @@ const NewTransactionPage = () => {
           transactionCode={transactionCode}
         />
         <PatientInfo 
-          patient={patient} 
+          patient={patient}
+          onPatientUpdate={handlePatientUpdate}
         />
         <RefractionDetails />
         <DoctorRemarks />

@@ -8,7 +8,7 @@ interface PatientHeaderProps {
 }
 
 const PatientHeader = ({ patient, transactionCode }: PatientHeaderProps) => {
-  if (!patient?.code) {
+  if (!patient) {
     return null;
   }
 
