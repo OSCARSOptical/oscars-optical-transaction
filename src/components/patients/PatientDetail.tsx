@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Patient } from '@/types';
 import { PatientDetailHeader } from './PatientDetailHeader';
 import { PatientInformationForm } from './PatientInformationForm';
-import { PatientTransactionHistory } from './PatientTransactionHistory';
+import { PatientTransactionsTable } from './PatientTransactionsTable';
 
 export function PatientDetail() {
   const { patientCode } = useParams();
@@ -47,7 +46,7 @@ export function PatientDetail() {
           <CardTitle>Transaction History</CardTitle>
         </CardHeader>
         <CardContent>
-          <PatientTransactionHistory patientCode={patient.code} />
+          <PatientTransactionsTable patientCode={patient.code} />
         </CardContent>
       </Card>
     </div>
