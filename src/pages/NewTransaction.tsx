@@ -10,6 +10,7 @@ import RefractionDetails from "@/components/transactions/create/RefractionDetail
 import DoctorRemarks from "@/components/transactions/create/DoctorRemarks";
 import OrderNotes from "@/components/transactions/create/OrderNotes";
 import { Patient } from "@/types";
+import { usePatientTransactions } from "@/hooks/usePatientTransactions";
 
 interface LocationState {
   patient?: Patient;
@@ -35,11 +36,25 @@ const NewTransactionPage = () => {
     
     // Find all existing transaction codes for this month/year
     const existingCodes: string[] = [];
+    
+    // Add the mock transactions from usePatientTransactions hook
+    const sampleTransactions = [
+      { code: "TX25-04-00001" },
+      { code: "TX25-04-00002" },
+      { code: "TX25-04-00003" }
+    ];
+    
+    // Add sample transactions to existing codes
+    sampleTransactions.forEach(tx => {
+      existingCodes.push(tx.code);
+    });
+    
+    // Also check localStorage for any additional transactions
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith(`transaction_`) && key.endsWith('_code')) {
         const code = localStorage.getItem(key);
-        if (code && code.startsWith(prefix)) {
+        if (code && code.startsWith(prefix) && !existingCodes.includes(code)) {
           existingCodes.push(code);
         }
       }
