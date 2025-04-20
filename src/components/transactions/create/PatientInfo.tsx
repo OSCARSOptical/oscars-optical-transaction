@@ -1,77 +1,49 @@
-import { useEffect, useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Patient } from "@/types";
 import { useToast } from "@/hooks/use-toast";
-import { useParams, useNavigate } from "react-router-dom";
+import { usePatientCode } from "@/hooks/usePatientCode";
 import { usePatientTransactions } from "@/hooks/usePatientTransactions";
+import { savePatientToStorage } from "@/utils/patientStorage";
+import PatientInfoFields from "./patient-info/PatientInfoFields";
 
 interface PatientInfoProps {
   patient?: Patient;
   onPatientUpdate?: (updatedPatient: Patient) => void;
 }
 
-const PatientInfo = ({ patient, onPatientUpdate }: PatientInfoProps) => {
+const PatientInfo = ({ patient: initialPatient, onPatientUpdate }: PatientInfoProps) => {
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const { patientId } = useParams();
   const [isEditing, setIsEditing] = useState(false);
-  const [patientData, setPatientData] = useState<Patient | undefined>(patient);
-  const { transactions } = usePatientTransactions(patient?.code || "");
+  const [patientData, setPatientData] = useState<Patient | undefined>(initialPatient);
+  const { transactions } = usePatientTransactions(initialPatient?.code || "");
+  const { generatePatientCode } = usePatientCode();
 
-  // If no patient is provided, create a default empty patient
-  const currentPatient = patientData || {
-    id: "",
-    code: "",
-    firstName: "",
-    lastName: "",
-    age: 0,
-    sex: 'Male' as 'Male' | 'Female',
-    email: "",
-    phone: "",
-    address: ""
-  };
-
-  // Update local state when patient prop changes
   useEffect(() => {
-    if (patient) {
-      setPatientData(patient);
+    if (initialPatient) {
+      setPatientData(initialPatient);
     }
-  }, [patient]);
+  }, [initialPatient]);
 
-  // Generate patient code based on first name and last name
-  const generatePatientCode = (firstName: string, lastName: string) => {
-    const firstInitial = firstName.charAt(0).toUpperCase();
-    const lastInitial = lastName.charAt(0).toUpperCase();
-    
-    // Keep the same sequence number if it exists, otherwise generate a new one
-    const existingCode = currentPatient.code;
-    const sequencePart = existingCode && existingCode.includes('-') ? 
-                         existingCode.split('-')[2] : 
-                         "0000001";
-    
-    return `PX-${firstInitial}${lastInitial}-${sequencePart}`;
-  };
+  if (!patientData) {
+    return null;
+  }
 
   const handleFieldChange = (field: string, value: string | number) => {
-    if (!patientData) return;
-    
     const updatedPatient = { ...patientData, [field]: value };
     
-    // If first name or last name changes, update the patient code
     if (field === 'firstName' || field === 'lastName') {
-      const newCode = generatePatientCode(
+      updatedPatient.code = generatePatientCode(
         field === 'firstName' ? value.toString() : patientData.firstName,
-        field === 'lastName' ? value.toString() : patientData.lastName
+        field === 'lastName' ? value.toString() : patientData.lastName,
+        patientData.code
       );
-      updatedPatient.code = newCode;
     }
     
     setPatientData(updatedPatient);
     
-    // Propagate changes to parent component for real-time updates
     if (onPatientUpdate) {
       onPatientUpdate(updatedPatient);
     }
@@ -80,35 +52,17 @@ const PatientInfo = ({ patient, onPatientUpdate }: PatientInfoProps) => {
   const handleSave = () => {
     if (!patientData) return;
     
-    // Get the old patient code before saving changes
-    const oldPatientCode = patient?.code;
+    const oldPatientCode = initialPatient?.code;
     const newPatientCode = patientData.code;
     
-    // Save to localStorage
-    localStorage.setItem(`patient_${patientData.id}_firstName`, patientData.firstName);
-    localStorage.setItem(`patient_${patientData.id}_lastName`, patientData.lastName);
-    localStorage.setItem(`patient_${patientData.id}_age`, patientData.age.toString());
-    localStorage.setItem(`patient_${patientData.id}_email`, patientData.email);
-    localStorage.setItem(`patient_${patientData.id}_phone`, patientData.phone);
-    localStorage.setItem(`patient_${patientData.id}_address`, patientData.address);
-    if (patientData.sex) {
-      localStorage.setItem(`patient_${patientData.id}_sex`, patientData.sex);
-    }
-    localStorage.setItem(`patient_${patientData.id}_code`, patientData.code);
+    // Save patient data
+    savePatientToStorage(patientData);
     
     // Update linked transactions if the patient code has changed
     if (oldPatientCode && newPatientCode && oldPatientCode !== newPatientCode) {
-      // In a real app with a database, this would be a transaction/batch operation
-      // Here we'll update the localStorage records for any transactions
-      
-      // For each transaction that was linked to the old patient code
       transactions.forEach(transaction => {
         const transactionKey = `transaction_${transaction.id}`;
-        
-        // Update patientCode in localStorage
         localStorage.setItem(`${transactionKey}_patientCode`, newPatientCode);
-        
-        // Also update the patient name fields if needed
         localStorage.setItem(`${transactionKey}_firstName`, patientData.firstName);
         localStorage.setItem(`${transactionKey}_lastName`, patientData.lastName);
         localStorage.setItem(`${transactionKey}_patientName`, `${patientData.firstName} ${patientData.lastName}`);
@@ -122,7 +76,6 @@ const PatientInfo = ({ patient, onPatientUpdate }: PatientInfoProps) => {
     
     setIsEditing(false);
     
-    // Final update to parent to ensure consistency
     if (onPatientUpdate) {
       onPatientUpdate(patientData);
     }
@@ -132,7 +85,7 @@ const PatientInfo = ({ patient, onPatientUpdate }: PatientInfoProps) => {
     <Card>
       <CardHeader className="pb-3 flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-medium">Patient Information</CardTitle>
-        {patient && (
+        {initialPatient && (
           <Button 
             variant="outline" 
             size="sm" 
@@ -143,88 +96,11 @@ const PatientInfo = ({ patient, onPatientUpdate }: PatientInfoProps) => {
         )}
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">First Name</label>
-              <Input
-                value={currentPatient.firstName}
-                onChange={(e) => 
-                  handleFieldChange('firstName', e.target.value)
-                }
-                readOnly={!isEditing}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Last Name</label>
-              <Input
-                value={currentPatient.lastName}
-                onChange={(e) => 
-                  handleFieldChange('lastName', e.target.value)
-                }
-                readOnly={!isEditing}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Age</label>
-              <Input
-                type="number"
-                value={currentPatient.age}
-                onChange={(e) => 
-                  handleFieldChange('age', parseInt(e.target.value) || 0)
-                }
-                readOnly={!isEditing}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Sex</label>
-              <Select 
-                value={currentPatient.sex || 'Male'} 
-                onValueChange={(value) => handleFieldChange('sex', value)}
-                disabled={!isEditing}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select sex" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Male">Male</SelectItem>
-                  <SelectItem value="Female">Female</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Contact Number</label>
-              <Input
-                value={currentPatient.phone}
-                onChange={(e) => 
-                  handleFieldChange('phone', e.target.value)
-                }
-                readOnly={!isEditing}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Email</label>
-              <Input
-                type="email"
-                value={currentPatient.email}
-                onChange={(e) => 
-                  handleFieldChange('email', e.target.value)
-                }
-                readOnly={!isEditing}
-              />
-            </div>
-            <div className="col-span-2">
-              <label className="text-sm font-medium">Address</label>
-              <Input
-                value={currentPatient.address}
-                onChange={(e) => 
-                  handleFieldChange('address', e.target.value)
-                }
-                readOnly={!isEditing}
-              />
-            </div>
-          </div>
-        </div>
+        <PatientInfoFields 
+          patient={patientData}
+          isEditing={isEditing}
+          onFieldChange={handleFieldChange}
+        />
         {isEditing && (
           <div className="flex justify-end mt-4">
             <Button onClick={handleSave}>Save Changes</Button>
