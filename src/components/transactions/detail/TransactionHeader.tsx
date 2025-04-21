@@ -1,9 +1,8 @@
-
 import { Transaction } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, Edit } from "lucide-react";
+import { Edit } from "lucide-react";
 import { formatDate, getTypeColor } from '@/utils/formatters';
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +10,6 @@ import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSh
 import { UnclaimConfirmDialog } from '../UnclaimConfirmDialog';
 import { addPayment, removePayment, findPayment } from '@/utils/paymentsUtils';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 interface TransactionHeaderProps {
   transaction: Transaction;
@@ -24,21 +22,18 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
   const { toast } = useToast();
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [localTransaction, setLocalTransaction] = useState<Transaction>(transaction);
-  
+
   const handleClaimedChange = (checked: boolean | string) => {
     if (readOnly) return;
     
     if (localTransaction.claimed) {
-      // Show confirmation dialog for unclaiming
       setShowUnclaimDialog(true);
       return;
     }
     
-    // Process claiming
     const balancePaid = localTransaction.balance;
     const today = new Date().toISOString().split('T')[0];
     
-    // Add balance sheet entry with patient code for navigation
     addBalanceSheetEntry({
       date: today,
       transactionId: localTransaction.code,
@@ -46,7 +41,6 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
       patientCode: localTransaction.patientCode
     });
     
-    // Update local state
     setLocalTransaction({
       ...localTransaction,
       claimed: true,
@@ -55,7 +49,6 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
       deposit: localTransaction.deposit + balancePaid
     });
     
-    // Call parent handler to update parent state
     onClaimedToggle();
     
     toast({
@@ -65,22 +58,19 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
       duration: 3000,
     });
   };
-  
+
   const handleUnclaimConfirm = () => {
     if (!localTransaction.dateClaimed) return;
     
-    // Remove balance sheet entry
     removeBalanceSheetEntry({
       date: localTransaction.dateClaimed,
       transactionId: localTransaction.code
     });
     
-    // Find the payment amount to restore (should be the same as was paid)
     const payment = findPayment(localTransaction.code, 'balance');
     const amountToRestore = payment?.amount || 
       (localTransaction.grossAmount - localTransaction.deposit + localTransaction.balance);
     
-    // Update local state
     setLocalTransaction({
       ...localTransaction,
       claimed: false,
@@ -89,7 +79,6 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
       deposit: localTransaction.deposit - amountToRestore
     });
     
-    // Call parent handler to update parent state
     onClaimedToggle();
     
     setShowUnclaimDialog(false);
@@ -103,61 +92,78 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
 
   return (
     <>
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-xl font-bold flex justify-between items-center">
-            <span>Transaction {localTransaction.code}</span>
-            {onEdit && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onEdit}
-                className="gap-1"
-              >
-                <Edit className="h-4 w-4" />
-                Edit
-              </Button>
-            )}
-          </CardTitle>
+      <Card className="mb-2">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <span
+            className="text-2xl font-bold text-[#1A1F2C]"
+            style={{ letterSpacing: ".02em" }}
+          >
+            {localTransaction.code}
+          </span>
+          {onEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onEdit}
+              className="gap-1"
+            >
+              <Edit className="h-4 w-4" />
+              Edit
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Transaction Date</h3>
-              <p className="text-lg font-medium">{formatDate(localTransaction.date)}</p>
+              <h3 className="text-sm font-medium text-[#8E9196] mb-1">Transaction Date</h3>
+              <p className="text-lg font-bold text-[#1A1F2C]">
+                {formatDate(localTransaction.date)}
+              </p>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Transaction Type</h3>
-              <Badge variant="outline" className={getTypeColor(localTransaction.type)}>
+            <div className="flex flex-col items-center">
+              <h3 className="text-sm font-medium text-[#8E9196] mb-1">Transaction Type</h3>
+              <Badge
+                variant="outline"
+                className={`border-green-200 text-green-800 bg-green-50 font-normal text-base px-4 py-1 rounded-full min-w-[90px] flex items-center justify-center ${getTypeColor(localTransaction.type)}`}
+              >
                 {localTransaction.type}
               </Badge>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Claimed Status</h3>
-              <div className="flex items-center space-x-2 mt-1">
-                <Checkbox 
-                  checked={localTransaction.claimed} 
+            <div className="flex flex-col items-center">
+              <h3 className="text-sm font-medium text-[#8E9196] mb-1">Claimed Status</h3>
+              <div className="flex items-center justify-center gap-2">
+                <Checkbox
+                  checked={localTransaction.claimed}
                   onCheckedChange={handleClaimedChange}
                   id="claimed"
                   disabled={readOnly}
+                  className={`border-2 ${localTransaction.claimed
+                    ? "border-green-700 bg-green-100"
+                    : "border-red-400 bg-white"
+                  }`}
                 />
-                <label htmlFor="claimed" className="text-sm cursor-pointer">
+                <label
+                  htmlFor="claimed"
+                  className={`text-base font-medium ${localTransaction.claimed
+                    ? "text-green-700"
+                    : "text-red-600"
+                  }`}
+                >
                   {localTransaction.claimed ? 'Claimed' : 'Not Claimed'}
                 </label>
               </div>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Claimed On</h3>
-              <p className="text-lg font-medium">
-                {localTransaction.claimed && localTransaction.dateClaimed 
-                  ? formatDate(localTransaction.dateClaimed) 
+              <h3 className="text-sm font-medium text-[#8E9196] mb-1">Claimed On</h3>
+              <p className="text-lg font-bold text-[#1A1F2C]">
+                {localTransaction.claimed && localTransaction.dateClaimed
+                  ? formatDate(localTransaction.dateClaimed)
                   : "—"}
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
-      
       <UnclaimConfirmDialog
         open={showUnclaimDialog}
         onOpenChange={setShowUnclaimDialog}

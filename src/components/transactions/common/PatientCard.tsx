@@ -7,22 +7,23 @@ interface PatientCardProps {
   transactionCode?: string;
 }
 
-const PatientCard = ({ patient, transactionCode }: PatientCardProps) => {
+const PatientCard = ({ patient }: PatientCardProps) => {
   if (!patient) {
     return null;
   }
 
   return (
-    <Card>
-      <CardContent className="pt-6 pb-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">
-            {patient.firstName} {patient.lastName}
-          </h2>
-          <div className="text-md font-medium">
-            Patient ID: <span className="text-[#9E0214]">{patient.code}</span>
-          </div>
-        </div>
+    <Card className="mb-2 bg-[#F1F1F1] border border-[#E5E7EB]">
+      <CardContent className="flex items-center justify-between py-7 px-8">
+        <h2 className="text-2xl font-bold text-[#1A1F2C] m-0">
+          {patient.firstName} {patient.lastName}
+        </h2>
+        <span
+          className="font-normal text-base text-[#8E9196] tracking-wide"
+          style={{ letterSpacing: ".02em" }}
+        >
+          {patient.code}
+        </span>
       </CardContent>
     </Card>
   );
