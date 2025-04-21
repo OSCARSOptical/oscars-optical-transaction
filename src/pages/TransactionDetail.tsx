@@ -191,13 +191,22 @@ const TransactionDetail = () => {
     );
   }
 
-  // Pass both the transaction and complete patient data to the view
-  return <TransactionView 
-    transaction={transaction} 
-    patientData={patient} 
-    onClaimedToggle={handleClaimedToggle} 
-    pageTitle="Transaction Details" 
-  />;
+  // Pass both the transaction and complete patient data to the view, and set breadcrumb items:
+  const breadcrumbItems = [
+    { label: 'Patients', href: '/patients' },
+    { label: patient ? `${patient.firstName} ${patient.lastName}` : patientCode || '', href: `/patients/${patientCode}` },
+    { label: transaction.code }
+  ];
+
+  return (
+    <TransactionView
+      transaction={transaction}
+      patientData={patient}
+      onClaimedToggle={handleClaimedToggle}
+      pageTitle="Transaction Details"
+      breadcrumbItems={breadcrumbItems} // We need to add support for this in TransactionView
+    />
+  );
 };
 
 export default TransactionDetail;
