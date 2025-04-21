@@ -1,33 +1,100 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Transaction } from '@/types';
+import { Transaction, Patient } from '@/types';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TransactionView } from '@/components/transactions/detail/TransactionView';
 import { findPayment } from '@/utils/paymentsUtils';
 
+// Sample data with the same format as in PatientDetail component
+const samplePatients: Patient[] = [
+  {
+    id: '12345',
+    firstName: 'John',
+    lastName: 'Doe',
+    age: 35,
+    email: 'john@example.com',
+    phone: '(555) 123-4567',
+    address: '123 Main St, City, State',
+    code: 'PX-JD-0000001',
+    sex: 'Male'
+  }, 
+  {
+    id: '67890',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    age: 28,
+    email: 'jane@example.com',
+    phone: '(555) 987-6543',
+    address: '456 Oak St, City, State',
+    code: 'PX-JS-0000001',
+    sex: 'Female'
+  },
+  {
+    id: '54321',
+    firstName: 'Oscar',
+    lastName: 'Santos',
+    age: 40,
+    email: 'oscar@example.com',
+    phone: '(555) 555-1111',
+    address: '789 Pine St, City, State',
+    code: 'PX-OS-0000001',
+    sex: 'Male'
+  }
+];
+
 const TransactionDetail = () => {
   const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTransactionData = () => {
+    const fetchData = () => {
       setLoading(true);
       
+      // First, fetch the patient data from our sample database
+      const foundPatient = samplePatients.find(p => p.code === patientCode);
+      
+      if (foundPatient) {
+        // Check if there are any localStorage updates for the patient
+        const storedFirstName = localStorage.getItem(`patient_${foundPatient.id}_firstName`);
+        const storedLastName = localStorage.getItem(`patient_${foundPatient.id}_lastName`);
+        const storedAge = localStorage.getItem(`patient_${foundPatient.id}_age`);
+        const storedEmail = localStorage.getItem(`patient_${foundPatient.id}_email`);
+        const storedPhone = localStorage.getItem(`patient_${foundPatient.id}_phone`);
+        const storedAddress = localStorage.getItem(`patient_${foundPatient.id}_address`);
+        const storedSex = localStorage.getItem(`patient_${foundPatient.id}_sex`);
+        
+        // Create updated patient with localStorage values if they exist
+        const updatedPatient = {
+          ...foundPatient,
+          firstName: storedFirstName || foundPatient.firstName,
+          lastName: storedLastName || foundPatient.lastName,
+          age: storedAge ? parseInt(storedAge) : foundPatient.age,
+          email: storedEmail || foundPatient.email,
+          phone: storedPhone || foundPatient.phone,
+          address: storedAddress || foundPatient.address,
+          sex: (storedSex as 'Male' | 'Female') || foundPatient.sex
+        };
+        
+        setPatient(updatedPatient);
+      }
+      
+      // Then, fetch the transaction data
       setTimeout(() => {
         let mockTransaction: Transaction = {
           id: "1",
           code: transactionCode || "TX25-04-00001",
           date: "2025-04-10",
           patientCode: patientCode || "PX-JD-0000001",
-          patientName: "John Doe",
-          firstName: "John",
-          lastName: "Doe",
+          patientName: patient ? `${patient.firstName} ${patient.lastName}` : "John Doe",
+          firstName: patient ? patient.firstName : "John",
+          lastName: patient ? patient.lastName : "Doe",
           type: "Complete",
           grossAmount: 7500.00,
           deposit: 2500.00,
@@ -64,8 +131,8 @@ const TransactionDetail = () => {
       }, 500);
     };
     
-    fetchTransactionData();
-  }, [transactionCode, patientCode]);
+    fetchData();
+  }, [transactionCode, patientCode, patient]);
 
   const handleClaimedToggle = () => {
     if (!transaction) return;
@@ -115,8 +182,13 @@ const TransactionDetail = () => {
     );
   }
 
-  // Passing patient name and code for header display
-  return <TransactionView transaction={transaction} onClaimedToggle={handleClaimedToggle} pageTitle="Transaction Details" />;
+  // Pass both the transaction and complete patient data to the view
+  return <TransactionView 
+    transaction={transaction} 
+    patientData={patient} 
+    onClaimedToggle={handleClaimedToggle} 
+    pageTitle="Transaction Details" 
+  />;
 };
 
 export default TransactionDetail;

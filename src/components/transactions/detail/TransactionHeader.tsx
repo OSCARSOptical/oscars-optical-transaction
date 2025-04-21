@@ -1,3 +1,4 @@
+
 import { Transaction } from '@/types';
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -117,7 +118,7 @@ export function TransactionHeader({
       </Card>
 
       {/* CARD 2: Claimed status and claimed info */}
-      <Card className="mb-4 bg-white border border-gray-200 shadow-sm rounded-xl">
+      <Card className="mb-4 mt-4 bg-white border border-gray-200 shadow-sm rounded-xl">
         <CardContent className="px-0 mx-0 py-[18px] my-0">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center items-center">
             <div>
@@ -126,7 +127,7 @@ export function TransactionHeader({
                 {formatDateLong(localTransaction.date)}
               </p>
             </div>
-            <div>
+            <div className="flex flex-col justify-center">
               <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Claimed</h3>
               <div className="flex items-center justify-center gap-2">
                 <Checkbox checked={localTransaction.claimed} onCheckedChange={handleClaimedChange} id="claimed" disabled={readOnly} className={`border-2 !border-[#8E9196] bg-white 

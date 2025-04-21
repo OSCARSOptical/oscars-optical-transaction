@@ -1,5 +1,5 @@
 
-import { Transaction } from '@/types';
+import { Transaction, Patient } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
@@ -12,11 +12,12 @@ import FinancialDetails from '@/components/transactions/create/FinancialDetails'
 
 interface TransactionViewProps {
   transaction: Transaction;
+  patientData?: Patient | null;
   onClaimedToggle: () => void;
   pageTitle?: string; // Allow custom page titles for TransactionHeader
 }
 
-export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: TransactionViewProps) => {
+export const TransactionView = ({ transaction, patientData, onClaimedToggle, pageTitle }: TransactionViewProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -31,7 +32,8 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
       { state: { transaction } });
   };
 
-  const patient = {
+  // Use the complete patient data if available, otherwise create a basic patient object from transaction data
+  const patient = patientData || {
     id: transaction.patientCode,
     code: transaction.patientCode,
     firstName: transaction.firstName,
@@ -39,7 +41,8 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
     age: 0,
     email: "",
     phone: "",
-    address: ""
+    address: "",
+    sex: "Male" as "Male" | "Female"
   };
 
   return (
@@ -52,8 +55,8 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
         transaction={transaction}
         onClaimedToggle={onClaimedToggle}
         pageTitle={pageTitle ?? "Transaction Details"}
-        patientName={`${transaction.firstName} ${transaction.lastName}`}
-        patientCode={transaction.patientCode}
+        patientName={`${patient.firstName} ${patient.lastName}`}
+        patientCode={patient.code}
       />
       
       <div className="grid gap-y-10">
