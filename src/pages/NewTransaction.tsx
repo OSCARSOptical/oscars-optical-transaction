@@ -87,6 +87,13 @@ const NewTransactionPage = () => {
     }));
   };
 
+  const handleIpdChangeForRefraction = (ipdValue: number | undefined) => {
+    setMockTransaction(prev => ({
+      ...prev,
+      interpupillaryDistance: ipdValue
+    }));
+  };
+
   const handleSave = () => {
     toast({
       title: "Success",
@@ -128,13 +135,31 @@ const NewTransactionPage = () => {
           patient={patient}
           onPatientUpdate={handlePatientUpdate}
         />
-        
+
         <OrderDetails
           initialType={transactionType}
           onTypeChange={handleTransactionTypeChange}
+          initialData={{
+            transactionType: mockTransaction.type,
+            transactionDate: mockTransaction.date,
+            refractiveIndex: mockTransaction.refractiveIndex,
+            lensType: mockTransaction.lensType,
+            lensCoating: mockTransaction.lensCoating,
+            tint: mockTransaction.tint,
+            color: mockTransaction.color,
+            orderNotes: mockTransaction.orderNotes
+            // InterpupillaryDistance field removed from here
+          }}
         />
         
-        <RefractionDetails />
+        <RefractionDetails
+          initialData={{
+            previousRx: mockTransaction.previousRx,
+            fullRx: mockTransaction.fullRx,
+            prescribedPower: mockTransaction.prescribedPower,
+            interpupillaryDistance: mockTransaction.interpupillaryDistance
+          }}
+        />
         
         <DoctorRemarks />
         

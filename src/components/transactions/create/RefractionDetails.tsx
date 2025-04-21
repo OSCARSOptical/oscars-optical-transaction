@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RefractionTable } from "./RefractionTable";
 import { RefractionData } from "@/types";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface RefractionDetailsProps {
   readOnly?: boolean;
@@ -26,6 +28,7 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
   const [prescribedPower, setPrescribedPower] = useState<RefractionData | undefined>(
     initialData?.prescribedPower
   );
+  const [ipd, setIpd] = useState<number | undefined>(initialData?.interpupillaryDistance);
 
   const handlePreviousRxChange = (data: RefractionData) => {
     if (!readOnly) {
@@ -45,12 +48,33 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
     }
   };
 
+  const handleIpdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!readOnly) {
+      const value = Number(e.target.value);
+      setIpd(isNaN(value) ? undefined : value);
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-medium">Refraction Details</CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="mb-6">
+          <Label htmlFor="interpupillaryDistance" className="text-xs text-muted-foreground">
+            Interpupillary Distance (mm)
+          </Label>
+          <Input
+            id="interpupillaryDistance"
+            type="number"
+            value={ipd !== undefined ? ipd : ""}
+            onChange={handleIpdChange}
+            className="mt-1 max-w-xs"
+            placeholder="Enter IPD value"
+            readOnly={readOnly}
+          />
+        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
             <TabsTrigger value="previous">Previous Rx</TabsTrigger>

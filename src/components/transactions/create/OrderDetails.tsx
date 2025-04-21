@@ -25,7 +25,7 @@ interface OrderDetailsProps {
     tint?: string;
     color?: string;
     orderNotes?: string;
-    interpupillaryDistance?: number;
+    // interpupillaryDistance removed
   }
 }
 
@@ -42,7 +42,7 @@ const OrderDetails = ({
   const [refractiveIndex, setRefractiveIndex] = useState(initialData.refractiveIndex || "1.56");
   const [lensType, setLensType] = useState(initialData.lensType || "SV");
   const [lensCoating, setLensCoating] = useState(initialData.lensCoating || "UC");
-  const [ipd, setIpd] = useState(initialData.interpupillaryDistance || 0);
+  // ipd field removed, handled in RefractionDetails now
   const [tint, setTint] = useState(initialData.tint || "N/A");
   const [color, setColor] = useState(initialData.color || "");
   const [notes, setNotes] = useState(initialData.orderNotes || "");
@@ -62,17 +62,28 @@ const OrderDetails = ({
       <CardContent>
         <div className="space-y-6">
           <div>
-            <Label htmlFor="interpupillaryDistance" className="text-sm font-medium">Interpupillary Distance (mm)</Label>
-            <Input
-              id="interpupillaryDistance"
-              type="number"
-              value={ipd}
-              onChange={(e) => setIpd(Number(e.target.value))}
-              className="mt-1"
-              placeholder="Enter IPD value"
-              readOnly={readOnly}
-            />
+            <Label htmlFor="transactionType" className="text-xs text-muted-foreground">Transaction Type</Label>
+            <Select 
+              value={transactionType}
+              onValueChange={handleTypeChange}
+              disabled={readOnly}
+            >
+              <SelectTrigger id="transactionType">
+                <SelectValue placeholder="Select Transaction Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Complete">Complete</SelectItem>
+                <SelectItem value="Eye Exam">Eye Exam</SelectItem>
+                <SelectItem value="Frame Replacement">Frame Replacement</SelectItem>
+                <SelectItem value="Lens Replacement">Lens Replacement</SelectItem>
+                <SelectItem value="Medical Certificate">Medical Certificate</SelectItem>
+                <SelectItem value="Contact Lens">Contact Lens</SelectItem>
+                <SelectItem value="Repair">Repair</SelectItem>
+                <SelectItem value="Return">Return</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          {/* Interpupillary Distance moved to Refraction Details */}
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>

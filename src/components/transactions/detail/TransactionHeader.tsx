@@ -1,10 +1,9 @@
 
 import { Transaction } from '@/types';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Edit } from "lucide-react";
-import { formatDate, getTypeColor } from '@/utils/formatters';
+import { formatDate } from '@/utils/formatters';
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
@@ -17,6 +16,12 @@ interface TransactionHeaderProps {
   onClaimedToggle: () => void;
   onEdit?: () => void;
   readOnly?: boolean;
+}
+
+function formatDateLong(dateString: string | null) {
+  if (!dateString) return "—";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
 export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOnly = false }: TransactionHeaderProps) {
@@ -93,10 +98,10 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
 
   return (
     <>
-      <Card className="mb-2 bg-white border border-gray-200 shadow-sm">
-        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+      <Card className="mb-2 bg-white border border-gray-200 shadow-sm rounded-xl">
+        <CardHeader className="pb-0 flex flex-row items-center justify-between">
           <span
-            className="text-2xl font-bold text-[#1A1F2C]"
+            className="text-2xl font-bold text-[#1A1F2C] m-0"
             style={{ letterSpacing: ".02em" }}
           >
             {localTransaction.code}
@@ -114,24 +119,15 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
           )}
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-1">Transaction Date</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Transaction Date</h3>
               <p className="text-base font-semibold text-[#1A1F2C] text-center">
-                {formatDate(localTransaction.date)}
+                {formatDateLong(localTransaction.date)}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-1">Transaction Type</h3>
-              <Badge
-                variant="outline"
-                className={`border-green-200 text-green-800 bg-green-50 font-normal text-base px-4 py-1 rounded-full min-w-[90px] flex items-center justify-center mx-auto ${getTypeColor(localTransaction.type)}`}
-              >
-                {localTransaction.type}
-              </Badge>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-1">Claimed Status</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Claimed Status</h3>
               <div className="flex items-center justify-center gap-2">
                 <Checkbox
                   checked={localTransaction.claimed}
@@ -143,22 +139,13 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
                     : "border-red-400 bg-white"
                   }`}
                 />
-                <label
-                  htmlFor="claimed"
-                  className={`text-base font-medium ${localTransaction.claimed
-                    ? "text-green-700"
-                    : "text-red-600"
-                  }`}
-                >
-                  {localTransaction.claimed ? 'Claimed' : 'Not Claimed'}
-                </label>
               </div>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-1">Claimed On</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Claimed On</h3>
               <p className="text-base font-semibold text-[#1A1F2C] text-center">
                 {localTransaction.claimed && localTransaction.dateClaimed
-                  ? formatDate(localTransaction.dateClaimed)
+                  ? formatDateLong(localTransaction.dateClaimed)
                   : "—"}
               </p>
             </div>

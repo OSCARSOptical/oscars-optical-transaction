@@ -1,4 +1,3 @@
-
 import { Transaction } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -71,7 +70,8 @@ export const TransactionView = ({ transaction, onClaimedToggle }: TransactionVie
             refractiveIndex: transaction.refractiveIndex,
             lensType: transaction.lensType,
             lensCoating: transaction.lensCoating,
-            interpupillaryDistance: transaction.interpupillaryDistance,
+            tint: transaction.tint,
+            color: transaction.color,
             orderNotes: transaction.orderNotes
           }}
         />
