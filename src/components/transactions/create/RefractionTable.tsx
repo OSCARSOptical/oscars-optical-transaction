@@ -1,7 +1,9 @@
+
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RefractionData } from "@/types";
 import { PrescriptionRow } from "./components/prescription/PrescriptionRow";
 import { generateSphereOptions, generateCylinderOptions, generateAxisOptions, generateAddOptions } from "./utils/refractionOptions";
+import { distanceVisualAcuityOptions, nearVisualAcuityOptions } from "./constants/visualAcuityOptions";
 
 interface RefractionTableProps {
   data?: RefractionData;
