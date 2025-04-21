@@ -1,14 +1,7 @@
-
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { 
-  generateSphereOptions, 
-  generateCylinderOptions, 
-  generateAxisOptions, 
-  generateAddOptions 
-} from "./utils/refractionOptions";
-import { distanceVisualAcuityOptions, nearVisualAcuityOptions } from "./constants/visualAcuityOptions";
-import { PrescriptionRow } from "./components/PrescriptionRow";
 import { RefractionData } from "@/types";
+import { PrescriptionRow } from "./components/prescription/PrescriptionRow";
+import { generateSphereOptions, generateCylinderOptions, generateAxisOptions, generateAddOptions } from "./utils/refractionOptions";
 
 interface RefractionTableProps {
   data?: RefractionData;
