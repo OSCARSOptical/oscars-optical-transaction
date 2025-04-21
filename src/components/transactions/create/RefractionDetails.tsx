@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -102,7 +103,8 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
               <SelectValue placeholder="Select IPD" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Select IPD</SelectItem>
+              {/* Changed this to use a placeholder item with a non-empty value */}
+              <SelectItem value="placeholder">Select IPD</SelectItem>
               {ipdOptions.map(opt => (
                 <SelectItem key={opt} value={opt}>{opt}</SelectItem>
               ))}

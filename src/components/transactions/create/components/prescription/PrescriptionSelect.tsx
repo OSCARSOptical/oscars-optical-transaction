@@ -26,8 +26,9 @@ export const PrescriptionSelect = ({
         <SelectValue placeholder={placeholder} className="text-gray-400" />
       </SelectTrigger>
       <SelectContent>
+        {/* Make sure all options have non-empty values */}
         {options.map(option => (
-          <SelectItem key={option.value} value={option.value}>
+          <SelectItem key={option.value} value={option.value || "N/A"}>
             {option.label}
           </SelectItem>
         ))}
