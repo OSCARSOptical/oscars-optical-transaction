@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 import { UnclaimConfirmDialog } from '../UnclaimConfirmDialog';
-import { addPayment, removePayment, findPayment } from '@/utils/paymentsUtils';
+import { findPayment } from '@/utils/paymentsUtils';
 import { Button } from "@/components/ui/button";
 
 interface TransactionHeaderProps {
@@ -26,22 +26,22 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
 
   const handleClaimedChange = (checked: boolean | string) => {
     if (readOnly) return;
-    
+
     if (localTransaction.claimed) {
       setShowUnclaimDialog(true);
       return;
     }
-    
+
     const balancePaid = localTransaction.balance;
     const today = new Date().toISOString().split('T')[0];
-    
+
     addBalanceSheetEntry({
       date: today,
       transactionId: localTransaction.code,
       balancePaid: balancePaid,
       patientCode: localTransaction.patientCode
     });
-    
+
     setLocalTransaction({
       ...localTransaction,
       claimed: true,
@@ -49,9 +49,9 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
       balance: 0,
       deposit: localTransaction.deposit + balancePaid
     });
-    
+
     onClaimedToggle();
-    
+
     toast({
       title: "✓ Payment Claimed!",
       description: `Balance of ${balancePaid.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })} has been collected and recorded.`,
@@ -62,16 +62,16 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
 
   const handleUnclaimConfirm = () => {
     if (!localTransaction.dateClaimed) return;
-    
+
     removeBalanceSheetEntry({
       date: localTransaction.dateClaimed,
       transactionId: localTransaction.code
     });
-    
+
     const payment = findPayment(localTransaction.code, 'balance');
-    const amountToRestore = payment?.amount || 
+    const amountToRestore = payment?.amount ||
       (localTransaction.grossAmount - localTransaction.deposit + localTransaction.balance);
-    
+
     setLocalTransaction({
       ...localTransaction,
       claimed: false,
@@ -79,11 +79,11 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
       balance: amountToRestore,
       deposit: localTransaction.deposit - amountToRestore
     });
-    
+
     onClaimedToggle();
-    
+
     setShowUnclaimDialog(false);
-    
+
     toast({
       title: "Claim Removed",
       description: "Transaction restored to unclaimed status and balance sheet entry removed.",
@@ -93,7 +93,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
 
   return (
     <>
-      <Card className="mb-2 bg-[#F1F1F1] border border-[#E5E7EB]">
+      <Card className="mb-2 bg-white border border-gray-200 shadow-sm">
         <CardHeader className="pb-3 flex flex-row items-center justify-between">
           <span
             className="text-2xl font-bold text-[#1A1F2C]"
@@ -116,13 +116,13 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
             <div>
-              <h3 className="text-sm font-medium text-[#8E9196] mb-1">Transaction Date</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">Transaction Date</h3>
               <p className="text-base font-semibold text-[#1A1F2C] text-center">
                 {formatDate(localTransaction.date)}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-[#8E9196] mb-1">Transaction Type</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">Transaction Type</h3>
               <Badge
                 variant="outline"
                 className={`border-green-200 text-green-800 bg-green-50 font-normal text-base px-4 py-1 rounded-full min-w-[90px] flex items-center justify-center mx-auto ${getTypeColor(localTransaction.type)}`}
@@ -131,7 +131,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
               </Badge>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-[#8E9196] mb-1">Claimed Status</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">Claimed Status</h3>
               <div className="flex items-center justify-center gap-2">
                 <Checkbox
                   checked={localTransaction.claimed}
@@ -155,7 +155,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
               </div>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-[#8E9196] mb-1">Claimed On</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">Claimed On</h3>
               <p className="text-base font-semibold text-[#1A1F2C] text-center">
                 {localTransaction.claimed && localTransaction.dateClaimed
                   ? formatDate(localTransaction.dateClaimed)
@@ -173,4 +173,3 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
     </>
   );
 }
-
