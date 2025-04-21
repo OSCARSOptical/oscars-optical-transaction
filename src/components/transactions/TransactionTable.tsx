@@ -1,9 +1,9 @@
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Transaction } from '@/types';
-import { ArrowDown, ArrowUp } from "lucide-react"; // Use allowed icons
+import { formatCurrency } from '@/utils/formatters';
 import { UnclaimConfirmDialog } from './UnclaimConfirmDialog';
 import { TransactionTableRow } from './TransactionTableRow';
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
@@ -18,21 +18,10 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   const [localTransactions, setLocalTransactions] = useState<Transaction[]>(transactions);
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
-  const [sortDesc, setSortDesc] = useState(true);
 
-  // Memoize sorted transactions for performance
-  const sortedTransactions = useMemo(() => {
-    return [...localTransactions].sort((a, b) => {
-      if (sortDesc) {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      } else {
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-      }
-    });
-  }, [localTransactions, sortDesc]);
-  
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
     if (currentValue) {
+      // Unclaiming - need to show confirmation dialog
       const transaction = localTransactions.find(tx => tx.id === id);
       if (transaction) {
         setTransactionToUnclaim(transaction);
@@ -40,89 +29,86 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
       }
       return;
     }
+    
+    // Claiming the transaction
     const updatedTransactions = localTransactions.map(transaction => {
       if (transaction.id === id) {
         const today = new Date().toISOString().split('T')[0];
         const balancePaid = transaction.balance;
-
+        
+        // Create a new balance sheet entry - make sure to include patientCode
         addBalanceSheetEntry({
           date: today,
           transactionId: transaction.code,
           balancePaid,
           patientCode: transaction.patientCode
         });
-
+        
         const updatedTransaction = {
           ...transaction,
           claimed: true,
           dateClaimed: today,
           balance: 0
         };
+        
         toast({
           title: "✓ Payment Claimed!",
-          description: `Balance of ₱${balancePaid.toLocaleString()} has been collected and recorded.`,
+          description: `Balance of ${formatCurrency(balancePaid)} has been collected and recorded.`,
           className: "bg-[#FFC42B] text-[#241715] rounded-lg",
           duration: 3000,
         });
+        
         return updatedTransaction;
       }
       return transaction;
     });
-
+    
     setLocalTransactions(updatedTransactions);
   };
 
   const handleUnclaimConfirm = () => {
     if (!transactionToUnclaim) return;
-
+    
     const updatedTransactions = localTransactions.map(transaction => {
       if (transaction.id === transactionToUnclaim.id) {
+        // Remove the balance sheet entry
         if (transactionToUnclaim.dateClaimed) {
           removeBalanceSheetEntry({
             date: transactionToUnclaim.dateClaimed,
             transactionId: transactionToUnclaim.code
           });
         }
+        
+        // Restore the original balance - use balancePaid value from context or stored value
+        // For demo using a previously known value that was saved somewhere
         const restoredBalance = transaction.grossAmount - transaction.deposit;
+        
         const restoredTransaction = {
           ...transaction,
           claimed: false,
           dateClaimed: null,
           balance: restoredBalance
         };
+        
         toast({
           title: "Claim Removed",
           description: "Transaction restored to unclaimed status and balance sheet entry removed.",
           variant: "default"
         });
+        
         return restoredTransaction;
       }
       return transaction;
     });
-
+    
     setLocalTransactions(updatedTransactions);
     setShowUnclaimDialog(false);
     setTransactionToUnclaim(null);
   };
 
-  const handleSortClick = () => setSortDesc((prev) => !prev);
-
   return (
     <>
       <div className="relative overflow-x-auto">
-        <div className="flex items-center justify-end mb-2 pr-2">
-          <button
-            onClick={handleSortClick}
-            className="flex items-center gap-1 px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm font-medium text-gray-700 transition-colors"
-            aria-label={`Sort by date ${sortDesc ? "ascending" : "descending"}`}
-            type="button"
-          >
-            Sort by Date
-            {sortDesc
-              ? <ArrowDown className="w-4 h-4 ml-1" />
-              : <ArrowUp className="w-4 h-4 ml-1" />}
-          </button>
-        </div>
         <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-r from-transparent to-gray-50 pointer-events-none z-10"></div>
         <Table>
           <TableHeader>
@@ -141,17 +127,17 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedTransactions.map((transaction) => (
+            {localTransactions.map((transaction) => (
               <TransactionTableRow
                 key={transaction.id}
                 transaction={transaction}
                 onClaimedToggle={handleClaimedToggle}
-                enableNavigation
               />
             ))}
           </TableBody>
         </Table>
       </div>
+
       <UnclaimConfirmDialog
         open={showUnclaimDialog}
         onOpenChange={setShowUnclaimDialog}
@@ -160,4 +146,3 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     </>
   );
 }
-// END TransactionTable
