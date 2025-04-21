@@ -27,7 +27,7 @@ const NewTransactionPage = () => {
   const [transactionType, setTransactionType] = useState<string>("Complete");
   const [transactionCode] = useState<string>(generateTransactionCode());
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
-  
+
   // Create a mock transaction for the TransactionHeader
   const [mockTransaction, setMockTransaction] = useState<Transaction>({
     id: "new",
@@ -53,7 +53,7 @@ const NewTransactionPage = () => {
   useEffect(() => {
     if (initialPatient && (!patient || patient.id !== initialPatient.id)) {
       setPatient(initialPatient);
-      
+
       // Update the mock transaction with patient info
       setMockTransaction(prev => ({
         ...prev,
@@ -68,7 +68,7 @@ const NewTransactionPage = () => {
   // Handle patient updates from PatientInfo component
   const handlePatientUpdate = (updatedPatient: Patient) => {
     setPatient(updatedPatient);
-    
+
     // Update the mock transaction with patient info
     setMockTransaction(prev => ({
       ...prev,
@@ -78,7 +78,7 @@ const NewTransactionPage = () => {
       lastName: updatedPatient.lastName
     }));
   };
-  
+
   const handleTransactionTypeChange = (type: string) => {
     setTransactionType(type);
     setMockTransaction(prev => ({
@@ -113,6 +113,7 @@ const NewTransactionPage = () => {
     // No action needed for new transactions
   };
 
+  // Page title prop for TransactionHeader
   return (
     <div className="space-y-6 pb-16">
       <BreadcrumbNav items={breadcrumbItems} />
@@ -123,15 +124,18 @@ const NewTransactionPage = () => {
       </div>
 
       {patient && <PatientCard patient={patient} />}
-      
-      <TransactionHeader 
+
+      <TransactionHeader
         transaction={mockTransaction}
         onClaimedToggle={handleClaimedToggle}
         readOnly={true}
+        pageTitle="New Transaction"
+        patientName={patient ? `${patient.firstName} ${patient.lastName}` : ""}
+        patientCode={patient ? patient.code : ""}
       />
 
       <div className="grid gap-6">
-        <PatientInfo 
+        <PatientInfo
           patient={patient}
           onPatientUpdate={handlePatientUpdate}
         />
@@ -151,7 +155,7 @@ const NewTransactionPage = () => {
             // InterpupillaryDistance field removed from here
           }}
         />
-        
+
         <RefractionDetails
           initialData={{
             previousRx: mockTransaction.previousRx,
@@ -160,11 +164,11 @@ const NewTransactionPage = () => {
             interpupillaryDistance: mockTransaction.interpupillaryDistance
           }}
         />
-        
+
         <DoctorRemarks />
-        
+
         <FinancialDetails />
-        
+
         <div className="flex justify-end">
           <Button onClick={handleSave} className="w-full md:w-auto">
             <Save className="mr-2" />
@@ -177,3 +181,4 @@ const NewTransactionPage = () => {
 };
 
 export default NewTransactionPage;
+

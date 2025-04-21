@@ -115,7 +115,8 @@ const TransactionDetail = () => {
     );
   }
 
-  return <TransactionView transaction={transaction} onClaimedToggle={handleClaimedToggle} />;
+  // Passing patient name and code for header display
+  return <TransactionView transaction={transaction} onClaimedToggle={handleClaimedToggle} pageTitle="Transaction Details" />;
 };
 
 export default TransactionDetail;

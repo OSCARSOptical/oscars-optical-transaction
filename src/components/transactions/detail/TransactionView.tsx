@@ -1,3 +1,4 @@
+
 import { Transaction } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -13,9 +14,10 @@ import PatientCard from '@/components/transactions/common/PatientCard';
 interface TransactionViewProps {
   transaction: Transaction;
   onClaimedToggle: () => void;
+  pageTitle?: string; // Allow custom page titles for TransactionHeader
 }
 
-export const TransactionView = ({ transaction, onClaimedToggle }: TransactionViewProps) => {
+export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: TransactionViewProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -54,6 +56,9 @@ export const TransactionView = ({ transaction, onClaimedToggle }: TransactionVie
         transaction={transaction}
         onClaimedToggle={onClaimedToggle}
         onEdit={handleEdit}
+        pageTitle={pageTitle ?? "Transaction Details"}
+        patientName={`${transaction.firstName} ${transaction.lastName}`}
+        patientCode={transaction.patientCode}
       />
       
       <div className="grid gap-6">
@@ -108,3 +113,4 @@ export const TransactionView = ({ transaction, onClaimedToggle }: TransactionVie
     </div>
   );
 };
+

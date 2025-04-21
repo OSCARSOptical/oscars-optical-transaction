@@ -16,6 +16,9 @@ interface TransactionHeaderProps {
   onClaimedToggle: () => void;
   onEdit?: () => void;
   readOnly?: boolean;
+  pageTitle?: string; // <-- Add this for customized title above code
+  patientName?: string; // <-- For displaying patient in header as in image
+  patientCode?: string; // <-- For patient code in header
 }
 
 function formatDateLong(dateString: string | null) {
@@ -24,7 +27,15 @@ function formatDateLong(dateString: string | null) {
   return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
-export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOnly = false }: TransactionHeaderProps) {
+export function TransactionHeader({
+  transaction,
+  onClaimedToggle,
+  onEdit,
+  readOnly = false,
+  pageTitle = "Transaction Details", // defaults for backward compatibility
+  patientName = "",
+  patientCode = ""
+}: TransactionHeaderProps) {
   const { toast } = useToast();
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [localTransaction, setLocalTransaction] = useState<Transaction>(transaction);
@@ -98,20 +109,27 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
 
   return (
     <>
+      {/* HEADER CARD - Page Title above Code, Patient name/id at right */}
       <Card className="mb-2 bg-white border border-gray-200 shadow-sm rounded-xl">
-        <CardHeader className="pb-0 flex flex-row items-center justify-between">
-          <span
-            className="text-2xl font-bold text-[#1A1F2C] m-0"
-            style={{ letterSpacing: ".02em" }}
-          >
-            {localTransaction.code}
-          </span>
+        <CardHeader className="pb-0 flex flex-row items-start justify-between">
+          <div>
+            <span className="text-2xl font-bold text-[#1A1F2C] m-0 block" style={{ letterSpacing: ".02em" }}>
+              {pageTitle}
+            </span>
+            <span className="text-base font-normal text-[#8E9196] block mt-0">{localTransaction.code}</span>
+          </div>
+          {(patientName || patientCode) && (
+            <div className="flex flex-col items-end">
+              <span className="text-xl font-bold text-[#1A1F2C]">{patientName}</span>
+              <span className="font-normal text-[#8E9196] text-base">{patientCode}</span>
+            </div>
+          )}
           {onEdit && (
             <Button
               variant="outline"
               size="sm"
               onClick={onEdit}
-              className="gap-1"
+              className="gap-1 ml-4"
             >
               <Edit className="h-4 w-4" />
               Edit
@@ -129,15 +147,20 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Claimed Status</h3>
               <div className="flex items-center justify-center gap-2">
+                {/* Custom claimed checkbox color: gray when unchecked, red when checked */}
                 <Checkbox
                   checked={localTransaction.claimed}
                   onCheckedChange={handleClaimedChange}
                   id="claimed"
                   disabled={readOnly}
-                  className={`border-2 ${localTransaction.claimed
-                    ? "border-green-700 bg-green-100"
-                    : "border-red-400 bg-white"
+                  className={`border-2 !border-[#8E9196] bg-white ${
+                    localTransaction.claimed
+                      ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]"
+                      : "!text-[#8E9196]"
                   }`}
+                  style={{
+                    color: localTransaction.claimed ? "#ea384c" : "#8E9196",
+                  }}
                 />
               </div>
             </div>
@@ -146,7 +169,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
               <p className="text-base font-semibold text-[#1A1F2C] text-center">
                 {localTransaction.claimed && localTransaction.dateClaimed
                   ? formatDateLong(localTransaction.dateClaimed)
-                  : "—"}
+                  : <span className="text-[#8E9196]">Unclaimed</span>}
               </p>
             </div>
           </div>

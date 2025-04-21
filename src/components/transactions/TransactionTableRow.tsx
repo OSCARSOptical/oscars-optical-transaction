@@ -20,6 +20,11 @@ export function TransactionTableRow({
 }: TransactionTableRowProps) {
   const navigate = useNavigate();
 
+  // Format for "Claimed On" column per rules
+  const claimedOnDisplay = transaction.claimed && transaction.dateClaimed
+    ? formatDate(transaction.dateClaimed)
+    : <span className="text-[#8E9196]">Unclaimed</span>;
+
   return (
     <TableRow>
       <TableCell>{formatDate(transaction.date)}</TableCell>
@@ -50,10 +55,18 @@ export function TransactionTableRow({
             checked={transaction.claimed} 
             onCheckedChange={() => onClaimedToggle(transaction.id, transaction.claimed)}
             id={`claimed-${transaction.id}`}
+            className={`border-2 !border-[#8E9196] bg-white ${
+              transaction.claimed
+                ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]"
+                : "!text-[#8E9196]"
+            }`}
+            style={{
+              color: transaction.claimed ? "#ea384c" : "#8E9196",
+            }}
           />
         </div>
       </TableCell>
-      <TableCell>{formatDate(transaction.dateClaimed)}</TableCell>
+      <TableCell>{claimedOnDisplay}</TableCell>
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
