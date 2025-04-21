@@ -25,25 +25,23 @@ interface OrderDetailsProps {
     tint?: string;
     color?: string;
     orderNotes?: string;
-    // interpupillaryDistance removed
   }
 }
 
 const OrderDetails = ({ 
-  initialType = "Complete", 
+  initialType, 
   onTypeChange, 
   readOnly = false,
   initialData = {}
 }: OrderDetailsProps) => {
-  const [transactionType, setTransactionType] = useState(initialData.transactionType || initialType);
+  const [transactionType, setTransactionType] = useState(initialData.transactionType || "");
   const [transactionDate, setTransactionDate] = useState(
     initialData.transactionDate || new Date().toISOString().substring(0, 10)
   );
-  const [refractiveIndex, setRefractiveIndex] = useState(initialData.refractiveIndex || "1.56");
-  const [lensType, setLensType] = useState(initialData.lensType || "SV");
-  const [lensCoating, setLensCoating] = useState(initialData.lensCoating || "UC");
-  // ipd field removed, handled in RefractionDetails now
-  const [tint, setTint] = useState(initialData.tint || "N/A");
+  const [refractiveIndex, setRefractiveIndex] = useState(initialData.refractiveIndex || "");
+  const [lensType, setLensType] = useState(initialData.lensType || "");
+  const [lensCoating, setLensCoating] = useState(initialData.lensCoating || "");
+  const [tint, setTint] = useState(initialData.tint || "");
   const [color, setColor] = useState(initialData.color || "");
   const [notes, setNotes] = useState(initialData.orderNotes || "");
 
@@ -83,7 +81,6 @@ const OrderDetails = ({
               </SelectContent>
             </Select>
           </div>
-          {/* Interpupillary Distance moved to Refraction Details */}
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -190,3 +187,4 @@ const OrderDetails = ({
 };
 
 export default OrderDetails;
+
