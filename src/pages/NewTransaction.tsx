@@ -7,7 +7,6 @@ import { Save } from "lucide-react";
 import { usePatientData } from "@/hooks/usePatientData";
 import { useTransactionCode } from "@/hooks/useTransactionCode";
 import BreadcrumbNav from "@/components/layout/Breadcrumb";
-
 // Import components
 import PatientInfo from "@/components/transactions/create/PatientInfo";
 import OrderDetails from "@/components/transactions/create/OrderDetails";
@@ -15,7 +14,6 @@ import RefractionDetails from "@/components/transactions/create/RefractionDetail
 import DoctorRemarks from "@/components/transactions/create/DoctorRemarks";
 import FinancialDetails from "@/components/transactions/create/FinancialDetails";
 import { Patient, Transaction } from "@/types";
-import PatientCard from "@/components/transactions/common/PatientCard";
 import { TransactionHeader } from "@/components/transactions/detail/TransactionHeader";
 
 const NewTransactionPage = () => {
@@ -49,12 +47,10 @@ const NewTransactionPage = () => {
     dateClaimed: null
   });
 
-  // Update patient state whenever initialPatient changes
   useEffect(() => {
     if (initialPatient && (!patient || patient.id !== initialPatient.id)) {
       setPatient(initialPatient);
 
-      // Update the mock transaction with patient info
       setMockTransaction(prev => ({
         ...prev,
         patientCode: initialPatient.code,
@@ -65,11 +61,8 @@ const NewTransactionPage = () => {
     }
   }, [initialPatient, patient]);
 
-  // Handle patient updates from PatientInfo component
   const handlePatientUpdate = (updatedPatient: Patient) => {
     setPatient(updatedPatient);
-
-    // Update the mock transaction with patient info
     setMockTransaction(prev => ({
       ...prev,
       patientCode: updatedPatient.code,
@@ -108,12 +101,8 @@ const NewTransactionPage = () => {
     { label: transactionCode }
   ];
 
-  // Dummy function for the claimed toggle (should be disabled in new transaction)
-  const handleClaimedToggle = () => {
-    // No action needed for new transactions
-  };
+  const handleClaimedToggle = () => {};
 
-  // Page title prop for TransactionHeader
   return (
     <div className="space-y-6 pb-16">
       <BreadcrumbNav items={breadcrumbItems} />
@@ -122,8 +111,6 @@ const NewTransactionPage = () => {
         <h2 className="text-3xl font-bold tracking-tight mb-1">New Transaction</h2>
         <p className="text-muted-foreground">Create a new patient transaction</p>
       </div>
-
-      {patient && <PatientCard patient={patient} />}
 
       <TransactionHeader
         transaction={mockTransaction}
@@ -152,7 +139,6 @@ const NewTransactionPage = () => {
             tint: mockTransaction.tint,
             color: mockTransaction.color,
             orderNotes: mockTransaction.orderNotes
-            // InterpupillaryDistance field removed from here
           }}
         />
 
@@ -181,4 +167,3 @@ const NewTransactionPage = () => {
 };
 
 export default NewTransactionPage;
-

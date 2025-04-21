@@ -9,7 +9,6 @@ import OrderDetails from '@/components/transactions/create/OrderDetails';
 import RefractionDetails from '@/components/transactions/create/RefractionDetails';
 import DoctorRemarks from '@/components/transactions/create/DoctorRemarks';
 import FinancialDetails from '@/components/transactions/create/FinancialDetails';
-import PatientCard from '@/components/transactions/common/PatientCard';
 
 interface TransactionViewProps {
   transaction: Transaction;
@@ -28,9 +27,8 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
   ];
 
   const handleEdit = () => {
-    navigate(`/transactions/edit/${transaction.code}`, { 
-      state: { transaction } 
-    });
+    navigate(`/transactions/edit/${transaction.code}`,
+      { state: { transaction } });
   };
 
   const patient = {
@@ -50,12 +48,9 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
         <BreadcrumbNav items={breadcrumbItems} />
       </div>
       
-      <PatientCard patient={patient} />
-      
       <TransactionHeader 
         transaction={transaction}
         onClaimedToggle={onClaimedToggle}
-        onEdit={handleEdit}
         pageTitle={pageTitle ?? "Transaction Details"}
         patientName={`${transaction.firstName} ${transaction.lastName}`}
         patientCode={transaction.patientCode}
@@ -113,4 +108,3 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
     </div>
   );
 };
-
