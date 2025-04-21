@@ -127,7 +127,7 @@ export function TransactionHeader({
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Claimed Status</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Claimed</h3>
               <div className="flex items-center justify-center gap-2">
                 <Checkbox checked={localTransaction.claimed} onCheckedChange={handleClaimedChange} id="claimed" disabled={readOnly} className={`border-2 !border-[#8E9196] bg-white 
                     ${localTransaction.claimed ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]" : "!text-[#1A1F2C]" /* changed from #8E9196 to black */}`} style={{
