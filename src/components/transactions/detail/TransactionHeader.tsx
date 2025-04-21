@@ -129,9 +129,9 @@ export function TransactionHeader({
       </Card>
 
       {/* CARD 2: Claimed status and claimed info */}
-      <Card className="mb-2 bg-white border border-gray-200 shadow-sm rounded-xl">
+      <Card className="mb-4 bg-white border border-gray-200 shadow-sm rounded-xl">
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center items-center">
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Transaction Date</h3>
               <p className="text-base font-semibold text-[#1A1F2C] text-center">
@@ -149,10 +149,10 @@ export function TransactionHeader({
                   className={`border-2 !border-[#8E9196] bg-white 
                     ${localTransaction.claimed 
                       ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]"
-                      : "!text-[#8E9196]"
+                      : "!text-[#1A1F2C]" /* changed from #8E9196 to black */
                   }`}
                   style={{
-                    color: localTransaction.claimed ? "#ea384c" : "#8E9196",
+                    color: localTransaction.claimed ? "#ea384c" : "#1A1F2C",
                   }}
                 />
               </div>
@@ -162,7 +162,7 @@ export function TransactionHeader({
               <p className="text-base font-semibold text-[#1A1F2C] text-center">
                 {localTransaction.claimed && localTransaction.dateClaimed
                   ? formatDateLong(localTransaction.dateClaimed)
-                  : <span className="text-[#8E9196]">Unclaimed</span>}
+                  : <span className="text-[#1A1F2C]">Unclaimed</span>}
               </p>
             </div>
           </div>
@@ -176,3 +176,4 @@ export function TransactionHeader({
     </>
   );
 }
+
