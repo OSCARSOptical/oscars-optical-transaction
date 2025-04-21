@@ -12,6 +12,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+const NA_TRANSACTION_TYPES = [
+  "Eye Exam",
+  "Frame Replacement",
+  "Medical Certificate",
+  "Contact Lens",
+  "Repair",
+  "Return"
+];
+
 interface OrderDetailsProps {
   initialType?: string;
   onTypeChange?: (type: string) => void;
@@ -44,6 +53,23 @@ const OrderDetails = ({
   const [tint, setTint] = useState(initialData.tint || "");
   const [color, setColor] = useState(initialData.color || "");
   const [notes, setNotes] = useState(initialData.orderNotes || "");
+
+  const shouldDisableFields = NA_TRANSACTION_TYPES.includes(transactionType);
+
+  useEffect(() => {
+    if (shouldDisableFields) {
+      setRefractiveIndex("N/A");
+      setLensType("N/A");
+      setLensCoating("N/A");
+      setTint("N/A");
+    } else {
+      // Only clear if coming from a disabled state
+      if (refractiveIndex === "N/A") setRefractiveIndex("");
+      if (lensType === "N/A") setLensType("");
+      if (lensCoating === "N/A") setLensCoating("");
+      if (tint === "N/A") setTint("");
+    }
+  }, [transactionType]);
 
   const handleTypeChange = (value: string) => {
     setTransactionType(value);
@@ -88,7 +114,7 @@ const OrderDetails = ({
               <Select 
                 value={refractiveIndex} 
                 onValueChange={setRefractiveIndex}
-                disabled={readOnly}
+                disabled={readOnly || shouldDisableFields}
               >
                 <SelectTrigger id="refractiveIndex">
                   <SelectValue placeholder="Select Refractive Index" />
@@ -107,7 +133,7 @@ const OrderDetails = ({
               <Select 
                 value={lensType} 
                 onValueChange={setLensType}
-                disabled={readOnly}
+                disabled={readOnly || shouldDisableFields}
               >
                 <SelectTrigger id="lensType">
                   <SelectValue placeholder="Select Lens Type" />
@@ -125,7 +151,7 @@ const OrderDetails = ({
               <Select 
                 value={lensCoating} 
                 onValueChange={setLensCoating}
-                disabled={readOnly}
+                disabled={readOnly || shouldDisableFields}
               >
                 <SelectTrigger id="lensCoating">
                   <SelectValue placeholder="Select Lens Coating" />
@@ -145,7 +171,7 @@ const OrderDetails = ({
               <Select 
                 value={tint} 
                 onValueChange={setTint}
-                disabled={readOnly}
+                disabled={readOnly || shouldDisableFields}
               >
                 <SelectTrigger id="tint">
                   <SelectValue placeholder="Select Tint" />
