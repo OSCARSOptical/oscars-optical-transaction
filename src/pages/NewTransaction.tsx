@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +6,6 @@ import { Save } from "lucide-react";
 import { usePatientData } from "@/hooks/usePatientData";
 import { useTransactionCode } from "@/hooks/useTransactionCode";
 import BreadcrumbNav from "@/components/layout/Breadcrumb";
-// Import components
 import PatientInfo from "@/components/transactions/create/PatientInfo";
 import OrderDetails from "@/components/transactions/create/OrderDetails";
 import RefractionDetails from "@/components/transactions/create/RefractionDetails";
@@ -26,7 +24,6 @@ const NewTransactionPage = () => {
   const [transactionCode] = useState<string>(generateTransactionCode());
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
 
-  // Create a mock transaction for the TransactionHeader
   const [mockTransaction, setMockTransaction] = useState<Transaction>({
     id: "new",
     code: transactionCode,
@@ -107,8 +104,6 @@ const NewTransactionPage = () => {
     <div className="space-y-6 pb-16">
       <BreadcrumbNav items={breadcrumbItems} />
 
-      {/* HEADER REMOVED BASED ON USER REQUEST */}
-
       <TransactionHeader
         transaction={mockTransaction}
         onClaimedToggle={handleClaimedToggle}
@@ -123,6 +118,17 @@ const NewTransactionPage = () => {
           patient={patient}
           onPatientUpdate={handlePatientUpdate}
         />
+
+        <RefractionDetails
+          initialData={{
+            previousRx: mockTransaction.previousRx,
+            fullRx: mockTransaction.fullRx,
+            prescribedPower: mockTransaction.prescribedPower,
+            interpupillaryDistance: mockTransaction.interpupillaryDistance
+          }}
+        />
+
+        <DoctorRemarks />
 
         <OrderDetails
           initialType={transactionType}
@@ -139,17 +145,6 @@ const NewTransactionPage = () => {
           }}
         />
 
-        <RefractionDetails
-          initialData={{
-            previousRx: mockTransaction.previousRx,
-            fullRx: mockTransaction.fullRx,
-            prescribedPower: mockTransaction.prescribedPower,
-            interpupillaryDistance: mockTransaction.interpupillaryDistance
-          }}
-        />
-
-        <DoctorRemarks />
-
         <FinancialDetails />
 
         <div className="flex justify-end">
@@ -164,4 +159,3 @@ const NewTransactionPage = () => {
 };
 
 export default NewTransactionPage;
-
