@@ -48,7 +48,6 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
         <BreadcrumbNav items={breadcrumbItems} />
       </div>
       
-      {/* New two-card layout for transaction/patient info and claim status */}
       <TransactionHeader 
         transaction={transaction}
         onClaimedToggle={onClaimedToggle}
@@ -57,8 +56,7 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
         patientCode={transaction.patientCode}
       />
       
-      <div className="grid gap-6">
-        {/* Only render the patient info block (form), not the patient header */}
+      <div className="grid gap-y-10">
         <PatientInfo 
           patient={patient}
           readOnly={true}

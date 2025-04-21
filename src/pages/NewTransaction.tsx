@@ -107,10 +107,7 @@ const NewTransactionPage = () => {
     <div className="space-y-6 pb-16">
       <BreadcrumbNav items={breadcrumbItems} />
 
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight mb-1">New Transaction</h2>
-        <p className="text-muted-foreground">Create a new patient transaction</p>
-      </div>
+      {/* HEADER REMOVED BASED ON USER REQUEST */}
 
       <TransactionHeader
         transaction={mockTransaction}
@@ -121,7 +118,7 @@ const NewTransactionPage = () => {
         patientCode={patient ? patient.code : ""}
       />
 
-      <div className="grid gap-6">
+      <div className="grid gap-y-10">
         <PatientInfo
           patient={patient}
           onPatientUpdate={handlePatientUpdate}
@@ -167,3 +164,4 @@ const NewTransactionPage = () => {
 };
 
 export default NewTransactionPage;
+
