@@ -19,7 +19,7 @@ const PatientCard = ({ patient }: PatientCardProps) => {
           {patient.firstName} {patient.lastName}
         </h2>
         <span
-          className="font-normal text-base text-[#8E9196] tracking-wide"
+          className="font-thin text-[#8E9196] text-base"
           style={{ letterSpacing: ".02em" }}
         >
           {patient.code}
@@ -30,3 +30,4 @@ const PatientCard = ({ patient }: PatientCardProps) => {
 };
 
 export default PatientCard;
+

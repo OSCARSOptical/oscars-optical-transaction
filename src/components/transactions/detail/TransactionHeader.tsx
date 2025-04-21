@@ -1,3 +1,4 @@
+
 import { Transaction } from '@/types';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -92,7 +93,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
 
   return (
     <>
-      <Card className="mb-2">
+      <Card className="mb-2 bg-[#F1F1F1] border border-[#E5E7EB]">
         <CardHeader className="pb-3 flex flex-row items-center justify-between">
           <span
             className="text-2xl font-bold text-[#1A1F2C]"
@@ -116,20 +117,20 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
             <div>
               <h3 className="text-sm font-medium text-[#8E9196] mb-1">Transaction Date</h3>
-              <p className="text-lg font-bold text-[#1A1F2C]">
+              <p className="text-base font-semibold text-[#1A1F2C] text-center">
                 {formatDate(localTransaction.date)}
               </p>
             </div>
-            <div className="flex flex-col items-center">
+            <div>
               <h3 className="text-sm font-medium text-[#8E9196] mb-1">Transaction Type</h3>
               <Badge
                 variant="outline"
-                className={`border-green-200 text-green-800 bg-green-50 font-normal text-base px-4 py-1 rounded-full min-w-[90px] flex items-center justify-center ${getTypeColor(localTransaction.type)}`}
+                className={`border-green-200 text-green-800 bg-green-50 font-normal text-base px-4 py-1 rounded-full min-w-[90px] flex items-center justify-center mx-auto ${getTypeColor(localTransaction.type)}`}
               >
                 {localTransaction.type}
               </Badge>
             </div>
-            <div className="flex flex-col items-center">
+            <div>
               <h3 className="text-sm font-medium text-[#8E9196] mb-1">Claimed Status</h3>
               <div className="flex items-center justify-center gap-2">
                 <Checkbox
@@ -155,7 +156,7 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
             </div>
             <div>
               <h3 className="text-sm font-medium text-[#8E9196] mb-1">Claimed On</h3>
-              <p className="text-lg font-bold text-[#1A1F2C]">
+              <p className="text-base font-semibold text-[#1A1F2C] text-center">
                 {localTransaction.claimed && localTransaction.dateClaimed
                   ? formatDate(localTransaction.dateClaimed)
                   : "—"}
@@ -172,3 +173,4 @@ export function TransactionHeader({ transaction, onClaimedToggle, onEdit, readOn
     </>
   );
 }
+
