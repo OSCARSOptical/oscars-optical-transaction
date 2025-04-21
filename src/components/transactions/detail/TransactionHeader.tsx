@@ -1,4 +1,3 @@
-
 import { Transaction } from '@/types';
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -122,13 +121,13 @@ export function TransactionHeader({
         <CardContent className="px-0 mx-0 py-[18px] my-0">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center items-center">
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Transaction Date</h3>
+              <h3 className="text-sm font-medium mb-1 text-center text-inherit">Transaction Date</h3>
               <p className="text-base font-semibold text-[#1A1F2C] text-center">
                 {formatDateLong(localTransaction.date)}
               </p>
             </div>
             <div className="flex flex-col justify-center">
-              <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Claimed</h3>
+              <h3 className="text-sm font-medium mb-1 text-center text-inherit">Claimed</h3>
               <div className="flex items-center justify-center gap-2">
                 <Checkbox checked={localTransaction.claimed} onCheckedChange={handleClaimedChange} id="claimed" disabled={readOnly} className={`border-2 !border-[#8E9196] bg-white 
                     ${localTransaction.claimed ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]" : "!text-[#1A1F2C]" /* changed from #8E9196 to black */}`} style={{
@@ -137,7 +136,7 @@ export function TransactionHeader({
               </div>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-1 text-center">Claimed On</h3>
+              <h3 className="text-sm font-medium mb-1 text-center text-inherit">Claimed On</h3>
               <p className="text-base font-semibold text-[#1A1F2C] text-center">
                 {localTransaction.claimed && localTransaction.dateClaimed ? formatDateLong(localTransaction.dateClaimed) : <span className="text-[#1A1F2C]">Unclaimed</span>}
               </p>
