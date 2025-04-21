@@ -48,6 +48,8 @@ export interface Transaction {
   refractiveIndex?: '1.56' | '1.61' | '1.67' | '1.74';
   lensType?: 'SV' | 'KK' | 'Prog' | 'N/A';
   lensCoating?: 'UC' | 'MC' | 'BB' | 'TRG' | 'BB TRG';
+  tint?: 'N/A' | 'One-Tone' | 'Two-Tone';  // Added tint property
+  color?: string;  // Added color property
   interpupillaryDistance?: number;
 
   // Refraction

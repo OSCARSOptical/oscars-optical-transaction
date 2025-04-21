@@ -25,6 +25,8 @@ const allTransactions: Transaction[] = [
     refractiveIndex: "1.61",
     lensType: "Prog",
     lensCoating: "BB TRG",
+    tint: "N/A",
+    color: "",
     interpupillaryDistance: 62.5,
     previousRx: {
       OD: { sphere: -2.25, cylinder: -0.75, axis: 180, visualAcuity: "20/40" },
@@ -64,6 +66,8 @@ const allTransactions: Transaction[] = [
     refractiveIndex: "1.56",
     lensType: "SV",
     lensCoating: "MC",
+    tint: "N/A",
+    color: "",
     interpupillaryDistance: 64.0,
     prescribedPower: {
       OD: { sphere: -1.25, cylinder: -0.25, axis: 90, visualAcuity: "20/20" },
@@ -93,6 +97,8 @@ const allTransactions: Transaction[] = [
     refractiveIndex: "1.67",
     lensType: "Prog",
     lensCoating: "BB TRG",
+    tint: "N/A",
+    color: "",
     interpupillaryDistance: 66.0,
     previousRx: {
       OD: { sphere: -3.75, cylinder: -1.25, axis: 175, visualAcuity: "20/40" },

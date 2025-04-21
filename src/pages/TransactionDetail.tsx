@@ -41,6 +41,8 @@ const TransactionDetail = () => {
           refractiveIndex: "1.56",
           lensType: "SV",
           lensCoating: "UC",
+          tint: "N/A",
+          color: "",
           interpupillaryDistance: 62,
           orderNotes: "Sample order notes"
         };
