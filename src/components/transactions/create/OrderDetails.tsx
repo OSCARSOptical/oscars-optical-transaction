@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -94,6 +93,7 @@ const OrderDetails = ({
                   <SelectValue placeholder="Select Refractive Index" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="N/A">N/A</SelectItem>
                   <SelectItem value="1.56">1.56</SelectItem>
                   <SelectItem value="1.61">1.61</SelectItem>
                   <SelectItem value="1.67">1.67</SelectItem>
@@ -112,10 +112,10 @@ const OrderDetails = ({
                   <SelectValue placeholder="Select Lens Type" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="N/A">N/A</SelectItem>
                   <SelectItem value="SV">SV</SelectItem>
                   <SelectItem value="KK">KK</SelectItem>
                   <SelectItem value="Prog">Prog</SelectItem>
-                  <SelectItem value="N/A">N/A</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -130,6 +130,7 @@ const OrderDetails = ({
                   <SelectValue placeholder="Select Lens Coating" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="N/A">N/A</SelectItem>
                   <SelectItem value="UC">UC</SelectItem>
                   <SelectItem value="MC">MC</SelectItem>
                   <SelectItem value="BB">BB</SelectItem>
@@ -187,4 +188,3 @@ const OrderDetails = ({
 };
 
 export default OrderDetails;
-

@@ -1,12 +1,17 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RefractionTable } from "./RefractionTable";
 import { RefractionData } from "@/types";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface RefractionDetailsProps {
   readOnly?: boolean;
@@ -39,7 +44,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
   );
   const [ipd, setIpd] = useState<number | undefined>(initialData?.interpupillaryDistance);
 
-  // Checkbox for copy fullRx to prescribed
   const [copyEnabled, setCopyEnabled] = useState(false);
 
   const handlePreviousRxChange = (data: RefractionData) => {
@@ -69,7 +73,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
 
   const ipdOptions = generateIpdDropdownOptions();
 
-  // Effect for copy fullRx → prescribedPower when checkbox checked
   const handleCopyCheckbox = (checked: boolean) => {
     setCopyEnabled(checked);
     if (checked && fullRx) {
@@ -87,18 +90,24 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
           <Label htmlFor="interpupillaryDistance" className="text-xs text-muted-foreground">
             Interpupillary Distance (mm)
           </Label>
-          <select
-            id="interpupillaryDistance"
+          <Select
             value={ipd !== undefined ? ipd.toFixed(1) : ""}
-            onChange={handleIpdChange}
-            className="mt-1 block w-full max-w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            onValueChange={(value) => handleIpdChange({ target: { value } } as any)}
             disabled={readOnly}
           >
-            <option value="">Select IPD</option>
-            {ipdOptions.map(opt => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
+            <SelectTrigger
+              id="interpupillaryDistance"
+              className="mt-1"
+            >
+              <SelectValue placeholder="Select IPD" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Select IPD</SelectItem>
+              {ipdOptions.map(opt => (
+                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4 w-full flex">
@@ -123,24 +132,22 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
             />
           </TabsContent>
           <TabsContent value="prescribed">
-            <div className="flex items-center gap-2 mb-4">
-              {!readOnly && (
-                <>
-                  <Checkbox
-                    id="copy-fullrx"
-                    checked={copyEnabled}
-                    onCheckedChange={handleCopyCheckbox}
-                  />
-                  <Label htmlFor="copy-fullrx" className="text-xs text-muted-foreground mb-0">Copy from Full Rx</Label>
-                </>
-              )}
-            </div>
             <RefractionTable
               data={prescribedPower}
               onChange={handlePrescribedPowerChange}
               showAddPower={true}
               readOnly={readOnly}
             />
+            {!readOnly && (
+              <div className="flex items-center gap-2 mt-4 px-4">
+                <Checkbox
+                  id="copy-fullrx"
+                  checked={copyEnabled}
+                  onCheckedChange={handleCopyCheckbox}
+                />
+                <Label htmlFor="copy-fullrx" className="text-xs text-muted-foreground mb-0">Copy from Full Rx</Label>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>
@@ -149,4 +156,3 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
 };
 
 export default RefractionDetails;
-
