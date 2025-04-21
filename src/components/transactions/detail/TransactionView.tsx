@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import { TransactionHeader } from './TransactionHeader';
-import PatientInfo from '@/components/transactions/create/PatientInfo';
+// REMOVE PatientHeader import: Only show in card as per screenshot.
+// import PatientInfo from '@/components/transactions/create/PatientInfo';
 import OrderDetails from '@/components/transactions/create/OrderDetails';
 import RefractionDetails from '@/components/transactions/create/RefractionDetails';
 import DoctorRemarks from '@/components/transactions/create/DoctorRemarks';
@@ -48,6 +49,7 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
         <BreadcrumbNav items={breadcrumbItems} />
       </div>
       
+      {/* New two-card layout for transaction/patient info and claim status */}
       <TransactionHeader 
         transaction={transaction}
         onClaimedToggle={onClaimedToggle}
@@ -57,6 +59,8 @@ export const TransactionView = ({ transaction, onClaimedToggle, pageTitle }: Tra
       />
       
       <div className="grid gap-6">
+        {/* Only render the patient info block (form), not the patient header */}
+        {/* PatientInfo remains below, NOT as header */}
         <PatientInfo 
           patient={patient}
           readOnly={true}

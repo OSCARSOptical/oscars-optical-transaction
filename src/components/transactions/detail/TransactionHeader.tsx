@@ -1,8 +1,7 @@
 
 import { Transaction } from '@/types';
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatDate } from '@/utils/formatters';
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
@@ -105,22 +104,32 @@ export function TransactionHeader({
 
   return (
     <>
-      {/* HEADER CARD with Transaction/Patient info, using flex for side-by-side */}
-      <Card className="mb-2 bg-white border border-gray-200 shadow-sm rounded-xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between px-6 pt-6 pb-0">
-          <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-bold text-[#1A1F2C]" style={{ letterSpacing: ".02em" }}>
-              {pageTitle}
-            </span>
-            <span className="text-base font-normal text-[#8E9196] mt-0">{localTransaction.code}</span>
-          </div>
-          {(patientName || patientCode) && (
-            <div className="flex flex-col items-end mt-4 md:mt-0">
-              <span className="text-xl font-bold text-[#1A1F2C]">{patientName}</span>
-              <span className="font-normal text-[#8E9196] text-base">{patientCode}</span>
+      {/* CARD 1: Title + Transaction ID (left) and Patient Name/ID (right) */}
+      <Card className="mb-4 bg-white border border-gray-200 shadow-sm rounded-xl">
+        <CardContent className="py-6 px-6">
+          <div className="flex flex-col md:flex-row justify-between md:items-start">
+            {/* Left: Page title and transaction ID */}
+            <div>
+              <div className="text-2xl md:text-2xl font-bold text-[#1A1F2C] mb-0" style={{ letterSpacing: ".02em" }}>
+                {pageTitle}
+              </div>
+              <div className="text-base font-normal text-[#8E9196] mt-1">
+                {localTransaction.code}
+              </div>
             </div>
-          )}
-        </div>
+            {/* Right: Patient name and code */}
+            {(patientName || patientCode) && (
+              <div className="flex flex-col items-end mt-4 md:mt-0">
+                <span className="text-xl font-bold text-[#1A1F2C]">{patientName}</span>
+                <span className="font-normal text-[#8E9196] text-base">{patientCode}</span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* CARD 2: Claimed status and claimed info */}
+      <Card className="mb-2 bg-white border border-gray-200 shadow-sm rounded-xl">
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
             <div>
