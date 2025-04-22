@@ -15,22 +15,15 @@ export const useTransactionData = (transactionCode: string | undefined, patientC
       setLoading(true);
 
       setTimeout(() => {
-        // Create the mock transaction - passing both params, even if patientCode is undefined
         let mockTransaction = createMockTransaction(transactionCode, patientCode);
+        mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode || "");
         
-        // Only try to update with payment data if we have a valid transaction
-        if (mockTransaction) {
-          mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode || "");
-          setTransaction(mockTransaction);
-        } else {
-          setTransaction(null);
-        }
-        
+        setTransaction(mockTransaction);
         setLoading(false);
       }, 500);
     };
 
-    if (transactionCode) {
+    if (transactionCode || patientCode) {
       fetchData();
     } else {
       setLoading(false);

@@ -61,7 +61,7 @@ export function MainLayout() {
       location.pathname === '/transactions' ||
       location.pathname.startsWith('/patients/') ||
       location.pathname.startsWith('/transactions/')
-    ) && !location.pathname.includes('/balance-sheet') && !location.pathname.includes('/reports');
+    ) && !location.pathname.includes('/balance-sheet');
   };
 
   if (
