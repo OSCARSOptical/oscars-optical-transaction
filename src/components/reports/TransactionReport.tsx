@@ -47,9 +47,14 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
     }, 0),
   };
 
+  // Filter transactions to only show selected ones if any are selected
+  const displayTransactions = selectedTransactions.length > 0
+    ? transactions.filter(transaction => selectedTransactions.includes(transaction.id))
+    : transactions;
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 print-container">
+      <div className="flex justify-between items-center print:hidden">
         <h2 className="text-2xl font-bold">Transaction Report</h2>
         <Button 
           onClick={handlePrint} 
@@ -61,7 +66,7 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
         </Button>
       </div>
       
-      <div className="relative overflow-x-auto">
+      <div className="print:block relative overflow-x-auto print-section">
         <Table>
           <TransactionTableHeader />
           <TableBody>
@@ -83,16 +88,34 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
       <style>
         {`
           @media print {
+            @page {
+              size: landscape;
+            }
+            
             body * {
               visibility: hidden;
             }
+            
             .print-section, .print-section * {
               visibility: visible;
             }
-            .print-section {
+            
+            .print-container {
               position: absolute;
               left: 0;
               top: 0;
+              width: 100%;
+            }
+            
+            /* Make sure the table columns are properly sized */
+            table {
+              width: 100%;
+              table-layout: auto;
+            }
+            
+            /* Hide selection checkboxes on print */
+            .print:hidden {
+              display: none !important;
             }
           }
         `}

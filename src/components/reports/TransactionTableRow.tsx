@@ -27,7 +27,7 @@ export function TransactionTableRow({
   const frameType = "Full Rim";
   
   return (
-    <TableRow key={transaction.id}>
+    <TableRow key={transaction.id} className={isSelected ? "bg-gray-50" : ""}>
       <TableCell className="print:hidden">
         <Checkbox
           checked={isSelected}
@@ -37,7 +37,7 @@ export function TransactionTableRow({
       <TableCell>{transaction.date}</TableCell>
       <TableCell>
         <span 
-          className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+          className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 print:no-underline print:text-black"
           onClick={handleTransactionClick}
         >
           {transaction.code}
