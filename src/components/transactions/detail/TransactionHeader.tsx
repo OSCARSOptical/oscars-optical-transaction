@@ -116,34 +116,50 @@ export function TransactionHeader({
         </CardContent>
       </Card>
 
-      {/* CARD 2: Claimed status and claimed info */}
+      {/* CARD 2: Transaction info in single row */}
       <Card className="mb-4 mt-4 bg-white border border-gray-200 shadow-sm rounded-xl">
-        <CardContent className="px-0 mx-0 py-[18px] my-0">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center items-center">
-            <div>
-              <h3 className="text-sm font-medium mb-1 text-center text-inherit">Transaction Date</h3>
-              <p className="text-base font-semibold text-[#1A1F2C] text-center">
+        <CardContent className="px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-[#8E9196]">Transaction Date</span>
+              <span className="text-base font-semibold text-[#1A1F2C] mt-1">
                 {formatDateLong(localTransaction.date)}
-              </p>
+              </span>
             </div>
-            <div className="flex flex-col justify-center">
-              <h3 className="text-sm font-medium mb-1 text-center text-inherit">Claimed</h3>
-              <div className="flex items-center justify-center gap-2">
-                <Checkbox checked={localTransaction.claimed} onCheckedChange={handleClaimedChange} id="claimed" disabled={readOnly} className={`border-2 !border-[#8E9196] bg-white 
-                    ${localTransaction.claimed ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]" : "!text-[#1A1F2C]" /* changed from #8E9196 to black */}`} style={{
-                color: localTransaction.claimed ? "#ea384c" : "#1A1F2C"
-              }} />
+
+            <div className="flex flex-col items-center">
+              <span className="text-sm font-medium text-[#8E9196] mb-1">Claimed</span>
+              <div className="flex items-center justify-center">
+                <Checkbox 
+                  checked={localTransaction.claimed} 
+                  onCheckedChange={handleClaimedChange} 
+                  id="claimed" 
+                  disabled={readOnly} 
+                  className={`border-2 !border-[#8E9196] bg-white 
+                    ${localTransaction.claimed ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]" : "!text-[#1A1F2C]"}`}
+                  style={{
+                    color: localTransaction.claimed ? "#ea384c" : "#1A1F2C"
+                  }}
+                />
               </div>
             </div>
-            <div>
-              <h3 className="text-sm font-medium mb-1 text-center text-inherit">Claimed On</h3>
-              <p className="text-base font-semibold text-[#1A1F2C] text-center">
-                {localTransaction.claimed && localTransaction.dateClaimed ? formatDateLong(localTransaction.dateClaimed) : <span className="text-[#1A1F2C]">Unclaimed</span>}
-              </p>
+
+            <div className="flex flex-col items-end">
+              <span className="text-sm font-medium text-[#8E9196]">Claimed On</span>
+              <span className="text-base font-semibold text-[#1A1F2C] mt-1">
+                {localTransaction.claimed && localTransaction.dateClaimed 
+                  ? formatDateLong(localTransaction.dateClaimed) 
+                  : <span className="text-[#1A1F2C]">Unclaimed</span>}
+              </span>
             </div>
           </div>
         </CardContent>
       </Card>
-      <UnclaimConfirmDialog open={showUnclaimDialog} onOpenChange={setShowUnclaimDialog} onConfirm={handleUnclaimConfirm} />
+
+      <UnclaimConfirmDialog 
+        open={showUnclaimDialog} 
+        onOpenChange={setShowUnclaimDialog} 
+        onConfirm={handleUnclaimConfirm} 
+      />
     </>;
 }
