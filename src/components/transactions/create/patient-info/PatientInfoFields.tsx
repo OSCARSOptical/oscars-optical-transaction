@@ -2,7 +2,6 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Patient } from "@/types";
-import AddressMap from "@/components/shared/AddressMap";
 
 interface PatientInfoFieldsProps {
   patient: Patient;
@@ -72,12 +71,15 @@ const PatientInfoFields = ({ patient, isEditing, onFieldChange }: PatientInfoFie
             readOnly={!isEditing}
           />
         </div>
+        <div className="col-span-2">
+          <label className="text-sm font-medium">Address</label>
+          <Input
+            value={patient.address}
+            onChange={(e) => onFieldChange('address', e.target.value)}
+            readOnly={!isEditing}
+          />
+        </div>
       </div>
-      <AddressMap
-        address={patient.address}
-        onAddressChange={(value) => onFieldChange('address', value)}
-        readOnly={!isEditing}
-      />
     </div>
   );
 };
