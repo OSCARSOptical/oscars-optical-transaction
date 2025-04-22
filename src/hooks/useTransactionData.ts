@@ -1,11 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Transaction } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { createMockTransaction } from '@/services/mockTransactionService';
 import { updateTransactionWithPayment, handleTransactionClaim } from '@/utils/transactionUtils';
-import { sampleTransactions } from '@/data/sampleData';
 
-export const useTransactionData = (transactionCode: string | undefined, patientCode?: string) => {
+export const useTransactionData = (transactionCode: string | undefined, patientCode: string | undefined) => {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -14,37 +14,21 @@ export const useTransactionData = (transactionCode: string | undefined, patientC
     const fetchData = () => {
       setLoading(true);
 
-      // Only require transactionCode
-      if (!transactionCode) {
-        setLoading(false);
-        setTransaction(null);
-        return;
-      }
-
       setTimeout(() => {
-        // First try to find the transaction in our sample data
-        const existingTransaction = sampleTransactions.find(t => t.code === transactionCode);
+        let mockTransaction = createMockTransaction(transactionCode, patientCode);
+        mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode || "");
         
-        if (existingTransaction) {
-          // If found in sample data, use it directly
-          setTransaction(existingTransaction);
-        } else {
-          // Otherwise create a mock transaction
-          let mockTransaction = createMockTransaction(transactionCode, patientCode);
-          
-          if (mockTransaction) {
-            mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode);
-            setTransaction(mockTransaction);
-          } else {
-            setTransaction(null);
-          }
-        }
-        
+        setTransaction(mockTransaction);
         setLoading(false);
       }, 500);
     };
 
-    fetchData();
+    if (transactionCode || patientCode) {
+      fetchData();
+    } else {
+      setLoading(false);
+      setTransaction(null);
+    }
   }, [transactionCode, patientCode]);
 
   const handleClaimedToggle = () => {
