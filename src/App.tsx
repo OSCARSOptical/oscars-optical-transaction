@@ -40,10 +40,7 @@ const App = () => (
             <Route path="/balance-sheet" element={<BalanceSheetPage />} />
             <Route path="/patients/:patientCode" element={<PatientDetailPage />} />
             <Route path="/patients/:patientCode/transactions/:transactionCode" element={<TransactionDetail />} />
-            <Route 
-              path="/transactions/:transactionCode" 
-              element={<TransactionDetail />} 
-            />
+            <Route path="/transactions/:transactionCode" element={<TransactionDetail />} />
             <Route path="/transactions/new" element={<NewTransaction />} />
             <Route path="/transactions/new/:patientId" element={<NewTransaction />} />
             <Route path="*" element={<NotFound />} />

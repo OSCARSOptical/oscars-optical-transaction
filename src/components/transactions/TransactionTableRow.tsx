@@ -21,7 +21,7 @@ export function TransactionTableRow({
   const navigate = useNavigate();
 
   const handleTransactionClick = () => {
-    navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`);
+    navigate(`/transactions/${transaction.code}`);
   };
 
   // Format for "Claimed On" column per rules

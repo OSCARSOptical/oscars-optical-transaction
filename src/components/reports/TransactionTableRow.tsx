@@ -21,7 +21,7 @@ export function TransactionTableRow({
   const navigate = useNavigate();
   
   const handleTransactionClick = () => {
-    navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`);
+    navigate(`/transactions/${transaction.code}`);
   };
   
   const frameType = "Full Rim";
