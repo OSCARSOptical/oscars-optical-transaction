@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+
+import { Link, useNavigate } from 'react-router-dom';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,9 @@ export function TransactionTableRow({
   const navigate = useNavigate();
 
   const handleTransactionClick = () => {
-    navigate(`/transactions/${transaction.code}`);
+    navigate(`/transactions/${transaction.code}`, {
+      state: { patientCode: transaction.patientCode }
+    });
   };
 
   // Format for "Claimed On" column per rules
