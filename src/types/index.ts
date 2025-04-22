@@ -42,7 +42,10 @@ export interface Transaction {
   patientName: string;
   firstName: string;
   lastName: string;
-  type: 'Complete' | 'Frame Replacement' | 'Lens Replacement' | 'Eye Exam' | 'Medical Certificate' | 'Contact Lens' | 'Repair' | 'Return' | 'Balance Payment';
+  type: 'Complete' | 'Frame Replacement' | 'Lens Replacement' | 'Eye Exam' | 'Medical Certificate' | 
+        'Contact Lens' | 'Repair' | 'Return' | 'Balance Payment' | 'Contact Lens Fitting' | 
+        'Comprehensive Eye Exam' | 'Frame Adjustment' | 'Contact Lens Refill' | 
+        'Progressive Lenses' | 'Bifocal Lenses' | 'Single Vision Lenses';
   
   // Order Details
   refractiveIndex?: '1.56' | '1.61' | '1.67' | '1.74';
@@ -76,6 +79,9 @@ export interface Transaction {
   claimed: boolean;
   dateClaimed: string | null;
   isBalancePayment?: boolean;
+  
+  // Contact information
+  phone?: string;
 }
 
 export interface DailyTransaction {
