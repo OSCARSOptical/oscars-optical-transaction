@@ -1,12 +1,14 @@
+
 import { TableCell, TableRow, Table, TableHeader, TableHead, TableBody } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { usePatientTransactions } from "@/hooks/usePatientTransactions";
 import { formatDate, formatCurrency } from "@/utils/formatters";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface PatientTransactionHistoryProps {
   patientCode: string;
@@ -16,15 +18,6 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
   const navigate = useNavigate();
   const { toast } = useToast();
   const { transactions, loading, error } = usePatientTransactions(patientCode);
-
-  const formatClaimDate = (date: string | null) => {
-    if (!date) return "—";
-    return new Date(date).toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: '2-digit'
-    });
-  };
 
   if (error) {
     toast({
@@ -46,7 +39,7 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
             <TableHead className="text-right">Deposit</TableHead>
             <TableHead className="text-right">Balance</TableHead>
             <TableHead className="text-center w-[64px]">Claimed</TableHead>
-            <TableHead className="text-right w-[110px]">Claimed On</TableHead>
+            <TableHead>Claimed On</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
@@ -74,12 +67,23 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
                 <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
                 <TableCell className="text-center">
-                  {transaction.claimed && (
-                    <Check className="mx-auto h-4 w-4 text-[#9E0214]" strokeWidth={3} />
-                  )}
+                  <Checkbox
+                    checked={transaction.claimed}
+                    disabled
+                    className={`border-2 !border-[#8E9196] bg-white ${
+                      transaction.claimed
+                        ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]"
+                        : "!text-[#8E9196]"
+                    }`}
+                    style={{
+                      color: transaction.claimed ? "#ea384c" : "#8E9196",
+                    }}
+                  />
                 </TableCell>
-                <TableCell className="text-right">
-                  {formatClaimDate(transaction.claimed ? transaction.dateClaimed : null)}
+                <TableCell>
+                  {transaction.claimed && transaction.dateClaimed 
+                    ? formatDate(transaction.dateClaimed)
+                    : <span className="text-[#8E9196]">Unclaimed</span>}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -111,3 +115,4 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
     </div>
   );
 }
+
