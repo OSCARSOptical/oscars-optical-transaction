@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ const generatePatientCode = (firstName: string, lastName: string, id: string): s
   return `PX-${firstInitial}${lastInitial}-${numericPart}`;
 };
 
-// Sample data with the new format
 const samplePatients: Patient[] = [
   {
     id: '12345',
@@ -49,7 +47,6 @@ const samplePatients: Patient[] = [
   }
 ];
 
-// Sample transactions that match our patients with new format
 const sampleTransactions: Transaction[] = [
   {
     id: '1',
@@ -110,11 +107,19 @@ const sampleTransactions: Transaction[] = [
   }
 ];
 
-export function PatientList() {
+interface PatientListProps {
+  initialSearchQuery?: string;
+}
+
+export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
   const [patients] = useState<Patient[]>(samplePatients);
   const [transactions] = useState<Transaction[]>(sampleTransactions);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery);
+  }, [initialSearchQuery]);
   
   const filteredPatients = patients.filter(patient => 
     patient.firstName.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -123,7 +128,6 @@ export function PatientList() {
     patient.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Function to get the most recent transaction for a patient
   const getLatestTransaction = (patientCode: string) => {
     const patientTransactions = transactions.filter(t => t.patientCode === patientCode);
     if (patientTransactions.length === 0) return null;
@@ -139,15 +143,6 @@ export function PatientList() {
           <User className="mr-2 h-5 w-5 text-crimson-600" />
           Patients
         </CardTitle>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input 
-            placeholder="Search by Name or Patient ID" 
-            className="pl-9 w-[250px]" 
-            value={searchQuery} 
-            onChange={e => setSearchQuery(e.target.value)} 
-          />
-        </div>
       </CardHeader>
       <CardContent>
         <Table>
