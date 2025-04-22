@@ -70,7 +70,7 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
         <Table>
           <TransactionTableHeader />
           <TableBody>
-            {transactions.map((transaction) => (
+            {displayTransactions.map((transaction) => (
               <TransactionTableRow
                 key={transaction.id}
                 transaction={transaction}
@@ -90,6 +90,7 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
           @media print {
             @page {
               size: landscape;
+              margin: 0.5cm;
             }
             
             body * {
@@ -107,14 +108,27 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
               width: 100%;
             }
             
-            /* Make sure the table columns are properly sized */
+            /* Optimize table for print */
             table {
               width: 100%;
-              table-layout: auto;
+              table-layout: fixed;
+              border-collapse: collapse;
+              font-size: 8pt;
+            }
+
+            td, th {
+              padding: 4px !important;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+
+            tr {
+              page-break-inside: avoid;
             }
             
             /* Hide selection checkboxes on print */
-            .print:hidden {
+            .print\:hidden {
               display: none !important;
             }
           }

@@ -1,4 +1,3 @@
-
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Transaction } from "@/types";
@@ -19,11 +18,9 @@ export function TransactionTableRow({
   const navigate = useNavigate();
   
   const handleTransactionClick = () => {
-    // Navigate directly to the transaction route without requiring a patient code
     navigate(`/transactions/${transaction.code}`);
   };
   
-  // Get frame type (hardcoded for now, as it's not in the transaction model)
   const frameType = "Full Rim";
   
   return (
@@ -34,26 +31,23 @@ export function TransactionTableRow({
           onCheckedChange={() => onToggleSelection(transaction.id)}
         />
       </TableCell>
-      <TableCell>{transaction.date}</TableCell>
-      <TableCell>
-        <span 
-          className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 print:no-underline print:text-black"
-          onClick={handleTransactionClick}
-        >
+      <TableCell className="w-[80px]">{transaction.date}</TableCell>
+      <TableCell className="w-[100px]">
+        <span className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 print:no-underline print:text-black">
           {transaction.code}
         </span>
       </TableCell>
-      <TableCell>{transaction.patientName}</TableCell>
-      <TableCell>{transaction.type}</TableCell>
-      <TableCell>{transaction.refractiveIndex || 'N/A'}</TableCell>
-      <TableCell>{frameType}</TableCell>
-      <TableCell>{transaction.lensType || 'N/A'}</TableCell>
-      <TableCell>{transaction.lensCoating || 'N/A'}</TableCell>
-      <TableCell className="text-right">{formatCurrency(transaction.lensCapital)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(transaction.edgingPrice)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(transaction.otherExpenses)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(transaction.totalExpenses)}</TableCell>
-      <TableCell className="max-w-[200px] truncate">{transaction.orderNotes}</TableCell>
+      <TableCell className="w-[120px]">{transaction.patientName}</TableCell>
+      <TableCell className="w-[100px]">{transaction.type}</TableCell>
+      <TableCell className="w-[60px]">{transaction.refractiveIndex || 'N/A'}</TableCell>
+      <TableCell className="w-[80px]">{frameType}</TableCell>
+      <TableCell className="w-[80px]">{transaction.lensType || 'N/A'}</TableCell>
+      <TableCell className="w-[80px]">{transaction.lensCoating || 'N/A'}</TableCell>
+      <TableCell className="w-[80px] text-right">{formatCurrency(transaction.lensCapital)}</TableCell>
+      <TableCell className="w-[80px] text-right">{formatCurrency(transaction.edgingPrice)}</TableCell>
+      <TableCell className="w-[80px] text-right">{formatCurrency(transaction.otherExpenses)}</TableCell>
+      <TableCell className="w-[80px] text-right">{formatCurrency(transaction.totalExpenses)}</TableCell>
+      <TableCell className="w-[120px] truncate">{transaction.orderNotes}</TableCell>
     </TableRow>
   );
 }
