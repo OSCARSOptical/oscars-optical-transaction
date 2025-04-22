@@ -1,17 +1,26 @@
+
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import PatientDetail from '@/components/patients/PatientDetail';
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import { Patient } from '@/types';
 import { samplePatients } from '@/data';
+import { normalizePatientCode } from '@/utils/patientUtils';
 
 const PatientDetailPage = () => {
   const { patientCode } = useParams<{ patientCode: string }>();
   const [patient, setPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
+    if (!patientCode) return;
+    
+    // Normalize the patient code to handle legacy format
+    const normalizedCode = normalizePatientCode(patientCode);
+    
     // Find the patient in sample data
-    const foundPatient = samplePatients.find(p => p.code === patientCode);
+    const foundPatient = samplePatients.find(p => 
+      p.code === normalizedCode || p.code === patientCode
+    );
     
     if (foundPatient) {
       // Check for localStorage updates

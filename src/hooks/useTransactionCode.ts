@@ -44,5 +44,27 @@ export const useTransactionCode = () => {
     return `${prefix}-${nextSequence}`;
   };
 
-  return { generateTransactionCode };
+  // New function to normalize transaction codes
+  const normalizeTransactionCode = (code: string): string => {
+    // Check if the code is already in the new format (TXXX-XX-XXXXX)
+    if (code.match(/^TX\d{2}-\d{2}-\d{5}$/)) {
+      return code;
+    }
+    
+    // Handle legacy format (TXXX-XX-XXXX)
+    const match = code.match(/^(TX\d{2}-\d{2}-)(\d+)$/);
+    if (match) {
+      const [, prefix, numericPart] = match;
+      const paddedNumber = numericPart.padStart(5, '0');
+      return `${prefix}${paddedNumber}`;
+    }
+    
+    // If the format is completely different or invalid, return the original
+    return code;
+  };
+
+  return { 
+    generateTransactionCode,
+    normalizeTransactionCode
+  };
 };
