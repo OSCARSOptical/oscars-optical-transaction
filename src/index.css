@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -138,6 +137,12 @@
     padding: 4px !important;
     font-size: 10px !important;
     line-height: 1.2 !important;
+  }
+
+  .print-table td:last-child {
+    max-width: 250px !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
   }
 
   .print-table tr {
