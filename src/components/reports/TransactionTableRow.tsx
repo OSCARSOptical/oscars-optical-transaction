@@ -3,6 +3,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Transaction } from "@/types";
 import { formatCurrency } from "@/utils/formatters";
+import { useNavigate } from "react-router-dom";
 
 interface TransactionTableRowProps {
   transaction: Transaction;
@@ -15,6 +16,13 @@ export function TransactionTableRow({
   isSelected, 
   onToggleSelection 
 }: TransactionTableRowProps) {
+  const navigate = useNavigate();
+  
+  const handleTransactionClick = () => {
+    // Navigate using both patientCode and transactionCode to avoid the error
+    navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`);
+  };
+  
   return (
     <TableRow key={transaction.id}>
       <TableCell className="print:hidden">
@@ -24,7 +32,14 @@ export function TransactionTableRow({
         />
       </TableCell>
       <TableCell>{transaction.date}</TableCell>
-      <TableCell>{transaction.code}</TableCell>
+      <TableCell>
+        <span 
+          className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+          onClick={handleTransactionClick}
+        >
+          {transaction.code}
+        </span>
+      </TableCell>
       <TableCell>{transaction.patientName}</TableCell>
       <TableCell>{transaction.type}</TableCell>
       <TableCell>{transaction.refractiveIndex || 'N/A'}</TableCell>

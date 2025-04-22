@@ -4,7 +4,8 @@ import { usePatientTransactions } from '@/hooks/usePatientTransactions';
 import { TransactionReport } from '@/components/reports/TransactionReport';
 
 const Reports = () => {
-  const { transactions } = usePatientTransactions('PX-OS-0000001');
+  // Use a patient ID that we know exists (Oscar Santos)
+  const { transactions, loading } = usePatientTransactions('PX-OS-0000001');
 
   return (
     <div className="space-y-6">
@@ -15,7 +16,11 @@ const Reports = () => {
         </div>
       </div>
 
-      <TransactionReport transactions={transactions} />
+      {loading ? (
+        <div className="text-center py-10">Loading transactions...</div>
+      ) : (
+        <TransactionReport transactions={transactions} />
+      )}
     </div>
   );
 };
