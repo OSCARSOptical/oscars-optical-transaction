@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 import { UnclaimConfirmDialog } from '../UnclaimConfirmDialog';
 import { findPayment } from '@/utils/paymentsUtils';
+
 interface TransactionHeaderProps {
   transaction: Transaction;
   onClaimedToggle: () => void;
@@ -14,6 +15,7 @@ interface TransactionHeaderProps {
   patientName?: string;
   patientCode?: string;
 }
+
 function formatDateLong(dateString: string | null) {
   if (!dateString) return "—";
   const date = new Date(dateString);
@@ -23,6 +25,7 @@ function formatDateLong(dateString: string | null) {
     year: "numeric"
   });
 }
+
 export function TransactionHeader({
   transaction,
   onClaimedToggle,
@@ -36,6 +39,7 @@ export function TransactionHeader({
   } = useToast();
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [localTransaction, setLocalTransaction] = useState<Transaction>(transaction);
+
   const handleClaimedChange = (checked: boolean | string) => {
     if (readOnly) return;
     if (localTransaction.claimed) {
@@ -68,6 +72,7 @@ export function TransactionHeader({
       duration: 3000
     });
   };
+
   const handleUnclaimConfirm = () => {
     if (!localTransaction.dateClaimed) return;
     removeBalanceSheetEntry({
@@ -91,12 +96,11 @@ export function TransactionHeader({
       variant: "default"
     });
   };
+
   return <>
-      {/* CARD 1: Title + Transaction ID (left) and Patient Name/ID (right) */}
       <Card className="mb-4 bg-white border border-gray-200 shadow-sm rounded-xl">
         <CardContent className="py-6 px-6">
           <div className="flex flex-col md:flex-row justify-between md:items-start">
-            {/* Left: Page title and transaction ID */}
             <div>
               <div className="text-2xl md:text-2xl font-bold text-[#1A1F2C] mb-0" style={{
               letterSpacing: ".02em"
@@ -107,7 +111,6 @@ export function TransactionHeader({
                 {localTransaction.code}
               </div>
             </div>
-            {/* Right: Patient name and code */}
             {(patientName || patientCode) && <div className="flex flex-col items-end mt-4 md:mt-0">
                 <span className="text-xl font-bold text-[#1A1F2C]">{patientName}</span>
                 <span className="font-normal text-[#8E9196] text-base">{patientCode}</span>
@@ -116,40 +119,37 @@ export function TransactionHeader({
         </CardContent>
       </Card>
 
-      {/* CARD 2: Transaction info in single row */}
       <Card className="mb-4 mt-4 bg-white border border-gray-200 shadow-sm rounded-xl">
-        <CardContent className="px-6 py-4">
+        <CardContent className="px-8 py-6">
           <div className="flex justify-between items-center">
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-[#8E9196]">Transaction Date</span>
-              <span className="text-base font-semibold text-[#1A1F2C] mt-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[#8E9196]">Transaction Date :</span>
+              <span className="text-[#1A1F2C] font-medium">
                 {formatDateLong(localTransaction.date)}
               </span>
             </div>
 
-            <div className="flex flex-col items-center">
-              <span className="text-sm font-medium text-[#8E9196] mb-1">Claimed</span>
-              <div className="flex items-center justify-center">
-                <Checkbox 
-                  checked={localTransaction.claimed} 
-                  onCheckedChange={handleClaimedChange} 
-                  id="claimed" 
-                  disabled={readOnly} 
-                  className={`border-2 !border-[#8E9196] bg-white 
-                    ${localTransaction.claimed ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]" : "!text-[#1A1F2C]"}`}
-                  style={{
-                    color: localTransaction.claimed ? "#ea384c" : "#1A1F2C"
-                  }}
-                />
-              </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[#8E9196]">Claimed :</span>
+              <Checkbox 
+                checked={localTransaction.claimed} 
+                onCheckedChange={handleClaimedChange} 
+                id="claimed" 
+                disabled={readOnly} 
+                className={`border-2 !border-[#8E9196] bg-white h-5 w-5
+                  ${localTransaction.claimed ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]" : "!text-[#1A1F2C]"}`}
+                style={{
+                  color: localTransaction.claimed ? "#ea384c" : "#1A1F2C"
+                }}
+              />
             </div>
 
-            <div className="flex flex-col items-end">
-              <span className="text-sm font-medium text-[#8E9196]">Claimed On</span>
-              <span className="text-base font-semibold text-[#1A1F2C] mt-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[#8E9196]">Claimed On :</span>
+              <span className="text-[#1A1F2C] font-medium">
                 {localTransaction.claimed && localTransaction.dateClaimed 
                   ? formatDateLong(localTransaction.dateClaimed) 
-                  : <span className="text-[#1A1F2C]">Unclaimed</span>}
+                  : "Unclaimed"}
               </span>
             </div>
           </div>
