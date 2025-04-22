@@ -1,4 +1,3 @@
-
 export interface Patient {
   id: string;
   code: string; // Now will be formatted as PX-[FirstInitial][LastInitial]-[7-digit sequence]
@@ -76,6 +75,9 @@ export interface Transaction {
   claimed: boolean;
   dateClaimed: string | null;
   isBalancePayment?: boolean;
+  
+  // Contact information
+  phone?: string;
 }
 
 export interface DailyTransaction {
