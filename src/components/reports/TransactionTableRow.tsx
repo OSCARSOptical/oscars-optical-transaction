@@ -19,13 +19,8 @@ export function TransactionTableRow({
   const navigate = useNavigate();
   
   const handleTransactionClick = () => {
-    // Make sure we have a valid patient code before navigating
-    if (transaction.patientCode) {
-      navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`);
-    } else {
-      // If no patient code, navigate to the direct transaction route
-      navigate(`/transactions/${transaction.code}`);
-    }
+    // Navigate directly to the transaction route without requiring a patient code
+    navigate(`/transactions/${transaction.code}`);
   };
   
   return (

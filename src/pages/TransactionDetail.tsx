@@ -19,11 +19,17 @@ const TransactionDetail = () => {
     return <TransactionError transactionCode={transactionCode} />;
   }
 
-  const breadcrumbItems = [
-    { label: 'Patients', href: '/patients' },
-    { label: patient ? `${patient.firstName} ${patient.lastName}` : patientCode || '', href: `/patients/${patientCode}` },
-    { label: transaction.code }
-  ];
+  // Define breadcrumb items based on whether we have a patient code or not
+  const breadcrumbItems = patientCode 
+    ? [
+        { label: 'Patients', href: '/patients' },
+        { label: patient ? `${patient.firstName} ${patient.lastName}` : patientCode || '', href: `/patients/${patientCode}` },
+        { label: transaction.code }
+      ]
+    : [
+        { label: 'Transactions', href: '/transactions' },
+        { label: transaction.code }
+      ];
 
   return (
     <TransactionView

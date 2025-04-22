@@ -25,13 +25,18 @@ export function TransactionTableRow({
     ? formatDate(transaction.dateClaimed)
     : <span className="text-[#8E9196]">Unclaimed</span>;
 
+  const handleTransactionClick = () => {
+    // Navigate directly to the transaction route without requiring a patient code
+    navigate(`/transactions/${transaction.code}`);
+  };
+
   return (
     <TableRow>
       <TableCell>{formatDate(transaction.date)}</TableCell>
       <TableCell>
         <span 
           className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-          onClick={() => navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`)}
+          onClick={handleTransactionClick}
         >
           {transaction.code}
         </span>
@@ -76,7 +81,7 @@ export function TransactionTableRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem 
-              onClick={() => navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`)}
+              onClick={handleTransactionClick}
               className="cursor-pointer"
             >
               View Full Transaction
