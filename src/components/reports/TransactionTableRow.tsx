@@ -19,8 +19,13 @@ export function TransactionTableRow({
   const navigate = useNavigate();
   
   const handleTransactionClick = () => {
-    // Navigate using both patientCode and transactionCode to avoid the error
-    navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`);
+    // Make sure we have a valid patient code before navigating
+    if (transaction.patientCode) {
+      navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`);
+    } else {
+      // If no patient code, navigate to the direct transaction route
+      navigate(`/transactions/${transaction.code}`);
+    }
   };
   
   return (
