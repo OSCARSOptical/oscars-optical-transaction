@@ -1,9 +1,9 @@
 
+import { useNavigate } from 'react-router-dom';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Transaction } from "@/types";
 import { formatCurrency } from "@/utils/formatters";
-import { useNavigate } from "react-router-dom";
 
 interface TransactionTableRowProps {
   transaction: Transaction;
