@@ -125,3 +125,27 @@
     @apply text-lg font-medium text-gray-700;
   }
 }
+
+/* Print styles for reports */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-table th, 
+  .print-table td {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .print-table tr:nth-child(25n) {
+    page-break-after: always;
+  }
+
+  @page {
+    size: landscape;
+    margin: 15mm;
+  }
+}
+
