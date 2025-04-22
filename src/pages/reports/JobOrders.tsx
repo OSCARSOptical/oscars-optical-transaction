@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { sampleTransactions } from '@/data/sampleData';
@@ -43,7 +42,6 @@ const JobOrders = () => {
     }
   };
 
-  // Fix: Using the correct API for useReactToPrint
   const handlePrint = useReactToPrint({
     documentTitle: "Job Orders Report",
     onBeforePrint: () => {
@@ -54,7 +52,6 @@ const JobOrders = () => {
       console.log("Print completed or canceled");
       return Promise.resolve();
     },
-    removeAfterPrint: true,
     contentRef: printRef,
     pageStyle: `
       @page {
@@ -79,7 +76,6 @@ const JobOrders = () => {
     { label: 'Job Orders' }
   ];
 
-  // Fix: Creating a wrapper function to handle the onClick event
   const handlePrintClick = () => {
     handlePrint();
   };
@@ -102,7 +98,6 @@ const JobOrders = () => {
         </Button>
       </div>
       
-      {/* Regular table view */}
       <JobOrdersTable 
         transactions={transactions}
         selectedRows={selectedRows}
@@ -111,7 +106,6 @@ const JobOrders = () => {
         onSelectRow={handleSelectRow}
       />
       
-      {/* Hidden print view */}
       <div className="hidden">
         <div ref={printRef}>
           <JobOrdersTable 
