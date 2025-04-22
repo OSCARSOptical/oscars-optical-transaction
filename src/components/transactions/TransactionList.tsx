@@ -69,10 +69,19 @@ const sampleTransactions: Transaction[] = [
   }
 ];
 
-export function TransactionList() {
+interface TransactionListProps {
+  searchQuery?: string;
+}
+
+export function TransactionList({ searchQuery = '' }: TransactionListProps) {
   const [transactions, setTransactions] = useState<Transaction[]>(sampleTransactions);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const { toast } = useToast();
+
+  // Update local search when prop changes
+  useEffect(() => {
+    setLocalSearchQuery(searchQuery);
+  }, [searchQuery]);
 
   // Verify all transactions have matching patient codes
   useEffect(() => {
@@ -92,7 +101,7 @@ export function TransactionList() {
   }, [transactions, toast]);
 
   const filteredTransactions = transactions.filter(transaction => {
-    const searchLower = searchQuery.toLowerCase();
+    const searchLower = localSearchQuery.toLowerCase();
     return (
       transaction.patientName.toLowerCase().includes(searchLower) ||
       transaction.patientCode.toLowerCase().includes(searchLower) ||
@@ -118,8 +127,8 @@ export function TransactionList() {
           Transactions
         </CardTitle>
         <TransactionListHeader 
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          searchQuery={localSearchQuery}
+          onSearchChange={setLocalSearchQuery}
         />
       </CardHeader>
       <CardContent>
