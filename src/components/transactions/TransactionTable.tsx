@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +8,7 @@ import { TransactionTableRow } from './TransactionTableRow';
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Copy } from 'lucide-react';
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -20,12 +20,10 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   const [localTransactions, setLocalTransactions] = useState<Transaction[]>(transactions);
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
-
-  // We're not sorting here anymore since sorting is handled in the parent component
+  const [copyAllStatus, setCopyAllStatus] = useState(false);
 
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
     if (currentValue) {
-      // Unclaiming - need to show confirmation dialog
       const transaction = localTransactions.find(tx => tx.id === id);
       if (transaction) {
         setTransactionToUnclaim(transaction);
@@ -34,13 +32,11 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
       return;
     }
 
-    // Claiming the transaction
     const updatedTransactions = localTransactions.map(transaction => {
       if (transaction.id === id) {
         const today = new Date().toISOString().split('T')[0];
         const balancePaid = transaction.balance;
 
-        // Create a new balance sheet entry - make sure to include patientCode
         addBalanceSheetEntry({
           date: today,
           transactionId: transaction.code,
@@ -75,7 +71,6 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
 
     const updatedTransactions = localTransactions.map(transaction => {
       if (transaction.id === transactionToUnclaim.id) {
-        // Remove the balance sheet entry
         if (transactionToUnclaim.dateClaimed) {
           removeBalanceSheetEntry({
             date: transactionToUnclaim.dateClaimed,
@@ -83,8 +78,6 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
           });
         }
 
-        // Restore the original balance - use balancePaid value from context or stored value
-        // For demo using a previously known value that was saved somewhere
         const restoredBalance = transaction.grossAmount - transaction.deposit;
 
         const restoredTransaction = {
@@ -108,6 +101,18 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     setLocalTransactions(updatedTransactions);
     setShowUnclaimDialog(false);
     setTransactionToUnclaim(null);
+  };
+
+  const allVisibleNumbers = transactions
+    .map((x) => x.phone)
+    .filter(Boolean)
+    .join(', ');
+
+  const handleCopyAll = () => {
+    if (allVisibleNumbers.length === 0) return;
+    navigator.clipboard.writeText(allVisibleNumbers);
+    setCopyAllStatus(true);
+    setTimeout(() => setCopyAllStatus(false), 1000);
   };
 
   return (
@@ -135,6 +140,21 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
               <TableHead>Transaction ID</TableHead>
               <TableHead>Patient Name</TableHead>
               <TableHead>Patient ID</TableHead>
+              <TableHead className="relative group">
+                <div className="flex items-center space-x-1">
+                  <span>Contact #</span>
+                  {allVisibleNumbers.length > 0 && (
+                    <button
+                      className="ml-1 p-1 rounded hover:bg-gray-100 focus:outline-none"
+                      title="Copy all contact numbers"
+                      onClick={handleCopyAll}
+                      type="button"
+                    >
+                      <Copy className={`w-4 h-4 ${copyAllStatus ? "text-green-500" : "text-gray-400"}`} />
+                    </button>
+                  )}
+                </div>
+              </TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="text-right">Gross Amount</TableHead>
               <TableHead className="text-right">Deposit</TableHead>
