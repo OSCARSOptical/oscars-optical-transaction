@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { 
   Home, 
@@ -11,24 +10,16 @@ import {
   CreditCard, 
   BarChart4, 
   Settings,
-  FilePlus,
   PieChart,
-  ChevronDown,
-  ChevronRight
 } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useState } from 'react';
-
-interface SidebarProps {
-  isOpen: boolean;
-}
 
 // Primary navigation items
-const primaryNavItems = [
+const navItems = [
   {
     title: "Dashboard",
     icon: Home,
@@ -49,33 +40,23 @@ const primaryNavItems = [
     icon: BarChart4,
     href: "/balance-sheet",
   },
-];
-
-// Secondary navigation items (more menu)
-const secondaryNavItems = [
   {
     title: "Reports",
     icon: PieChart,
     href: "/reports",
   },
   {
-    title: "New Entry",
-    icon: FilePlus,
-    href: "/new-entry",
-  },
-  {
     title: "Settings",
     icon: Settings,
     href: "/settings",
-  },
+  }
 ];
 
-export function Sidebar({ isOpen }: SidebarProps) {
+export function Sidebar({ isOpen }: { isOpen: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
 
-  const NavButton = ({ item, index }: { item: { title: string; icon: any; href: string }; index: number }) => {
+  const NavButton = ({ item }: { item: { title: string; icon: any; href: string } }) => {
     const isActive = location.pathname === item.href;
     
     return (
@@ -114,36 +95,9 @@ export function Sidebar({ isOpen }: SidebarProps) {
       </div>
       <ScrollArea className="flex-1 py-4">
         <nav className="grid gap-1 px-2">
-          {primaryNavItems.map((item, index) => (
-            <NavButton key={index} item={item} index={index} />
+          {navItems.map((item, index) => (
+            <NavButton key={index} item={item} />
           ))}
-          
-          <Collapsible
-            open={isMoreOpen}
-            onOpenChange={setIsMoreOpen}
-            className="mt-1"
-          >
-            <CollapsibleTrigger asChild>
-              <Button
-                variant="ghost"
-                className="flex h-10 w-full items-center justify-between px-4 py-2 text-gray-600 hover:bg-crimson-50 hover:text-crimson-700"
-              >
-                <div className="flex items-center">
-                  <span className="mr-2">More</span>
-                </div>
-                {isMoreOpen ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="px-2 py-1">
-              {secondaryNavItems.map((item, index) => (
-                <NavButton key={index} item={item} index={index} />
-              ))}
-            </CollapsibleContent>
-          </Collapsible>
         </nav>
       </ScrollArea>
     </div>
