@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { sampleTransactions } from '@/data/sampleData';
@@ -8,6 +7,16 @@ import JobOrdersTable from '@/components/reports/JobOrdersTable';
 import AdditionalItemsDialog, { AdditionalItem } from '@/components/reports/AdditionalItemsDialog';
 import { Button } from '@/components/ui/button';
 import { Printer, RefreshCw } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const JobOrders = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -17,6 +26,7 @@ const JobOrders = () => {
   const [additionalItems, setAdditionalItems] = useState<AdditionalItem[]>([]);
   const [printedTransactions, setPrintedTransactions] = useState<string[]>([]);
   const printRef = useRef<HTMLDivElement>(null);
+  const [showClearHistoryDialog, setShowClearHistoryDialog] = useState(false);
 
   useEffect(() => {
     const sortedTransactions = [...sampleTransactions].sort((a, b) => 
@@ -108,9 +118,10 @@ const JobOrders = () => {
     }, 100);
   };
 
-  const clearPrintedStatus = () => {
+  const handleClearHistory = () => {
     setPrintedTransactions([]);
     localStorage.removeItem('printedTransactions');
+    setShowClearHistoryDialog(false);
   };
 
   const breadcrumbItems = [
@@ -130,7 +141,7 @@ const JobOrders = () => {
             <Button
               variant="outline"
               className="gap-2"
-              onClick={clearPrintedStatus}
+              onClick={() => setShowClearHistoryDialog(true)}
             >
               <RefreshCw className="h-4 w-4" />
               Clear Print History
@@ -173,6 +184,21 @@ const JobOrders = () => {
         onConfirm={handleAdditionalItems}
         transactionTotal={calculateTransactionTotal()}
       />
+
+      <AlertDialog open={showClearHistoryDialog} onOpenChange={setShowClearHistoryDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear Print History?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to clear the print history? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearHistory}>Yes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
