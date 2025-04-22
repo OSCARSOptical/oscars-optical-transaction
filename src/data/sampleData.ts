@@ -93,7 +93,7 @@ export const samplePatients = [
     address: '123 Main St, City, State',
     code: 'PX-JD-0000001',
     createdDate: '2025-01-15',
-    sex: 'Male'
+    sex: 'Male' as 'Male' | 'Female'
   }, 
   {
     id: '67890',
@@ -105,7 +105,7 @@ export const samplePatients = [
     address: '456 Oak St, City, State',
     code: 'PX-JS-0000001',
     createdDate: '2025-02-20',
-    sex: 'Female'
+    sex: 'Female' as 'Male' | 'Female'
   },
   {
     id: '54321',
@@ -117,6 +117,6 @@ export const samplePatients = [
     address: '789 Pine St, City, State',
     code: 'PX-OS-0000001',
     createdDate: '2025-03-10',
-    sex: 'Male'
+    sex: 'Male' as 'Male' | 'Female'
   }
 ];
