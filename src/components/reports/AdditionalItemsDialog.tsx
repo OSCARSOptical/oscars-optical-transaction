@@ -1,40 +1,37 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency } from '@/utils/formatters';
-
 export interface AdditionalItem {
   description: string;
   amount: number;
 }
-
 interface AdditionalItemsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (items: AdditionalItem[]) => void;
   transactionTotal: number;
 }
-
-const AdditionalItemsDialog = ({ 
-  isOpen, 
-  onClose, 
+const AdditionalItemsDialog = ({
+  isOpen,
+  onClose,
   onConfirm,
-  transactionTotal 
+  transactionTotal
 }: AdditionalItemsDialogProps) => {
-  const [items, setItems] = useState<AdditionalItem[]>([
-    { description: '', amount: 0 }
-  ]);
-
+  const [items, setItems] = useState<AdditionalItem[]>([{
+    description: '',
+    amount: 0
+  }]);
   const handleAddItem = () => {
-    setItems([...items, { description: '', amount: 0 }]);
+    setItems([...items, {
+      description: '',
+      amount: 0
+    }]);
   };
-
   const handleRemoveItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
   };
-
   const handleItemChange = (index: number, field: keyof AdditionalItem, value: string) => {
     const newItems = [...items];
     if (field === 'amount') {
@@ -44,21 +41,17 @@ const AdditionalItemsDialog = ({
     }
     setItems(newItems);
   };
-
   const calculateTotal = () => {
     return items.reduce((sum, item) => sum + item.amount, transactionTotal);
   };
-
   const handleConfirm = () => {
     const validItems = items.filter(item => item.description && item.amount > 0);
     onConfirm(validItems);
   };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+  return <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add Additional Items</DialogTitle>
+          <DialogTitle>Add Additional Expense</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -67,34 +60,15 @@ const AdditionalItemsDialog = ({
             <div>Amount</div>
           </div>
 
-          {items.map((item, index) => (
-            <div key={index} className="grid grid-cols-3 gap-4 items-center">
-              <Input
-                className="col-span-2"
-                placeholder="Item description"
-                value={item.description}
-                onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-              />
+          {items.map((item, index) => <div key={index} className="grid grid-cols-3 gap-4 items-center">
+              <Input className="col-span-2" placeholder="Item description" value={item.description} onChange={e => handleItemChange(index, 'description', e.target.value)} />
               <div className="flex gap-2">
-                <Input
-                  type="number"
-                  min="0"
-                  value={item.amount || ''}
-                  onChange={(e) => handleItemChange(index, 'amount', e.target.value)}
-                />
-                {index > 0 && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleRemoveItem(index)}
-                    className="flex-shrink-0"
-                  >
+                <Input type="number" min="0" value={item.amount || ''} onChange={e => handleItemChange(index, 'amount', e.target.value)} />
+                {index > 0 && <Button variant="outline" size="icon" onClick={() => handleRemoveItem(index)} className="flex-shrink-0">
                     ×
-                  </Button>
-                )}
+                  </Button>}
               </div>
-            </div>
-          ))}
+            </div>)}
 
           <Button variant="outline" onClick={handleAddItem} className="w-full">
             Add Item
@@ -105,14 +79,10 @@ const AdditionalItemsDialog = ({
             <div>{formatCurrency(transactionTotal)}</div>
           </div>
 
-          {items.map((item, index) => (
-            item.amount > 0 && (
-              <div key={`total-${index}`} className="flex justify-between">
+          {items.map((item, index) => item.amount > 0 && <div key={`total-${index}`} className="flex justify-between">
                 <div>{item.description || 'Untitled Item'}:</div>
                 <div>{formatCurrency(item.amount)}</div>
-              </div>
-            )
-          ))}
+              </div>)}
 
           <div className="flex justify-between font-bold">
             <div>Grand Total:</div>
@@ -125,8 +95,6 @@ const AdditionalItemsDialog = ({
           <Button onClick={handleConfirm}>Proceed to Print</Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
-
 export default AdditionalItemsDialog;
