@@ -4,6 +4,7 @@ import { sampleTransactions } from '@/data/sampleData';
 import { Transaction } from '@/types';
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import JobOrdersTable from '@/components/reports/JobOrdersTable';
+import AdditionalItemsDialog, { AdditionalItem } from '@/components/reports/AdditionalItemsDialog';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 
@@ -11,10 +12,11 @@ const JobOrders = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [additionalItems, setAdditionalItems] = useState<AdditionalItem[]>([]);
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Sort transactions by date (newest first)
     const sortedTransactions = [...sampleTransactions].sort((a, b) => 
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
@@ -42,6 +44,12 @@ const JobOrders = () => {
     }
   };
 
+  const calculateTransactionTotal = () => {
+    return transactions
+      .filter(tx => selectedRows.includes(tx.id))
+      .reduce((sum, tx) => sum + tx.grossAmount, 0);
+  };
+
   const handlePrint = useReactToPrint({
     documentTitle: "Job Orders Report",
     onBeforePrint: () => {
@@ -50,6 +58,7 @@ const JobOrders = () => {
     },
     onAfterPrint: () => {
       console.log("Print completed or canceled");
+      setAdditionalItems([]);
       return Promise.resolve();
     },
     contentRef: printRef,
@@ -71,14 +80,20 @@ const JobOrders = () => {
     `,
   });
 
+  const handlePrintClick = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleAdditionalItems = (items: AdditionalItem[]) => {
+    setAdditionalItems(items);
+    setIsDialogOpen(false);
+    handlePrint();
+  };
+
   const breadcrumbItems = [
     { label: 'Reports', href: '/reports' },
     { label: 'Job Orders' }
   ];
-
-  const handlePrintClick = () => {
-    handlePrint();
-  };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -111,9 +126,17 @@ const JobOrders = () => {
           <JobOrdersTable 
             transactions={transactions.filter(tx => selectedRows.includes(tx.id))}
             isPrintView={true}
+            additionalItems={additionalItems}
           />
         </div>
       </div>
+
+      <AdditionalItemsDialog 
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={handleAdditionalItems}
+        transactionTotal={calculateTransactionTotal()}
+      />
     </div>
   );
 };

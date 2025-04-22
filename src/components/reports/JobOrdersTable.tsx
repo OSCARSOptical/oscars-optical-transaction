@@ -1,9 +1,9 @@
-
 import { Link } from 'react-router-dom';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Transaction } from '@/types';
 import { formatDate, formatCurrency } from '@/utils/formatters';
+import { AdditionalItem } from './AdditionalItemsDialog';
 
 interface JobOrdersTableProps {
   transactions: Transaction[];
@@ -12,6 +12,7 @@ interface JobOrdersTableProps {
   onSelectAll?: () => void;
   onSelectRow?: (id: string) => void;
   isPrintView?: boolean;
+  additionalItems?: AdditionalItem[];
 }
 
 const JobOrdersTable = ({ 
@@ -20,8 +21,15 @@ const JobOrdersTable = ({
   selectAll = false, 
   onSelectAll = () => {}, 
   onSelectRow = () => {},
-  isPrintView = false
+  isPrintView = false,
+  additionalItems = []
 }: JobOrdersTableProps) => {
+  const calculateTotal = () => {
+    const transactionsTotal = transactions.reduce((sum, tx) => sum + tx.grossAmount, 0);
+    const additionalTotal = additionalItems.reduce((sum, item) => sum + item.amount, 0);
+    return transactionsTotal + additionalTotal;
+  };
+
   return (
     <div className={`w-full overflow-auto ${isPrintView ? 'print-table' : ''}`}>
       <Table>
@@ -95,6 +103,35 @@ const JobOrdersTable = ({
           )}
         </TableBody>
       </Table>
+
+      {isPrintView && additionalItems.length > 0 && (
+        <>
+          <TableRow>
+            <TableCell colSpan={8} className="text-right font-semibold">Subtotal:</TableCell>
+            <TableCell colSpan={5} className="text-right">
+              {formatCurrency(transactions.reduce((sum, tx) => sum + tx.grossAmount, 0))}
+            </TableCell>
+          </TableRow>
+          
+          {additionalItems.map((item, index) => (
+            <TableRow key={`additional-${index}`}>
+              <TableCell colSpan={8} className="text-right">
+                {item.description}:
+              </TableCell>
+              <TableCell colSpan={5} className="text-right">
+                {formatCurrency(item.amount)}
+              </TableCell>
+            </TableRow>
+          ))}
+          
+          <TableRow>
+            <TableCell colSpan={8} className="text-right font-bold">GRAND TOTAL:</TableCell>
+            <TableCell colSpan={5} className="text-right font-bold">
+              {formatCurrency(calculateTotal())}
+            </TableCell>
+          </TableRow>
+        </>
+      )}
     </div>
   );
 };
