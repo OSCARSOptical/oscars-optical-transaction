@@ -148,7 +148,7 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
 
       <div className="print-header print:hidden">
         <img 
-          src="/path/to/oscars-optical-logo.png" 
+          src="/lovable-uploads/2146e65c-0ac1-45f6-98b4-5e43d8fd0ae2.png" 
           alt="OSCARS Optical Logo" 
           className="print-logo" 
         />
