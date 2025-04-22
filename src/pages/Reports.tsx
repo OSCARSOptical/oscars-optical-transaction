@@ -1,14 +1,13 @@
 
 import { useState } from 'react';
-import { usePatientTransactions } from '@/hooks/usePatientTransactions';
+import { useGetAllTransactions } from '@/hooks/useGetAllTransactions';
 import { TransactionReport } from '@/components/reports/TransactionReport';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText } from "lucide-react";
 
 const Reports = () => {
   const [showJobOrders, setShowJobOrders] = useState(false);
-  // Use a patient ID that we know exists (Oscar Santos)
-  const { transactions, loading } = usePatientTransactions('PX-OS-0000001');
+  const { transactions, loading } = useGetAllTransactions();
 
   // Calculate totals from all transactions
   const totalTransactions = transactions?.length || 0;
