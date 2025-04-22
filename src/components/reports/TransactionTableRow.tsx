@@ -21,7 +21,8 @@ export function TransactionTableRow({
   const navigate = useNavigate();
   
   const handleTransactionClick = () => {
-    navigate(`/transactions/${transaction.code}`);
+    // Navigate with patientCode as a query parameter
+    navigate(`/transactions/${transaction.code}?patientCode=${transaction.patientCode}`);
   };
   
   const frameType = "Full Rim";

@@ -1,5 +1,5 @@
 
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { TransactionView } from '@/components/transactions/detail/TransactionView';
 import { TransactionLoading } from '@/components/transactions/detail/TransactionLoading';
 import { TransactionError } from '@/components/transactions/detail/TransactionError';
@@ -7,8 +7,14 @@ import { useTransactionData } from '@/hooks/useTransactionData';
 import { usePatientData } from '@/hooks/usePatientData';
 
 const TransactionDetail = () => {
-  const { transactionCode, patientCode } = useParams<{ transactionCode: string, patientCode: string }>();
-  const { transaction, loading, handleClaimedToggle } = useTransactionData(transactionCode, patientCode);
+  const { transactionCode } = useParams<{ transactionCode: string }>();
+  const location = useLocation();
+  
+  // Get patientCode from query params if available
+  const queryParams = new URLSearchParams(location.search);
+  const queryPatientCode = queryParams.get('patientCode');
+  
+  const { transaction, loading, handleClaimedToggle } = useTransactionData(transactionCode, queryPatientCode || undefined);
   const { patient } = usePatientData(transaction?.patientCode);
 
   if (loading) {
