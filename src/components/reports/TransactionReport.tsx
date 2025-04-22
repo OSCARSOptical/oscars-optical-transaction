@@ -47,11 +47,6 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
     }, 0),
   };
 
-  // Filter transactions to only show selected ones if any are selected
-  const displayTransactions = selectedTransactions.length > 0
-    ? transactions.filter(transaction => selectedTransactions.includes(transaction.id))
-    : transactions;
-
   return (
     <div className="space-y-4 print-container">
       <div className="flex justify-between items-center print:hidden">
@@ -67,15 +62,26 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
       </div>
       
       <div className="print:block relative overflow-x-auto print-section">
+        {/* Print-only header with logo */}
+        <div className="hidden print:flex print:items-center print:mb-4">
+          <img 
+            src="/lovable-uploads/4a1415d8-524e-4a2b-9e0f-d5d704e60955.png" 
+            alt="OSCARS Optical Clinic" 
+            className="h-16"
+          />
+          <h1 className="text-2xl font-bold ml-4">Transaction Report</h1>
+        </div>
+
         <Table>
           <TransactionTableHeader />
           <TableBody>
-            {displayTransactions.map((transaction) => (
+            {transactions.map((transaction) => (
               <TransactionTableRow
                 key={transaction.id}
                 transaction={transaction}
                 isSelected={selectedTransactions.includes(transaction.id)}
                 onToggleSelection={toggleSelection}
+                showWhenPrinting={selectedTransactions.length === 0 || selectedTransactions.includes(transaction.id)}
               />
             ))}
             {selectedTransactions.length > 0 && (
@@ -129,6 +135,11 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
             
             /* Hide selection checkboxes on print */
             .print\:hidden {
+              display: none !important;
+            }
+
+            /* Hide non-selected transactions during print */
+            tr.print-hide {
               display: none !important;
             }
           }

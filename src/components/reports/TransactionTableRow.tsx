@@ -1,3 +1,4 @@
+
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Transaction } from "@/types";
@@ -8,12 +9,14 @@ interface TransactionTableRowProps {
   transaction: Transaction;
   isSelected: boolean;
   onToggleSelection: (transactionId: string) => void;
+  showWhenPrinting?: boolean;
 }
 
 export function TransactionTableRow({ 
   transaction, 
   isSelected, 
-  onToggleSelection 
+  onToggleSelection,
+  showWhenPrinting = true
 }: TransactionTableRowProps) {
   const navigate = useNavigate();
   
@@ -24,7 +27,10 @@ export function TransactionTableRow({
   const frameType = "Full Rim";
   
   return (
-    <TableRow key={transaction.id} className={isSelected ? "bg-gray-50" : ""}>
+    <TableRow 
+      key={transaction.id} 
+      className={`${isSelected ? "bg-gray-50" : ""} ${!showWhenPrinting ? "print-hide" : ""}`}
+    >
       <TableCell className="print:hidden">
         <Checkbox
           checked={isSelected}
