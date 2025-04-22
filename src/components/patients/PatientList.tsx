@@ -10,6 +10,7 @@ import { usePatientLatestTransaction } from '@/hooks/usePatientLatestTransaction
 import { samplePatients, sampleTransactions } from '@/data/sampleData';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [sortOrder, setSortOrder] = useState<SortOrder>('none');
   const [filterBy, setFilterBy] = useState<FilterBy>('none');
+  const [ageRange, setAgeRange] = useState([0, 100]);
   const { getLatestTransaction } = usePatientLatestTransaction(transactions);
   
   useEffect(() => {
@@ -55,8 +57,10 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
   const filterAndSortPatients = () => {
     let filteredPatients = filterPatients(patients, searchQuery);
     
-    // Apply additional filtering based on filterBy
     if (filterBy === 'age') {
+      filteredPatients = filteredPatients.filter(
+        patient => patient.age >= ageRange[0] && patient.age <= ageRange[1]
+      );
       filteredPatients = filteredPatients.sort((a, b) => a.age - b.age);
     } else if (filterBy === 'address') {
       filteredPatients = filteredPatients.sort((a, b) => 
@@ -68,6 +72,13 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
   };
 
   const displayedPatients = filterAndSortPatients();
+
+  const handleFilterChange = (value: FilterBy) => {
+    setFilterBy(value);
+    if (value !== 'age') {
+      setAgeRange([0, 100]); // Reset age range when switching to other filters
+    }
+  };
 
   return (
     <Card className="w-full shadow-sm border border-gray-100">
@@ -121,7 +132,7 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
             <DropdownMenuContent>
               <DropdownMenuLabel>Filter by</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup value={filterBy} onValueChange={setFilterBy}>
+              <DropdownMenuRadioGroup value={filterBy} onValueChange={handleFilterChange}>
                 <DropdownMenuRadioItem value="none">None</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="age">Age (Ascending)</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="address">Address (A-Z)</DropdownMenuRadioItem>
@@ -131,6 +142,21 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
         </div>
       </CardHeader>
       <CardContent>
+        {filterBy === 'age' && (
+          <div className="mb-4 space-y-2">
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Age Range: {ageRange[0]} - {ageRange[1]} years</span>
+            </div>
+            <Slider
+              min={0}
+              max={100}
+              step={1}
+              value={ageRange}
+              onValueChange={setAgeRange}
+              className="w-full"
+            />
+          </div>
+        )}
         <Table>
           <TableHeader>
             <TableRow>
