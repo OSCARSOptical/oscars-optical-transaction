@@ -73,8 +73,8 @@ const JobOrdersTable = ({
                 <TableCell>{formatDate(tx.date)}</TableCell>
                 <TableCell>
                   <Link 
-                    to={`/transactions/${tx.code}?patientCode=${tx.patientCode}`}
-                    className="text-primary hover:underline"
+                    to={`/patients/${tx.patientCode}/transactions/${tx.code}`}
+                    className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
                   >
                     {tx.code}
                   </Link>
