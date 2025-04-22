@@ -15,15 +15,22 @@ export const useTransactionData = (transactionCode: string | undefined, patientC
       setLoading(true);
 
       setTimeout(() => {
+        // Create the mock transaction - passing both params, even if patientCode is undefined
         let mockTransaction = createMockTransaction(transactionCode, patientCode);
-        mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode || "");
         
-        setTransaction(mockTransaction);
+        // Only try to update with payment data if we have a valid transaction
+        if (mockTransaction) {
+          mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode || "");
+          setTransaction(mockTransaction);
+        } else {
+          setTransaction(null);
+        }
+        
         setLoading(false);
       }, 500);
     };
 
-    if (transactionCode || patientCode) {
+    if (transactionCode) {
       fetchData();
     } else {
       setLoading(false);
@@ -34,18 +41,19 @@ export const useTransactionData = (transactionCode: string | undefined, patientC
   const handleClaimedToggle = () => {
     if (!transaction) return;
 
-    setTransaction(prevTransaction => {
-      if (!prevTransaction) return null;
-      return handleTransactionClaim(prevTransaction);
-    });
-
+    // Apply the transaction claim logic
+    const updatedTransaction = handleTransactionClaim(transaction);
+    setTransaction(updatedTransaction);
+    
     toast({
-      title: "✓ Saved!",
-      className: "bg-[#FFC42B] text-[#241715] rounded-lg",
+      title: updatedTransaction.claimed ? "✓ Saved!" : "Claim Removed",
+      description: updatedTransaction.claimed 
+        ? `Balance of ${transaction.balance.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })} has been collected.`
+        : "Transaction restored to unclaimed status.",
+      className: updatedTransaction.claimed ? "bg-[#FFC42B] text-[#241715] rounded-lg" : undefined,
       duration: 2000,
     });
   };
 
   return { transaction, loading, handleClaimedToggle };
 };
-
