@@ -1,5 +1,4 @@
-
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -33,12 +32,15 @@ export function TransactionTableRow({
     <TableRow>
       <TableCell>{formatDate(transaction.date)}</TableCell>
       <TableCell>
-        <span 
+        <Link 
+          to={{
+            pathname: `/transactions/${transaction.code}`,
+            search: `?patientCode=${transaction.patientCode}`
+          }}
           className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-          onClick={handleTransactionClick}
         >
           {transaction.code}
-        </span>
+        </Link>
       </TableCell>
       <TableCell>{transaction.patientName}</TableCell>
       <TableCell>{transaction.patientCode}</TableCell>

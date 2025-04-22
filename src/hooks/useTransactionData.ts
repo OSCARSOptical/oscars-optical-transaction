@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { Transaction } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { createMockTransaction } from '@/services/mockTransactionService';
 import { updateTransactionWithPayment, handleTransactionClaim } from '@/utils/transactionUtils';
 
-export const useTransactionData = (transactionCode: string | undefined, patientCode: string | undefined) => {
+export const useTransactionData = (transactionCode: string | undefined, patientCode?: string) => {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -14,7 +13,7 @@ export const useTransactionData = (transactionCode: string | undefined, patientC
     const fetchData = () => {
       setLoading(true);
 
-      // Ensure we have a transaction code
+      // Only require transactionCode
       if (!transactionCode) {
         setLoading(false);
         setTransaction(null);
@@ -25,7 +24,6 @@ export const useTransactionData = (transactionCode: string | undefined, patientC
         // Create the mock transaction - passing both params, even if patientCode is undefined
         let mockTransaction = createMockTransaction(transactionCode, patientCode);
         
-        // Only try to update with payment data if we have a valid transaction
         if (mockTransaction) {
           mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode);
           setTransaction(mockTransaction);

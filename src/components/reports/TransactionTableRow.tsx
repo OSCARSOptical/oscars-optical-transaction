@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Transaction } from "@/types";
@@ -17,13 +17,6 @@ export function TransactionTableRow({
   onToggleSelection,
   showWhenPrinting = true
 }: TransactionTableRowProps) {
-  const navigate = useNavigate();
-  
-  const handleTransactionClick = () => {
-    // Pass the patientCode as a query parameter
-    navigate(`/transactions/${transaction.code}?patientCode=${transaction.patientCode}`);
-  };
-  
   const frameType = "Full Rim";
   
   return (
@@ -39,12 +32,15 @@ export function TransactionTableRow({
       </TableCell>
       <TableCell className="w-[80px]">{transaction.date}</TableCell>
       <TableCell className="w-[100px]">
-        <span 
+        <Link 
+          to={{
+            pathname: `/transactions/${transaction.code}`,
+            search: `?patientCode=${transaction.patientCode}`
+          }}
           className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 print:no-underline print:text-black"
-          onClick={handleTransactionClick}
         >
           {transaction.code}
-        </span>
+        </Link>
       </TableCell>
       <TableCell className="w-[120px]">{transaction.patientName}</TableCell>
       <TableCell className="w-[100px]">{transaction.type}</TableCell>

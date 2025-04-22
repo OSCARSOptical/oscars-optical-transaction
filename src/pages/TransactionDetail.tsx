@@ -1,5 +1,4 @@
-
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { TransactionView } from '@/components/transactions/detail/TransactionView';
 import { TransactionLoading } from '@/components/transactions/detail/TransactionLoading';
 import { TransactionError } from '@/components/transactions/detail/TransactionError';
@@ -8,13 +7,10 @@ import { usePatientData } from '@/hooks/usePatientData';
 
 const TransactionDetail = () => {
   const { transactionCode } = useParams<{ transactionCode: string }>();
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const patientCode = searchParams.get('patientCode') || undefined;
   
-  // Get patientCode from query params if available
-  const queryParams = new URLSearchParams(location.search);
-  const queryPatientCode = queryParams.get('patientCode');
-  
-  const { transaction, loading, handleClaimedToggle } = useTransactionData(transactionCode, queryPatientCode || undefined);
+  const { transaction, loading, handleClaimedToggle } = useTransactionData(transactionCode, patientCode);
   const { patient } = usePatientData(transaction?.patientCode);
 
   if (loading) {
@@ -25,7 +21,6 @@ const TransactionDetail = () => {
     return <TransactionError transactionCode={transactionCode} />;
   }
 
-  // Define breadcrumb items to ensure consistent navigation structure
   const breadcrumbItems = [
     { label: 'Patients', href: '/patients' },
     { label: `${transaction.firstName} ${transaction.lastName}`, href: `/patients/${transaction.patientCode}` },
