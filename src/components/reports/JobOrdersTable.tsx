@@ -127,20 +127,22 @@ const JobOrdersTable = ({
       {isPrintView && (
         <div className="mt-6 border-t pt-4">
           {/* Expense breakdown section */}
-          <div className="flex justify-between items-center px-4 mt-2">
-            <div>Lens Capital:</div>
-            <div>{formatCurrency(lensCapitalTotal)}</div>
-          </div>
-          <div className="flex justify-between items-center px-4 mt-2">
-            <div>Edging Price:</div>
-            <div>{formatCurrency(edgingPriceTotal)}</div>
-          </div>
-          <div className="flex justify-between items-center px-4 mt-2">
-            <div>Other Expenses:</div>
-            <div>{formatCurrency(otherExpensesTotal)}</div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="font-semibold">Lens Capital</div>
+              <div className="font-bold text-lg">{formatCurrency(lensCapitalTotal)}</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold">Edging Price</div>
+              <div className="font-bold text-lg">{formatCurrency(edgingPriceTotal)}</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold">Other Expenses</div>
+              <div className="font-bold text-lg">{formatCurrency(otherExpensesTotal)}</div>
+            </div>
           </div>
 
-          <div className="flex justify-between items-center px-4 font-semibold mt-4 pt-2 border-t">
+          <div className="flex justify-between font-bold mt-4 pt-2 border-t">
             <div>Total Expenses:</div>
             <div>{formatCurrency(transactionsTotal)}</div>
           </div>
