@@ -1,153 +1,161 @@
 
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
 import { 
-  Home, 
+  BarChart, 
   Users, 
-  CreditCard, 
-  BarChart4, 
-  Settings,
-  FilePlus,
-  PieChart,
+  Receipt, 
+  LayoutDashboard, 
+  CreditCard,
+  FileText,
   ChevronDown,
   ChevronRight
-} from "lucide-react";
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useState } from 'react';
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useMobile } from '@/hooks/use-mobile';
 
-interface SidebarProps {
-  isOpen: boolean;
-}
-
-// Primary navigation items
-const primaryNavItems = [
-  {
-    title: "Dashboard",
-    icon: Home,
-    href: "/dashboard",
-  },
-  {
-    title: "Patients",
-    icon: Users,
-    href: "/patients",
-  },
-  {
-    title: "Transactions",
-    icon: CreditCard,
-    href: "/transactions",
-  },
-  {
-    title: "Balance Sheet",
-    icon: BarChart4,
-    href: "/balance-sheet",
-  },
-];
-
-// Secondary navigation items (more menu)
-const secondaryNavItems = [
-  {
-    title: "Reports",
-    icon: PieChart,
-    href: "/reports",
-  },
-  {
-    title: "New Entry",
-    icon: FilePlus,
-    href: "/new-entry",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/settings",
-  },
-];
-
-export function Sidebar({ isOpen }: SidebarProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
-
-  const NavButton = ({ item, index }: { item: { title: string; icon: any; href: string }; index: number }) => {
-    const isActive = location.pathname === item.href;
-    
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            className={cn(
-              "relative flex h-10 w-full items-center justify-start px-4 py-2",
-              isActive 
-                ? "bg-[#f8e4e6] text-black font-medium before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-[#9E0214] before:content-['']" 
-                : "text-gray-600 hover:bg-crimson-50 hover:text-crimson-700"
-            )}
-            onClick={() => navigate(item.href)}
-          >
-            <item.icon className="mr-2 h-5 w-5" />
-            {item.title}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="right" sideOffset={10} className="z-50">
-          {item.title}
-        </TooltipContent>
-      </Tooltip>
-    );
-  };
-
+function Logo() {
   return (
-    <div
-      className={cn(
-        "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r bg-white transition-transform duration-300 ease-in-out",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}
-    >
-      <div className="flex h-16 items-center justify-center border-b px-4">
-        <h2 className="text-lg font-bold text-crimson-700">Crimson Ledger</h2>
+    <div className="flex items-center h-16 px-6">
+      <div className="flex items-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-6 h-6 text-[#9E0214]"
+        >
+          <path d="M3 11.75h18M3 7.75h18M3 15.75h18" />
+        </svg>
+        <div className="ml-2 text-lg font-bold text-[#241715]">OptWise</div>
       </div>
-      <ScrollArea className="flex-1 py-4">
-        <nav className="grid gap-1 px-2">
-          {primaryNavItems.map((item, index) => (
-            <NavButton key={index} item={item} index={index} />
-          ))}
-          
-          <Collapsible
-            open={isMoreOpen}
-            onOpenChange={setIsMoreOpen}
-            className="mt-1"
-          >
-            <CollapsibleTrigger asChild>
-              <Button
-                variant="ghost"
-                className="flex h-10 w-full items-center justify-between px-4 py-2 text-gray-600 hover:bg-crimson-50 hover:text-crimson-700"
-              >
-                <div className="flex items-center">
-                  <span className="mr-2">More</span>
-                </div>
-                {isMoreOpen ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="px-2 py-1">
-              {secondaryNavItems.map((item, index) => (
-                <NavButton key={index} item={item} index={index} />
-              ))}
-            </CollapsibleContent>
-          </Collapsible>
-        </nav>
-      </ScrollArea>
     </div>
   );
 }
 
-export default Sidebar;
+interface SidebarProps {
+  collapsed?: boolean;
+}
+
+export default function Sidebar({ collapsed = false }: SidebarProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const isMobile = useMobile();
+  const [reportsOpen, setReportsOpen] = useState(false);
+
+  // Check if current path starts with the given path
+  const isActive = (path: string) => currentPath.startsWith(path);
+  
+  // Check specifically if we're on a reports page
+  useEffect(() => {
+    if (currentPath.startsWith('/reports')) {
+      setReportsOpen(true);
+    }
+  }, [currentPath]);
+
+  return (
+    <div
+      className={cn(
+        'min-h-screen border-r bg-white',
+        collapsed ? 'w-14' : 'w-64'
+      )}
+    >
+      <div className="sticky top-0 flex flex-col h-full">
+        <Logo />
+        
+        <nav className="flex-1 space-y-2 overflow-y-auto py-3 px-2">
+          <div
+            className={cn(
+              "flex items-center h-10 px-3 rounded-lg hover:bg-[#9E0214]/10 cursor-pointer transition-colors text-[#241715]",
+              isActive('/dashboard') ? "bg-[#9E0214]/10 text-[#9E0214] font-medium" : ""
+            )}
+            onClick={() => navigate('/dashboard')}
+          >
+            <LayoutDashboard className="w-5 h-5" />
+            {!collapsed && <span className="ml-3">Dashboard</span>}
+          </div>
+          
+          <div
+            className={cn(
+              "flex items-center h-10 px-3 rounded-lg hover:bg-[#9E0214]/10 cursor-pointer transition-colors text-[#241715]",
+              isActive('/patients') ? "bg-[#9E0214]/10 text-[#9E0214] font-medium" : ""
+            )}
+            onClick={() => navigate('/patients')}
+          >
+            <Users className="w-5 h-5" />
+            {!collapsed && <span className="ml-3">Patients</span>}
+          </div>
+          
+          <div
+            className={cn(
+              "flex items-center h-10 px-3 rounded-lg hover:bg-[#9E0214]/10 cursor-pointer transition-colors text-[#241715]",
+              isActive('/transactions') ? "bg-[#9E0214]/10 text-[#9E0214] font-medium" : ""
+            )}
+            onClick={() => navigate('/transactions')}
+          >
+            <Receipt className="w-5 h-5" />
+            {!collapsed && <span className="ml-3">Transactions</span>}
+          </div>
+          
+          <div
+            className={cn(
+              "flex items-center h-10 px-3 rounded-lg hover:bg-[#9E0214]/10 cursor-pointer transition-colors text-[#241715]",
+              isActive('/balance-sheet') ? "bg-[#9E0214]/10 text-[#9E0214] font-medium" : ""
+            )}
+            onClick={() => navigate('/balance-sheet')}
+          >
+            <CreditCard className="w-5 h-5" />
+            {!collapsed && <span className="ml-3">Balance Sheet</span>}
+          </div>
+          
+          {/* Reports with dropdown */}
+          <div className="space-y-1">
+            <div
+              className={cn(
+                "flex items-center justify-between h-10 px-3 rounded-lg cursor-pointer transition-colors",
+                isActive('/reports') ? "bg-[#9E0214]/10 text-[#9E0214] font-medium" : "text-[#241715] hover:bg-[#9E0214]/10"
+              )}
+              onClick={() => {
+                if (collapsed) {
+                  navigate('/reports');
+                } else {
+                  setReportsOpen(!reportsOpen);
+                }
+              }}
+            >
+              <div className="flex items-center">
+                <FileText className="w-5 h-5" />
+                {!collapsed && <span className="ml-3">Reports</span>}
+              </div>
+              {!collapsed && (
+                reportsOpen ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )
+              )}
+            </div>
+            
+            {!collapsed && reportsOpen && (
+              <div className="pl-9 space-y-1">
+                <div
+                  className={cn(
+                    "flex items-center h-8 rounded-lg cursor-pointer hover:bg-[#9E0214]/5 transition-colors px-3",
+                    isActive('/reports/job-orders') ? "text-[#9E0214] font-medium" : "text-gray-600"
+                  )}
+                  onClick={() => navigate('/reports/job-orders')}
+                >
+                  <span>Job Orders</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </nav>
+      </div>
+    </div>
+  );
+}
