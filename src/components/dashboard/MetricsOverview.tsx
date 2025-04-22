@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Users, ShoppingBag, CreditCard, CheckCircle } from "lucide-react";
 import MetricCard from "./MetricCard";
@@ -6,7 +5,6 @@ import { Transaction } from '@/types';
 import { format, subMonths, startOfMonth, endOfMonth, isSameMonth, isAfter, isBefore, parseISO } from 'date-fns';
 import { getAllPayments } from '@/utils/paymentsUtils';
 
-// Import the shared transactions data
 const sampleTransactions: Transaction[] = [
   {
     id: '1',
@@ -67,7 +65,6 @@ const sampleTransactions: Transaction[] = [
   }
 ];
 
-// Import the shared patients data
 const samplePatients = [
   {
     id: '12345',
@@ -113,7 +110,6 @@ const MetricsOverview = () => {
   const [monthlyRevenueComparison, setMonthlyRevenueComparison] = useState<string>('');
   const [newPatientsThisMonth, setNewPatientsThisMonth] = useState(0);
 
-  // Listen for balance sheet updates to refresh metrics
   useEffect(() => {
     const handleBalanceSheetUpdate = () => {
       setRefreshTrigger(prev => prev + 1);
@@ -127,19 +123,16 @@ const MetricsOverview = () => {
   }, []);
 
   useEffect(() => {
-    // Calculate total pending payments (balances on unclaimed transactions)
     const pending = transactions
       .filter(tx => !tx.claimed)
       .reduce((sum, tx) => sum + tx.balance, 0);
     
-    // Count how many transactions have pending payments
     const count = transactions.filter(tx => !tx.claimed && tx.balance > 0).length;
     
     setPendingPayments(pending);
     setPendingCount(count);
   }, [transactions, refreshTrigger]);
 
-  // Calculate monthly revenue and comparison with previous month
   useEffect(() => {
     const currentDate = new Date();
     const currentMonthStart = startOfMonth(currentDate);
@@ -147,10 +140,8 @@ const MetricsOverview = () => {
     const lastMonthStart = startOfMonth(subMonths(currentDate, 1));
     const lastMonthEnd = endOfMonth(subMonths(currentDate, 1));
     
-    // Get all payments (including balance payments)
     const allPayments = getAllPayments();
 
-    // Calculate revenue for current month (deposits + balance payments)
     const currentMonthDeposits = transactions
       .filter(tx => {
         const txDate = parseISO(tx.date);
@@ -167,7 +158,6 @@ const MetricsOverview = () => {
     
     const currentMonthTotal = currentMonthDeposits + currentMonthBalancePayments;
     
-    // Calculate revenue for previous month
     const lastMonthDeposits = transactions
       .filter(tx => {
         const txDate = parseISO(tx.date);
@@ -184,10 +174,8 @@ const MetricsOverview = () => {
     
     const lastMonthTotal = lastMonthDeposits + lastMonthBalancePayments;
     
-    // Set monthly revenue
     setMonthlyRevenue(currentMonthTotal);
     
-    // Calculate comparison percentage
     if (lastMonthTotal > 0) {
       const percentageChange = ((currentMonthTotal - lastMonthTotal) / lastMonthTotal) * 100;
       setMonthlyRevenueComparison(`${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(0)}% from last month`);
@@ -195,7 +183,6 @@ const MetricsOverview = () => {
       setMonthlyRevenueComparison('—');
     }
     
-    // Calculate new patients this month
     const newPatients = samplePatients.filter(patient => {
       const createdDate = parseISO(patient.createdDate);
       return isSameMonth(createdDate, currentDate);
@@ -205,7 +192,6 @@ const MetricsOverview = () => {
     
   }, [transactions, refreshTrigger]);
 
-  // Function to format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
@@ -214,10 +200,8 @@ const MetricsOverview = () => {
     }).format(amount).replace('PHP', '₱');
   };
 
-  // Calculate monthly transactions count
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  
+  const currentMonth = format(new Date(), 'yyyy-MM');
+
   const monthlyTransactionsCount = transactions
     .filter(tx => {
       const txDate = new Date(tx.date);
@@ -231,6 +215,7 @@ const MetricsOverview = () => {
       description: `+${newPatientsThisMonth} this month`,
       icon: Users,
       iconColor: "text-blue-500",
+      href: "/patients"
     },
     {
       title: "Monthly Revenue",
@@ -238,6 +223,7 @@ const MetricsOverview = () => {
       description: monthlyRevenueComparison,
       icon: ShoppingBag,
       iconColor: "text-[#9E0214]",
+      href: `/balance-sheet?month=${currentMonth}`
     },
     {
       title: "Pending Payments",
@@ -245,6 +231,7 @@ const MetricsOverview = () => {
       description: `${pendingCount} patients`,
       icon: CreditCard,
       iconColor: "text-[#FFC42B]",
+      href: "/transactions?filter=unclaimed"
     },
     {
       title: "Total Transactions This Month",
@@ -252,6 +239,7 @@ const MetricsOverview = () => {
       description: "Current month",
       icon: CheckCircle,
       iconColor: "text-green-500",
+      href: "/transactions"
     },
   ];
 

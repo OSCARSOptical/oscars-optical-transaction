@@ -1,6 +1,7 @@
 
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 interface MetricCardProps {
   title: string;
@@ -8,6 +9,7 @@ interface MetricCardProps {
   description: string;
   icon: LucideIcon;
   iconColor: string;
+  href: string;
 }
 
 const MetricCard = ({
@@ -16,18 +18,21 @@ const MetricCard = ({
   description,
   icon: Icon,
   iconColor,
+  href,
 }: MetricCardProps) => {
   return (
-    <Card className="shadow-sm border border-gray-100">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className={`h-4 w-4 ${iconColor}`} />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
+    <Link to={href}>
+      <Card className="shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-gray-200 cursor-pointer">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <Icon className={`h-4 w-4 ${iconColor}`} />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{value}</div>
+          <p className="text-xs text-muted-foreground">{description}</p>
+        </CardContent>
+      </Card>
+    </Link>
   );
 };
 

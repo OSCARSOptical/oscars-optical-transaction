@@ -1,13 +1,27 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MetricsOverview from "@/components/dashboard/MetricsOverview";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import PatientTrends from "@/components/dashboard/PatientTrends";
 import TransactionTrends from "@/components/dashboard/TransactionTrends";
+import { format } from 'date-fns';
+
 const Dashboard = () => {
-  return <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight mb-1">Dashboard</h2>
-        <p className="text-muted-foreground">Welcome, Doctor!</p>
+  const currentDateTime = new Date();
+  const formattedDate = format(currentDateTime, 'MMMM d, yyyy');
+  const formattedTime = format(currentDateTime, 'h:mm a');
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight mb-1">Dashboard</h2>
+          <p className="text-muted-foreground">Welcome, Doctor!</p>
+        </div>
+        <div className="text-right">
+          <p className="text-lg font-semibold">{formattedDate}</p>
+          <p className="text-muted-foreground">{formattedTime}</p>
+        </div>
       </div>
 
       <MetricsOverview />
@@ -28,6 +42,8 @@ const Dashboard = () => {
           <TransactionTrends />
         </TabsContent>
       </Tabs>
-    </div>;
+    </div>
+  );
 };
+
 export default Dashboard;
