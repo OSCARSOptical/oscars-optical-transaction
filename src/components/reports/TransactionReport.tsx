@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Table, TableBody } from "@/components/ui/table";
 import { Transaction } from '@/types';
@@ -26,6 +27,7 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
     window.print();
   };
 
+  // Calculate totals for selected transactions
   const totals = {
     lensCapital: selectedTransactions.reduce((sum, id) => {
       const transaction = transactions.find(t => t.id === id);
@@ -45,6 +47,7 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
     }, 0),
   };
 
+  // Filter transactions to only show selected ones if any are selected
   const displayTransactions = selectedTransactions.length > 0
     ? transactions.filter(transaction => selectedTransactions.includes(transaction.id))
     : transactions;
@@ -87,7 +90,7 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
           @media print {
             @page {
               size: landscape;
-              margin: 1cm;
+              margin: 0.5cm;
             }
             
             body * {
@@ -105,22 +108,7 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
               width: 100%;
             }
             
-            .print-header {
-              display: flex;
-              align-items: center;
-              margin-bottom: 1cm;
-            }
-            
-            .print-logo {
-              max-width: 200px;
-              margin-right: 20px;
-            }
-            
-            .print-title {
-              font-size: 18pt;
-              font-weight: bold;
-            }
-            
+            /* Optimize table for print */
             table {
               width: 100%;
               table-layout: fixed;
@@ -139,21 +127,13 @@ export function TransactionReport({ transactions }: TransactionReportProps) {
               page-break-inside: avoid;
             }
             
-            .print\\:hidden {
+            /* Hide selection checkboxes on print */
+            .print\:hidden {
               display: none !important;
             }
           }
         `}
       </style>
-
-      <div className="print-header print:hidden">
-        <img 
-          src="/lovable-uploads/2146e65c-0ac1-45f6-98b4-5e43d8fd0ae2.png" 
-          alt="OSCARS Optical Logo" 
-          className="print-logo" 
-        />
-        <div className="print-title">Transaction Report</div>
-      </div>
     </div>
   );
 }
