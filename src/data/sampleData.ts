@@ -19,7 +19,14 @@ export const sampleTransactions: Transaction[] = [
     otherExpenses: 50.00,
     totalExpenses: 1400.00,
     claimed: true,
-    dateClaimed: '2025-04-15'
+    dateClaimed: '2025-04-15',
+    refractiveIndex: "1.56",
+    lensType: "SV",
+    lensCoating: "UC",
+    tint: "N/A",
+    color: "",
+    interpupillaryDistance: 62,
+    orderNotes: "Regular checkup and new glasses"
   },
   {
     id: '2',
@@ -38,7 +45,14 @@ export const sampleTransactions: Transaction[] = [
     otherExpenses: 0.00,
     totalExpenses: 0.00,
     claimed: true,
-    dateClaimed: '2025-04-08'
+    dateClaimed: '2025-04-08',
+    refractiveIndex: "1.61",
+    lensType: "KK",
+    lensCoating: "MC",
+    tint: "N/A",
+    color: "",
+    interpupillaryDistance: 60,
+    orderNotes: "Annual eye check"
   },
   {
     id: '3',
@@ -57,7 +71,14 @@ export const sampleTransactions: Transaction[] = [
     otherExpenses: 100.00,
     totalExpenses: 3100.00,
     claimed: false,
-    dateClaimed: null
+    dateClaimed: null,
+    refractiveIndex: "1.67",
+    lensType: "Prog",
+    lensCoating: "BB",
+    tint: "One-Tone",
+    color: "Gray",
+    interpupillaryDistance: 64,
+    orderNotes: "Frame replacement after damage"
   }
 ];
 
@@ -71,7 +92,8 @@ export const samplePatients = [
     phone: '555-123-4567',
     address: '123 Main St, City, State',
     code: 'PX-JD-0000001',
-    createdDate: '2025-01-15'
+    createdDate: '2025-01-15',
+    sex: 'Male'
   }, 
   {
     id: '67890',
@@ -82,7 +104,8 @@ export const samplePatients = [
     phone: '555-987-6543',
     address: '456 Oak St, City, State',
     code: 'PX-JS-0000001',
-    createdDate: '2025-02-20'
+    createdDate: '2025-02-20',
+    sex: 'Female'
   },
   {
     id: '54321',
@@ -93,6 +116,7 @@ export const samplePatients = [
     phone: '555-555-1111',
     address: '789 Pine St, City, State',
     code: 'PX-OS-0000001',
-    createdDate: '2025-03-10'
+    createdDate: '2025-03-10',
+    sex: 'Male'
   }
 ];

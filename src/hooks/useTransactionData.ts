@@ -3,6 +3,7 @@ import { Transaction } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { createMockTransaction } from '@/services/mockTransactionService';
 import { updateTransactionWithPayment, handleTransactionClaim } from '@/utils/transactionUtils';
+import { sampleTransactions } from '@/data/sampleData';
 
 export const useTransactionData = (transactionCode: string | undefined, patientCode?: string) => {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
@@ -21,14 +22,22 @@ export const useTransactionData = (transactionCode: string | undefined, patientC
       }
 
       setTimeout(() => {
-        // Create the mock transaction - passing both params, even if patientCode is undefined
-        let mockTransaction = createMockTransaction(transactionCode, patientCode);
+        // First try to find the transaction in our sample data
+        const existingTransaction = sampleTransactions.find(t => t.code === transactionCode);
         
-        if (mockTransaction) {
-          mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode);
-          setTransaction(mockTransaction);
+        if (existingTransaction) {
+          // If found in sample data, use it directly
+          setTransaction(existingTransaction);
         } else {
-          setTransaction(null);
+          // Otherwise create a mock transaction
+          let mockTransaction = createMockTransaction(transactionCode, patientCode);
+          
+          if (mockTransaction) {
+            mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode);
+            setTransaction(mockTransaction);
+          } else {
+            setTransaction(null);
+          }
         }
         
         setLoading(false);
