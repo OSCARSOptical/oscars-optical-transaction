@@ -19,6 +19,9 @@ import NewTransaction from "./pages/NewTransaction";
 import Reports from "./pages/Reports";
 import JobOrders from "./pages/reports/JobOrders";
 import Settings from "./pages/Settings";
+import ProfileSettings from "./components/settings/ProfileSettings";
+import UserManagementSettings from "./components/settings/UserManagementSettings";
+import AppearanceSettings from "./components/settings/AppearanceSettings";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +51,11 @@ const App = () => (
             />
             <Route path="/transactions/new" element={<NewTransaction />} />
             <Route path="/transactions/new/:patientId" element={<NewTransaction />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/settings" element={<Settings />}>
+              <Route path="profile" element={<ProfileSettings />} />
+              <Route path="users" element={<UserManagementSettings />} />
+              <Route path="appearance" element={<AppearanceSettings />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

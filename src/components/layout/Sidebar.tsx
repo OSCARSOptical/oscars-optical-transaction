@@ -1,3 +1,4 @@
+
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,16 +9,20 @@ import {
   Users, 
   CreditCard, 
   BarChart4, 
-  Settings,
   PieChart,
+  Settings as SettingsIcon,
+  User as UserIcon,
+  Users as UsersIcon,
+  SlidersHorizontal,
 } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useState } from "react";
 
-// Primary navigation items
+// Top-level navigation items except Settings
 const navItems = [
   {
     title: "Dashboard",
@@ -43,20 +48,41 @@ const navItems = [
     title: "Reports",
     icon: PieChart,
     href: "/reports",
+  }
+];
+
+// Settings sub-pages
+const settingsSubItems = [
+  {
+    title: "Profile",
+    icon: UserIcon,
+    href: "/settings/profile",
   },
   {
-    title: "Settings",
-    icon: Settings,
-    href: "/settings", // make sure this routes to /settings
+    title: "User Management",
+    icon: UsersIcon,
+    href: "/settings/users",
+  },
+  {
+    title: "Appearance",
+    icon: SlidersHorizontal,
+    href: "/settings/appearance",
   }
 ];
 
 export function Sidebar({ isOpen }: { isOpen: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [settingsOpen, setSettingsOpen] = useState(() => location.pathname.startsWith("/settings"));
 
-  const NavButton = ({ item }: { item: { title: string; icon: any; href: string } }) => {
-    const isActive = location.pathname === item.href;
+  // Expand settings submenu if on any /settings/* route
+  // Syncs open state on route changes
+  if (!settingsOpen && location.pathname.startsWith("/settings")) {
+    setSettingsOpen(true);
+  }
+
+  const NavButton = ({ item, activeOverride }: { item: { title: string; icon: any; href: string }, activeOverride?: boolean }) => {
+    const isActive = typeof activeOverride === "boolean" ? activeOverride : location.pathname === item.href;
     
     return (
       <Tooltip>
@@ -97,6 +123,40 @@ export function Sidebar({ isOpen }: { isOpen: boolean }) {
           {navItems.map((item, index) => (
             <NavButton key={index} item={item} />
           ))}
+          {/* Settings section with sub-items */}
+          <div>
+            <button
+              type="button"
+              className={cn(
+                "flex w-full items-center h-10 px-4 py-2 mt-1 rounded-md cursor-pointer transition",
+                location.pathname.startsWith("/settings")
+                  ? "bg-[#f8e4e6] text-black font-medium"
+                  : "text-gray-600 hover:bg-crimson-50 hover:text-crimson-700"
+              )}
+              onClick={() => setSettingsOpen((v) => !v)}
+            >
+              <SettingsIcon className="mr-2 h-5 w-5" />
+              Settings
+              <span className={cn(
+                "ml-auto transition-transform transform",
+                settingsOpen ? "rotate-90" : "rotate-0"
+              )}>
+                {/* Simple arrow (right/chevron) */}
+                <svg width="12" height="12" fill="none" viewBox="0 0 12 12"><path d="M4.75 3.5 7.25 6l-2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </span>
+            </button>
+            {settingsOpen && (
+              <div className="ml-7 flex flex-col gap-1 mt-1">
+                {settingsSubItems.map((sub) => (
+                  <NavButton
+                    key={sub.href}
+                    item={sub}
+                    activeOverride={location.pathname === sub.href}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </nav>
       </ScrollArea>
     </div>
@@ -104,3 +164,4 @@ export function Sidebar({ isOpen }: { isOpen: boolean }) {
 }
 
 export default Sidebar;
+
