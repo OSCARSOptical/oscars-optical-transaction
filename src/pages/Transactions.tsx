@@ -22,7 +22,7 @@ const Transactions = () => {
           onChange={e => setSearchQuery(e.target.value)} 
         />
       </div>
-      <TransactionList initialSearchQuery={searchQuery} />
+      <TransactionList searchQuery={searchQuery} />
     </div>
   );
 };
