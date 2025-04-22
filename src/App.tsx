@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
 import Transactions from "./pages/Transactions";
+import Reports from "./pages/Reports";
 import BalanceSheetPage from "./pages/BalanceSheetPage";
 import NotFound from "./pages/NotFound";
 import PatientDetailPage from "./pages/PatientDetail";
@@ -34,13 +36,11 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/patients" element={<Patients />} />
             <Route path="/transactions" element={<Transactions />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="/balance-sheet" element={<BalanceSheetPage />} />
             <Route path="/patients/:patientCode" element={<PatientDetailPage />} />
             <Route path="/patients/:patientCode/transactions/:transactionCode" element={<TransactionDetail />} />
-            <Route 
-              path="/transactions/:transactionCode" 
-              element={<TransactionDetail />} 
-            />
+            <Route path="/transactions/:transactionCode" element={<TransactionDetail />} />
             <Route path="/transactions/new" element={<NewTransaction />} />
             <Route path="/transactions/new/:patientId" element={<NewTransaction />} />
             <Route path="*" element={<NotFound />} />

@@ -1,5 +1,5 @@
 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,12 @@ export function TransactionTableRow({
 }: TransactionTableRowProps) {
   const navigate = useNavigate();
 
+  const handleTransactionClick = () => {
+    navigate(`/transactions/${transaction.code}`, {
+      state: { patientCode: transaction.patientCode }
+    });
+  };
+
   // Format for "Claimed On" column per rules
   const claimedOnDisplay = transaction.claimed && transaction.dateClaimed
     ? formatDate(transaction.dateClaimed)
@@ -29,12 +35,15 @@ export function TransactionTableRow({
     <TableRow>
       <TableCell>{formatDate(transaction.date)}</TableCell>
       <TableCell>
-        <span 
+        <Link 
+          to={{
+            pathname: `/transactions/${transaction.code}`,
+            search: `?patientCode=${transaction.patientCode}`
+          }}
           className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-          onClick={() => navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`)}
         >
           {transaction.code}
-        </span>
+        </Link>
       </TableCell>
       <TableCell>{transaction.patientName}</TableCell>
       <TableCell>{transaction.patientCode}</TableCell>
@@ -76,7 +85,7 @@ export function TransactionTableRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem 
-              onClick={() => navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`)}
+              onClick={handleTransactionClick}
               className="cursor-pointer"
             >
               View Full Transaction

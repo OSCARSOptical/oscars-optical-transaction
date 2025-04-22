@@ -1,0 +1,68 @@
+import { useState, useEffect } from 'react';
+import { Transaction } from '@/types';
+import { useToast } from "@/hooks/use-toast";
+import { createMockTransaction } from '@/services/mockTransactionService';
+import { updateTransactionWithPayment, handleTransactionClaim } from '@/utils/transactionUtils';
+import { sampleTransactions } from '@/data/sampleData';
+
+export const useTransactionData = (transactionCode: string | undefined, patientCode?: string) => {
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchData = () => {
+      setLoading(true);
+
+      // Only require transactionCode
+      if (!transactionCode) {
+        setLoading(false);
+        setTransaction(null);
+        return;
+      }
+
+      setTimeout(() => {
+        // First try to find the transaction in our sample data
+        const existingTransaction = sampleTransactions.find(t => t.code === transactionCode);
+        
+        if (existingTransaction) {
+          // If found in sample data, use it directly
+          setTransaction(existingTransaction);
+        } else {
+          // Otherwise create a mock transaction
+          let mockTransaction = createMockTransaction(transactionCode, patientCode);
+          
+          if (mockTransaction) {
+            mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode);
+            setTransaction(mockTransaction);
+          } else {
+            setTransaction(null);
+          }
+        }
+        
+        setLoading(false);
+      }, 500);
+    };
+
+    fetchData();
+  }, [transactionCode, patientCode]);
+
+  const handleClaimedToggle = () => {
+    if (!transaction) return;
+
+    // Apply the transaction claim logic
+    const updatedTransaction = handleTransactionClaim(transaction);
+    setTransaction(updatedTransaction);
+    
+    toast({
+      title: updatedTransaction.claimed ? "✓ Saved!" : "Claim Removed",
+      description: updatedTransaction.claimed 
+        ? `Balance of ${transaction.balance.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })} has been collected.`
+        : "Transaction restored to unclaimed status.",
+      className: updatedTransaction.claimed ? "bg-[#FFC42B] text-[#241715] rounded-lg" : undefined,
+      duration: 2000,
+    });
+  };
+
+  return { transaction, loading, handleClaimedToggle };
+};

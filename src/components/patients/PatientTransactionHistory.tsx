@@ -1,12 +1,16 @@
 import { TableCell, TableRow, Table, TableHeader, TableHead, TableBody } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import { MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { usePatientTransactions } from "@/hooks/usePatientTransactions";
 import { formatDate, formatCurrency } from "@/utils/formatters";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
+import { Transaction } from "@/types";
+import { handleTransactionClaim } from "@/utils/transactionUtils";
+import { UnclaimConfirmDialog } from "@/components/transactions/UnclaimConfirmDialog";
 
 interface PatientTransactionHistoryProps {
   patientCode: string;
@@ -15,16 +19,17 @@ interface PatientTransactionHistoryProps {
 export function PatientTransactionHistory({ patientCode }: PatientTransactionHistoryProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { transactions, loading, error } = usePatientTransactions(patientCode);
+  const { transactions: initialTransactions, loading, error } = usePatientTransactions(patientCode);
+  
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
+  const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
 
-  const formatClaimDate = (date: string | null) => {
-    if (!date) return "—";
-    return new Date(date).toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: '2-digit'
-    });
-  };
+  useState(() => {
+    if (initialTransactions.length > 0) {
+      setTransactions(initialTransactions);
+    }
+  });
 
   if (error) {
     toast({
@@ -33,6 +38,50 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
       variant: "destructive"
     });
   }
+
+  const handleClaimedToggle = (transaction: Transaction) => {
+    if (transaction.claimed) {
+      setTransactionToUnclaim(transaction);
+      setShowUnclaimDialog(true);
+      return;
+    }
+
+    const updatedTransaction = handleTransactionClaim(transaction);
+    
+    setTransactions(prevTransactions => 
+      prevTransactions.map(t => 
+        t.id === transaction.id ? updatedTransaction : t
+      )
+    );
+
+    toast({
+      title: "✓ Payment Claimed!",
+      description: `Balance of ${formatCurrency(transaction.balance)} has been collected and recorded.`,
+      className: "bg-[#FFC42B] text-[#241715] rounded-lg",
+      duration: 3000,
+    });
+  };
+
+  const handleUnclaimConfirm = () => {
+    if (!transactionToUnclaim) return;
+
+    const updatedTransaction = handleTransactionClaim(transactionToUnclaim);
+    
+    setTransactions(prevTransactions => 
+      prevTransactions.map(t => 
+        t.id === transactionToUnclaim.id ? updatedTransaction : t
+      )
+    );
+
+    toast({
+      title: "Claim Removed",
+      description: "Transaction restored to unclaimed status.",
+      variant: "default"
+    });
+
+    setShowUnclaimDialog(false);
+    setTransactionToUnclaim(null);
+  };
 
   return (
     <div className="space-y-4 overflow-auto">
@@ -46,7 +95,7 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
             <TableHead className="text-right">Deposit</TableHead>
             <TableHead className="text-right">Balance</TableHead>
             <TableHead className="text-center w-[64px]">Claimed</TableHead>
-            <TableHead className="text-right w-[110px]">Claimed On</TableHead>
+            <TableHead>Claimed On</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
@@ -74,12 +123,23 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
                 <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
                 <TableCell className="text-center">
-                  {transaction.claimed && (
-                    <Check className="mx-auto h-4 w-4 text-[#9E0214]" strokeWidth={3} />
-                  )}
+                  <Checkbox
+                    checked={transaction.claimed}
+                    onCheckedChange={() => handleClaimedToggle(transaction)}
+                    className={`border-2 !border-[#8E9196] bg-white ${
+                      transaction.claimed
+                        ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]"
+                        : "!text-[#8E9196]"
+                    }`}
+                    style={{
+                      color: transaction.claimed ? "#ea384c" : "#8E9196",
+                    }}
+                  />
                 </TableCell>
-                <TableCell className="text-right">
-                  {formatClaimDate(transaction.claimed ? transaction.dateClaimed : null)}
+                <TableCell>
+                  {transaction.claimed && transaction.dateClaimed 
+                    ? formatDate(transaction.dateClaimed)
+                    : <span className="text-[#8E9196]">Unclaimed</span>}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -108,6 +168,12 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
           )}
         </TableBody>
       </Table>
+
+      <UnclaimConfirmDialog
+        open={showUnclaimDialog}
+        onOpenChange={setShowUnclaimDialog}
+        onConfirm={handleUnclaimConfirm}
+      />
     </div>
   );
 }
