@@ -1,14 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { TransactionTable } from './TransactionTable';
 import { TransactionListHeader } from './TransactionListHeader';
 import { Transaction } from '@/types';
 
-// This would come from a shared data source in a real app
-// We're using the same data source as the PatientTransactionHistory component
 const sampleTransactions: Transaction[] = [
   {
     id: '1',
@@ -74,19 +71,18 @@ interface TransactionListProps {
 }
 
 export function TransactionList({ searchQuery = '' }: TransactionListProps) {
-  const [transactions, setTransactions] = useState<Transaction[]>(sampleTransactions);
+  const [transactions] = useState<Transaction[]>(sampleTransactions);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [showUnclaimed, setShowUnclaimed] = useState(false);
   const { toast } = useToast();
 
-  // Update local search when prop changes
   useEffect(() => {
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
 
-  // Verify all transactions have matching patient codes
   useEffect(() => {
     const hasCodeMismatch = transactions.some(transaction => {
-      // Check if the patient name matches the format "FirstName LastName"
       const expectedPatientName = `${transaction.firstName} ${transaction.lastName}`;
       return transaction.patientName !== expectedPatientName;
     });
@@ -100,16 +96,27 @@ export function TransactionList({ searchQuery = '' }: TransactionListProps) {
     }
   }, [transactions, toast]);
 
-  const filteredTransactions = transactions.filter(transaction => {
-    const searchLower = localSearchQuery.toLowerCase();
-    return (
-      transaction.patientName.toLowerCase().includes(searchLower) ||
-      transaction.patientCode.toLowerCase().includes(searchLower) ||
-      transaction.code.toLowerCase().includes(searchLower) ||
-      transaction.firstName.toLowerCase().includes(searchLower) ||
-      transaction.lastName.toLowerCase().includes(searchLower)
-    );
-  });
+  const filteredTransactions = transactions
+    .filter(transaction => {
+      const matchesSearch = (
+        transaction.patientName.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
+        transaction.patientCode.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
+        transaction.code.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
+        transaction.firstName.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
+        transaction.lastName.toLowerCase().includes(localSearchQuery.toLowerCase())
+      );
+
+      if (showUnclaimed) {
+        return matchesSearch && !transaction.claimed;
+      }
+      
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+    });
 
   const handleDeleteTransaction = (id: string) => {
     setTransactions(transactions.filter(transaction => transaction.id !== id));
@@ -127,8 +134,10 @@ export function TransactionList({ searchQuery = '' }: TransactionListProps) {
           Transactions
         </CardTitle>
         <TransactionListHeader 
-          searchQuery={localSearchQuery}
-          onSearchChange={setLocalSearchQuery}
+          sortOrder={sortOrder}
+          onSortChange={setSortOrder}
+          showUnclaimed={showUnclaimed}
+          onUnclaimedToggle={setShowUnclaimed}
         />
       </CardHeader>
       <CardContent>

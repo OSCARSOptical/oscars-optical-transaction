@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { User } from "lucide-react";
-import { Patient, Transaction } from '@/types';
+import { Patient } from '@/types';
 import { PatientTableRow } from './PatientTableRow';
 import { filterPatients } from '@/utils/patientUtils';
 import { usePatientLatestTransaction } from '@/hooks/usePatientLatestTransaction';
@@ -15,10 +15,11 @@ interface PatientListProps {
 
 export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
   const [patients] = useState<Patient[]>(samplePatients);
-  const [transactions] = useState<Transaction[]>(sampleTransactions);
+  const [transactions] = useState(sampleTransactions);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const { getLatestTransaction } = usePatientLatestTransaction(transactions);
   
+  // Update local search when prop changes
   useEffect(() => {
     setSearchQuery(initialSearchQuery);
   }, [initialSearchQuery]);

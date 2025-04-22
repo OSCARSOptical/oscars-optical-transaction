@@ -1,27 +1,37 @@
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Filter, SortAsc, SortDesc } from "lucide-react";
 
 interface TransactionListHeaderProps {
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
+  sortOrder: 'asc' | 'desc';
+  onSortChange: (order: 'asc' | 'desc') => void;
+  showUnclaimed: boolean;
+  onUnclaimedToggle: (show: boolean) => void;
 }
 
 export function TransactionListHeader({
-  searchQuery,
-  onSearchChange
+  sortOrder,
+  onSortChange,
+  showUnclaimed,
+  onUnclaimedToggle
 }: TransactionListHeaderProps) {
-  const navigate = useNavigate();
   return (
-    <div className="flex justify-end items-center">
-      <Button 
-        onClick={() => navigate('/transactions/new')}
-        className="bg-[#9E0214] hover:bg-[#9E0214]/90"
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        New Transaction
-      </Button>
+    <div className="flex gap-2 items-center">
+      <ToggleGroup type="single" value={sortOrder} onValueChange={(value) => value && onSortChange(value as 'asc' | 'desc')}>
+        <ToggleGroupItem value="asc" aria-label="Sort ascending">
+          <SortAsc className="h-4 w-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem value="desc" aria-label="Sort descending">
+          <SortDesc className="h-4 w-4" />
+        </ToggleGroupItem>
+      </ToggleGroup>
+
+      <ToggleGroup type="single" value={showUnclaimed ? "unclaimed" : "all"} onValueChange={(value) => onUnclaimedToggle(value === "unclaimed")}>
+        <ToggleGroupItem value="unclaimed" aria-label="Show unclaimed only">
+          <Filter className="h-4 w-4 mr-2" />
+          Unclaimed
+        </ToggleGroupItem>
+      </ToggleGroup>
     </div>
   );
 }
