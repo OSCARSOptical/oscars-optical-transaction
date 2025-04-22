@@ -135,17 +135,27 @@
 
   .print-table th, 
   .print-table td {
-    padding: 8px;
-    font-size: 11px;
+    padding: 4px !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
   }
 
-  .print-table tr:nth-child(25n) {
+  .print-table tr {
+    page-break-inside: avoid;
+  }
+
+  /* Make page break after every 20 rows instead of 25 */
+  .print-table tr:nth-child(20n) {
     page-break-after: always;
   }
 
+  /* Ensure totals section stays with the last group of transactions */
+  .print-table + div {
+    page-break-inside: avoid;
+  }
+
   @page {
-    size: landscape;
-    margin: 15mm;
+    size: letter landscape;
+    margin: 10mm;
   }
 }
-
