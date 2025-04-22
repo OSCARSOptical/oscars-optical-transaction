@@ -1,5 +1,5 @@
 
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Transaction, Patient } from '@/types';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -46,10 +46,7 @@ const samplePatients: Patient[] = [
 ];
 
 const TransactionDetail = () => {
-  const { transactionCode } = useParams<{ transactionCode: string }>();
-  const [searchParams] = useSearchParams();
-  const patientCode = searchParams.get('patientCode') || '';
-  
+  const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
@@ -136,41 +133,14 @@ const TransactionDetail = () => {
           setLoading(false);
         }, 500);
       } else {
-        // Patient not found, try to find transaction without patient
-        setTimeout(() => {
-          if (transactionCode) {
-            let mockTransaction: Transaction = {
-              id: "1",
-              code: transactionCode,
-              date: "2025-04-10",
-              patientCode: patientCode || "",
-              patientName: "Unknown Patient",
-              firstName: "Unknown",
-              lastName: "Patient",
-              type: "Complete",
-              grossAmount: 7500.00,
-              deposit: 2500.00,
-              balance: 5000.00,
-              lensCapital: 1200.00,
-              edgingPrice: 150.00,
-              otherExpenses: 50.00,
-              totalExpenses: 1400.00,
-              claimed: false,
-              dateClaimed: null
-            };
-            
-            setTransaction(mockTransaction);
-          }
-          setLoading(false);
-        }, 500);
+        // Patient not found, no transaction should be fetched
+        setLoading(false);
+        setPatient(null);
+        setTransaction(null);
       }
     };
 
-    if (transactionCode) {
-      fetchData();
-    } else {
-      setLoading(false);
-    }
+    fetchData();
   }, [transactionCode, patientCode]);
 
   const handleClaimedToggle = () => {
@@ -224,7 +194,7 @@ const TransactionDetail = () => {
   // Pass both the transaction and complete patient data to the view, and set breadcrumb items:
   const breadcrumbItems = [
     { label: 'Patients', href: '/patients' },
-    { label: patient ? `${patient.firstName} ${patient.lastName}` : transaction.patientName || '', href: patient ? `/patients/${patientCode}` : undefined },
+    { label: patient ? `${patient.firstName} ${patient.lastName}` : patientCode || '', href: `/patients/${patientCode}` },
     { label: transaction.code }
   ];
 
@@ -234,7 +204,7 @@ const TransactionDetail = () => {
       patientData={patient}
       onClaimedToggle={handleClaimedToggle}
       pageTitle="Transaction Details"
-      breadcrumbItems={breadcrumbItems}
+      breadcrumbItems={breadcrumbItems} // We need to add support for this in TransactionView
     />
   );
 };

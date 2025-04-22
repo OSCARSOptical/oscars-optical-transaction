@@ -8,7 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MoreHorizontal } from "lucide-react";
 import { Transaction } from '@/types';
 import { formatDate, formatCurrency, getTypeColor } from '@/utils/formatters';
-import { Link } from 'react-router-dom';
 
 interface TransactionTableRowProps {
   transaction: Transaction;
@@ -30,12 +29,12 @@ export function TransactionTableRow({
     <TableRow>
       <TableCell>{formatDate(transaction.date)}</TableCell>
       <TableCell>
-        <Link 
-          to={`/transactions/${transaction.code}?patientCode=${transaction.patientCode}`}
+        <span 
           className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+          onClick={() => navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`)}
         >
           {transaction.code}
-        </Link>
+        </span>
       </TableCell>
       <TableCell>{transaction.patientName}</TableCell>
       <TableCell>{transaction.patientCode}</TableCell>
@@ -77,7 +76,7 @@ export function TransactionTableRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem 
-              onClick={() => navigate(`/transactions/${transaction.code}?patientCode=${transaction.patientCode}`)}
+              onClick={() => navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`)}
               className="cursor-pointer"
             >
               View Full Transaction

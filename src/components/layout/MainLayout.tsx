@@ -86,7 +86,7 @@ export function MainLayout() {
           />
         </div>
       </AppHeader>
-      <Sidebar collapsed={!isSidebarOpen} />
+      <Sidebar isOpen={isSidebarOpen} />
       <main
         className={cn(
           "transition-all duration-300 ease-in-out pt-6 pb-16 px-4 md:px-6",
