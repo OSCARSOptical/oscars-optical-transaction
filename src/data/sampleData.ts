@@ -1,6 +1,129 @@
 
 import { Transaction } from '@/types';
 
+export const samplePatients = [
+  {
+    id: '12345',
+    firstName: 'John',
+    lastName: 'Doe',
+    age: 35,
+    email: 'john.doe@email.com',
+    phone: '(555) 123-4567',
+    address: '123 Main St, Cityville, State 12345',
+    code: 'PX-JD-0000001',
+    sex: 'Male',
+    createdDate: '2025-01-15'
+  }, 
+  {
+    id: '67890',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    age: 28,
+    email: 'jane.smith@email.com',
+    phone: '(555) 987-6543',
+    address: '456 Oak St, Townsville, State 12346',
+    code: 'PX-JS-0000001',
+    sex: 'Female',
+    createdDate: '2025-02-20'
+  },
+  {
+    id: '54321',
+    firstName: 'Oscar',
+    lastName: 'Santos',
+    age: 40,
+    email: 'oscar.santos@email.com',
+    phone: '(555) 555-1111',
+    address: '789 Pine St, Villageton, State 12347',
+    code: 'PX-OS-0000001',
+    sex: 'Male',
+    createdDate: '2025-03-10'
+  },
+  {
+    id: '11111',
+    firstName: 'Maria',
+    lastName: 'Garcia',
+    age: 45,
+    email: 'maria.garcia@email.com',
+    phone: '(555) 222-3333',
+    address: '321 Elm St, Riverside, State 12348',
+    code: 'PX-MG-0000001',
+    sex: 'Female',
+    createdDate: '2025-03-15'
+  },
+  {
+    id: '22222',
+    firstName: 'Robert',
+    lastName: 'Johnson',
+    age: 52,
+    email: 'robert.johnson@email.com',
+    phone: '(555) 444-5555',
+    address: '567 Maple Ave, Hillside, State 12349',
+    code: 'PX-RJ-0000001',
+    sex: 'Male',
+    createdDate: '2025-03-20'
+  },
+  {
+    id: '33333',
+    firstName: 'Sarah',
+    lastName: 'Williams',
+    age: 31,
+    email: 'sarah.williams@email.com',
+    phone: '(555) 666-7777',
+    address: '890 Cedar Ln, Lakeside, State 12350',
+    code: 'PX-SW-0000001',
+    sex: 'Female',
+    createdDate: '2025-03-25'
+  },
+  {
+    id: '44444',
+    firstName: 'Michael',
+    lastName: 'Brown',
+    age: 38,
+    email: 'michael.brown@email.com',
+    phone: '(555) 888-9999',
+    address: '432 Birch Rd, Mountainview, State 12351',
+    code: 'PX-MB-0000001',
+    sex: 'Male',
+    createdDate: '2025-03-30'
+  },
+  {
+    id: '55555',
+    firstName: 'Emily',
+    lastName: 'Taylor',
+    age: 29,
+    email: 'emily.taylor@email.com',
+    phone: '(555) 111-2222',
+    address: '765 Spruce Dr, Beachside, State 12352',
+    code: 'PX-ET-0000001',
+    sex: 'Female',
+    createdDate: '2025-04-05'
+  },
+  {
+    id: '66666',
+    firstName: 'David',
+    lastName: 'Martinez',
+    age: 43,
+    email: 'david.martinez@email.com',
+    phone: '(555) 333-4444',
+    address: '987 Walnut St, Valley City, State 12353',
+    code: 'PX-DM-0000001',
+    sex: 'Male',
+    createdDate: '2025-04-10'
+  },
+  {
+    id: '77777',
+    firstName: 'Lisa',
+    lastName: 'Anderson',
+    age: 36,
+    email: 'lisa.anderson@email.com',
+    phone: '(555) 555-6666',
+    address: '234 Pineview Rd, Forest Hills, State 12354',
+    code: 'PX-LA-0000001',
+    sex: 'Female',
+    createdDate: '2025-04-15'
+  }
+];
+
 export const sampleTransactions: Transaction[] = [
   {
     id: '1',
@@ -19,7 +142,18 @@ export const sampleTransactions: Transaction[] = [
     otherExpenses: 50.00,
     totalExpenses: 1400.00,
     claimed: true,
-    dateClaimed: '2025-04-15'
+    dateClaimed: '2025-04-15',
+    refractiveIndex: '1.56',
+    lensType: 'SV',
+    lensCoating: 'MC',
+    tint: 'N/A',
+    color: '',
+    interpupillaryDistance: 62,
+    orderNotes: 'Standard single vision lenses with anti-reflective coating',
+    fullRx: {
+      OD: { sphere: -2.25, cylinder: -0.75, axis: 180, visualAcuity: '20/20' },
+      OS: { sphere: -2.00, cylinder: -0.50, axis: 175, visualAcuity: '20/20' }
+    }
   },
   {
     id: '2',
@@ -38,7 +172,12 @@ export const sampleTransactions: Transaction[] = [
     otherExpenses: 0.00,
     totalExpenses: 0.00,
     claimed: true,
-    dateClaimed: '2025-04-08'
+    dateClaimed: '2025-04-08',
+    orderNotes: 'Routine eye examination',
+    fullRx: {
+      OD: { sphere: 'Plano', cylinder: -0.25, axis: 90, visualAcuity: '20/20' },
+      OS: { sphere: 'Plano', cylinder: -0.25, axis: 85, visualAcuity: '20/20' }
+    }
   },
   {
     id: '3',
@@ -48,7 +187,7 @@ export const sampleTransactions: Transaction[] = [
     patientName: 'Oscar Santos',
     firstName: 'Oscar',
     lastName: 'Santos',
-    type: 'Frame Replacement',
+    type: 'Complete',
     grossAmount: 6800.00,
     deposit: 6800.00,
     balance: 0.00,
@@ -57,42 +196,71 @@ export const sampleTransactions: Transaction[] = [
     otherExpenses: 100.00,
     totalExpenses: 3100.00,
     claimed: false,
-    dateClaimed: null
+    dateClaimed: null,
+    refractiveIndex: '1.67',
+    lensType: 'Prog',
+    lensCoating: 'BB TRG',
+    tint: 'One-Tone',
+    color: 'Gray',
+    interpupillaryDistance: 64,
+    orderNotes: 'Progressive lenses with blue light blocking and transitions',
+    fullRx: {
+      OD: { sphere: -3.75, cylinder: -1.00, axis: 160, visualAcuity: '20/20' },
+      OS: { sphere: -4.00, cylinder: -1.25, axis: 165, visualAcuity: '20/20' },
+      ADD: { addPower: 2.00 }
+    }
+  },
+  {
+    id: '4',
+    code: 'TX25-04-00004',
+    date: '2025-04-12',
+    patientCode: 'PX-MG-0000001',
+    patientName: 'Maria Garcia',
+    firstName: 'Maria',
+    lastName: 'Garcia',
+    type: 'Frame Replacement',
+    grossAmount: 3500.00,
+    deposit: 3500.00,
+    balance: 0.00,
+    lensCapital: 0.00,
+    edgingPrice: 150.00,
+    otherExpenses: 50.00,
+    totalExpenses: 200.00,
+    claimed: true,
+    dateClaimed: '2025-04-13',
+    orderNotes: 'Frame replacement only, reusing existing lenses',
+    interpupillaryDistance: 58
+  },
+  {
+    id: '5',
+    code: 'TX25-04-00005',
+    date: '2025-04-13',
+    patientCode: 'PX-RJ-0000001',
+    patientName: 'Robert Johnson',
+    firstName: 'Robert',
+    lastName: 'Johnson',
+    type: 'Complete',
+    grossAmount: 8500.00,
+    deposit: 4000.00,
+    balance: 4500.00,
+    lensCapital: 3200.00,
+    edgingPrice: 200.00,
+    otherExpenses: 100.00,
+    totalExpenses: 3500.00,
+    claimed: false,
+    dateClaimed: null,
+    refractiveIndex: '1.74',
+    lensType: 'Prog',
+    lensCoating: 'BB TRG',
+    tint: 'Two-Tone',
+    color: 'Brown Gradient',
+    interpupillaryDistance: 66,
+    orderNotes: 'High index progressive lenses with all coatings',
+    fullRx: {
+      OD: { sphere: -6.50, cylinder: -0.75, axis: 170, visualAcuity: '20/25' },
+      OS: { sphere: -6.75, cylinder: -1.00, axis: 175, visualAcuity: '20/25' },
+      ADD: { addPower: 2.25 }
+    }
   }
 ];
 
-export const samplePatients = [
-  {
-    id: '12345',
-    firstName: 'John',
-    lastName: 'Doe',
-    age: 35,
-    email: 'john@example.com',
-    phone: '555-123-4567',
-    address: '123 Main St, City, State',
-    code: 'PX-JD-0000001',
-    createdDate: '2025-01-15'
-  }, 
-  {
-    id: '67890',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    age: 28,
-    email: 'jane@example.com',
-    phone: '555-987-6543',
-    address: '456 Oak St, City, State',
-    code: 'PX-JS-0000001',
-    createdDate: '2025-02-20'
-  },
-  {
-    id: '54321',
-    firstName: 'Oscar',
-    lastName: 'Santos',
-    age: 40,
-    email: 'oscar@example.com',
-    phone: '555-555-1111',
-    address: '789 Pine St, City, State',
-    code: 'PX-OS-0000001',
-    createdDate: '2025-03-10'
-  }
-];
