@@ -1,7 +1,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Document } from "lucide-react";
+import { FileText } from "lucide-react";
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const Reports = () => {
         >
           <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <CardTitle className="text-xl font-bold">Job Orders</CardTitle>
-            <Document className="h-5 w-5 text-gray-500" />
+            <FileText className="h-5 w-5 text-gray-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">All Records</div>

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -12,7 +11,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 function Logo() {
   return (
@@ -44,13 +43,11 @@ export default function Sidebar({ collapsed = false }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [reportsOpen, setReportsOpen] = useState(false);
 
-  // Check if current path starts with the given path
   const isActive = (path: string) => currentPath.startsWith(path);
   
-  // Check specifically if we're on a reports page
   useEffect(() => {
     if (currentPath.startsWith('/reports')) {
       setReportsOpen(true);
@@ -112,7 +109,6 @@ export default function Sidebar({ collapsed = false }: SidebarProps) {
             {!collapsed && <span className="ml-3">Balance Sheet</span>}
           </div>
           
-          {/* Reports with dropdown */}
           <div className="space-y-1">
             <div
               className={cn(
