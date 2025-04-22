@@ -11,7 +11,7 @@ export const samplePatients = [
     phone: '(555) 123-4567',
     address: '123 Main St, Cityville, State 12345',
     code: 'PX-JD-0000001',
-    sex: 'Male',
+    sex: 'Male' as 'Male',
     createdDate: '2025-01-15'
   }, 
   {
@@ -23,7 +23,7 @@ export const samplePatients = [
     phone: '(555) 987-6543',
     address: '456 Oak St, Townsville, State 12346',
     code: 'PX-JS-0000001',
-    sex: 'Female',
+    sex: 'Female' as 'Female',
     createdDate: '2025-02-20'
   },
   {
@@ -35,7 +35,7 @@ export const samplePatients = [
     phone: '(555) 555-1111',
     address: '789 Pine St, Villageton, State 12347',
     code: 'PX-OS-0000001',
-    sex: 'Male',
+    sex: 'Male' as 'Male',
     createdDate: '2025-03-10'
   },
   {
@@ -47,7 +47,7 @@ export const samplePatients = [
     phone: '(555) 222-3333',
     address: '321 Elm St, Riverside, State 12348',
     code: 'PX-MG-0000001',
-    sex: 'Female',
+    sex: 'Female' as 'Female',
     createdDate: '2025-03-15'
   },
   {
@@ -59,7 +59,7 @@ export const samplePatients = [
     phone: '(555) 444-5555',
     address: '567 Maple Ave, Hillside, State 12349',
     code: 'PX-RJ-0000001',
-    sex: 'Male',
+    sex: 'Male' as 'Male',
     createdDate: '2025-03-20'
   },
   {
@@ -71,7 +71,7 @@ export const samplePatients = [
     phone: '(555) 666-7777',
     address: '890 Cedar Ln, Lakeside, State 12350',
     code: 'PX-SW-0000001',
-    sex: 'Female',
+    sex: 'Female' as 'Female',
     createdDate: '2025-03-25'
   },
   {
@@ -83,7 +83,7 @@ export const samplePatients = [
     phone: '(555) 888-9999',
     address: '432 Birch Rd, Mountainview, State 12351',
     code: 'PX-MB-0000001',
-    sex: 'Male',
+    sex: 'Male' as 'Male',
     createdDate: '2025-03-30'
   },
   {
@@ -95,7 +95,7 @@ export const samplePatients = [
     phone: '(555) 111-2222',
     address: '765 Spruce Dr, Beachside, State 12352',
     code: 'PX-ET-0000001',
-    sex: 'Female',
+    sex: 'Female' as 'Female',
     createdDate: '2025-04-05'
   },
   {
@@ -107,7 +107,7 @@ export const samplePatients = [
     phone: '(555) 333-4444',
     address: '987 Walnut St, Valley City, State 12353',
     code: 'PX-DM-0000001',
-    sex: 'Male',
+    sex: 'Male' as 'Male',
     createdDate: '2025-04-10'
   },
   {
@@ -119,7 +119,7 @@ export const samplePatients = [
     phone: '(555) 555-6666',
     address: '234 Pineview Rd, Forest Hills, State 12354',
     code: 'PX-LA-0000001',
-    sex: 'Female',
+    sex: 'Female' as 'Female',
     createdDate: '2025-04-15'
   }
 ];
