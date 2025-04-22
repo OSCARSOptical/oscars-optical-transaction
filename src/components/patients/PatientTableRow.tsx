@@ -39,6 +39,7 @@ export const PatientTableRow = ({ patient, latestTransaction }: PatientTableRowP
       </TableCell>
       <TableCell>{patient.age}</TableCell>
       <TableCell>{patient.phone}</TableCell>
+      <TableCell>{patient.address}</TableCell>
       <TableCell>{patient.email}</TableCell>
       <TableCell>
         {latestTransaction ? (
