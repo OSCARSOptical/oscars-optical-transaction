@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { Transaction } from '@/types';
 import { formatDate, formatCurrency } from '@/utils/formatters';
 import { AdditionalItem } from './AdditionalItemsDialog';
@@ -14,6 +15,7 @@ interface JobOrdersTableProps {
   onSelectRow?: (id: string) => void;
   isPrintView?: boolean;
   additionalItems?: AdditionalItem[];
+  printedTransactions?: string[];
 }
 
 const JobOrdersTable = ({ 
@@ -23,15 +25,20 @@ const JobOrdersTable = ({
   onSelectAll = () => {}, 
   onSelectRow = () => {},
   isPrintView = false,
-  additionalItems = []
+  additionalItems = [],
+  printedTransactions = []
 }: JobOrdersTableProps) => {
+  // Calculate expense subtotals
+  const lensCapitalTotal = transactions.reduce((sum, tx) => sum + tx.lensCapital, 0);
+  const edgingPriceTotal = transactions.reduce((sum, tx) => sum + tx.edgingPrice, 0);
+  const otherExpensesTotal = transactions.reduce((sum, tx) => sum + tx.otherExpenses, 0);
+  
+  const transactionsTotal = transactions.reduce((sum, tx) => sum + tx.grossAmount, 0);
+  
   const calculateTotal = () => {
-    const transactionsTotal = transactions.reduce((sum, tx) => sum + tx.grossAmount, 0);
     const additionalTotal = additionalItems.reduce((sum, item) => sum + item.amount, 0);
     return transactionsTotal + additionalTotal;
   };
-
-  const transactionsTotal = transactions.reduce((sum, tx) => sum + tx.grossAmount, 0);
 
   return (
     <div className={`w-full overflow-auto ${isPrintView ? 'print-table' : ''}`}>
@@ -60,18 +67,19 @@ const JobOrdersTable = ({
             <TableHead className="text-right">Other Expenses</TableHead>
             <TableHead className="text-right">Total</TableHead>
             <TableHead>Notes</TableHead>
+            {!isPrintView && <TableHead>Status</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {transactions.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={isPrintView ? 13 : 14} className="text-center py-10">
+              <TableCell colSpan={isPrintView ? 13 : 15} className="text-center py-10">
                 No job orders found
               </TableCell>
             </TableRow>
           ) : (
             transactions.map((tx) => (
-              <TableRow key={tx.id}>
+              <TableRow key={tx.id} className={printedTransactions.includes(tx.id) && !isPrintView ? "bg-gray-50" : ""}>
                 {!isPrintView && (
                   <TableCell>
                     <Checkbox 
@@ -101,6 +109,15 @@ const JobOrdersTable = ({
                 <TableCell className="text-right">{formatCurrency(tx.otherExpenses)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(tx.grossAmount)}</TableCell>
                 <TableCell className="max-w-[200px] truncate">{tx.orderNotes || '—'}</TableCell>
+                {!isPrintView && (
+                  <TableCell>
+                    {printedTransactions.includes(tx.id) && (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        Printed
+                      </Badge>
+                    )}
+                  </TableCell>
+                )}
               </TableRow>
             ))
           )}
@@ -109,7 +126,21 @@ const JobOrdersTable = ({
 
       {isPrintView && (
         <div className="mt-6 border-t pt-4">
-          <div className="flex justify-between items-center px-4 font-semibold">
+          {/* Expense breakdown section */}
+          <div className="flex justify-between items-center px-4 mt-2">
+            <div>Lens Capital:</div>
+            <div>{formatCurrency(lensCapitalTotal)}</div>
+          </div>
+          <div className="flex justify-between items-center px-4 mt-2">
+            <div>Edging Price:</div>
+            <div>{formatCurrency(edgingPriceTotal)}</div>
+          </div>
+          <div className="flex justify-between items-center px-4 mt-2">
+            <div>Other Expenses:</div>
+            <div>{formatCurrency(otherExpensesTotal)}</div>
+          </div>
+
+          <div className="flex justify-between items-center px-4 font-semibold mt-4 pt-2 border-t">
             <div>Total Expenses:</div>
             <div>{formatCurrency(transactionsTotal)}</div>
           </div>

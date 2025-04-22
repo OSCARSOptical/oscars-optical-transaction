@@ -7,7 +7,7 @@ import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import JobOrdersTable from '@/components/reports/JobOrdersTable';
 import AdditionalItemsDialog, { AdditionalItem } from '@/components/reports/AdditionalItemsDialog';
 import { Button } from '@/components/ui/button';
-import { Printer } from 'lucide-react';
+import { Printer, RefreshCw } from 'lucide-react';
 
 const JobOrders = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -15,6 +15,7 @@ const JobOrders = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [additionalItems, setAdditionalItems] = useState<AdditionalItem[]>([]);
+  const [printedTransactions, setPrintedTransactions] = useState<string[]>([]);
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,6 +23,12 @@ const JobOrders = () => {
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
     setTransactions(sortedTransactions);
+    
+    // Try to retrieve previously printed transactions from localStorage
+    const savedPrintedTx = localStorage.getItem('printedTransactions');
+    if (savedPrintedTx) {
+      setPrintedTransactions(JSON.parse(savedPrintedTx));
+    }
   }, []);
 
   const handleSelectAll = () => {
@@ -59,6 +66,14 @@ const JobOrders = () => {
     },
     onAfterPrint: () => {
       console.log("Print completed or canceled");
+      
+      // Mark selected transactions as printed
+      const newPrintedTransactions = [...printedTransactions, ...selectedRows];
+      setPrintedTransactions(newPrintedTransactions);
+      
+      // Save to localStorage
+      localStorage.setItem('printedTransactions', JSON.stringify(newPrintedTransactions));
+      
       setAdditionalItems([]);
       return Promise.resolve();
     },
@@ -93,6 +108,11 @@ const JobOrders = () => {
     }, 100);
   };
 
+  const clearPrintedStatus = () => {
+    setPrintedTransactions([]);
+    localStorage.removeItem('printedTransactions');
+  };
+
   const breadcrumbItems = [
     { label: 'Reports', href: '/reports' },
     { label: 'Job Orders' }
@@ -105,15 +125,27 @@ const JobOrders = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Job Orders</h1>
         
-        <Button
-          variant="outline"
-          className="gap-2"
-          onClick={handlePrintClick}
-          disabled={selectedRows.length === 0}
-        >
-          <Printer className="h-4 w-4" />
-          Print Selected
-        </Button>
+        <div className="flex gap-2">
+          {printedTransactions.length > 0 && (
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={clearPrintedStatus}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Clear Print History
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={handlePrintClick}
+            disabled={selectedRows.length === 0}
+          >
+            <Printer className="h-4 w-4" />
+            Print Selected
+          </Button>
+        </div>
       </div>
       
       <JobOrdersTable 
@@ -122,6 +154,7 @@ const JobOrders = () => {
         selectAll={selectAll}
         onSelectAll={handleSelectAll}
         onSelectRow={handleSelectRow}
+        printedTransactions={printedTransactions}
       />
       
       <div className="hidden">
