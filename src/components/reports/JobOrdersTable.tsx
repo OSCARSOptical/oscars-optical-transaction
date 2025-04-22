@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -28,7 +27,6 @@ const JobOrdersTable = ({
   additionalItems = [],
   printedTransactions = []
 }: JobOrdersTableProps) => {
-  // Calculate expense subtotals
   const lensCapitalTotal = transactions.reduce((sum, tx) => sum + tx.lensCapital, 0);
   const edgingPriceTotal = transactions.reduce((sum, tx) => sum + tx.edgingPrice, 0);
   const otherExpensesTotal = transactions.reduce((sum, tx) => sum + tx.otherExpenses, 0);
@@ -126,18 +124,14 @@ const JobOrdersTable = ({
 
       {isPrintView && (
         <div className="mt-6 border-t pt-4">
-          {/* Expense breakdown section */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="font-semibold">Lens Capital</div>
+            <div className="text-right">
               <div className="font-bold text-lg">{formatCurrency(lensCapitalTotal)}</div>
             </div>
-            <div className="text-center">
-              <div className="font-semibold">Edging Price</div>
+            <div className="text-right">
               <div className="font-bold text-lg">{formatCurrency(edgingPriceTotal)}</div>
             </div>
-            <div className="text-center">
-              <div className="font-semibold">Other Expenses</div>
+            <div className="text-right">
               <div className="font-bold text-lg">{formatCurrency(otherExpensesTotal)}</div>
             </div>
           </div>
