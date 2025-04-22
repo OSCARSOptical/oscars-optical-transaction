@@ -1,4 +1,3 @@
-
 import TransactionList from '@/components/transactions/TransactionList';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";

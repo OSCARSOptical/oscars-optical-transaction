@@ -1,81 +1,200 @@
-
-import { Table, TableBody } from "@/components/ui/table";
-import { TransactionTableHead } from './TransactionTableHead';
-import { TransactionTableRow } from './TransactionTableRow';
+import { useState } from 'react';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 import { Transaction } from '@/types';
-import { UnclaimConfirmDialog } from "./UnclaimConfirmDialog";
-import { useUnclaimDialog } from "./useUnclaimDialog";
+import { formatCurrency } from '@/utils/formatters';
+import { UnclaimConfirmDialog } from './UnclaimConfirmDialog';
+import { TransactionTableRow } from './TransactionTableRow';
+import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
+import { Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Copy } from 'lucide-react';
 
 interface TransactionTableProps {
   transactions: Transaction[];
   onDeleteTransaction: (id: string) => void;
 }
 
-export function TransactionTable({ 
-  transactions,
-  onDeleteTransaction 
-}: TransactionTableProps) {
-  
-  // Extract all visible phone numbers for the "Copy All" feature
-  const allVisibleNumbers = transactions
-    .filter(t => t.phone)
-    .map(t => t.phone)
-    .join('\n');
+export function TransactionTable({ transactions, onDeleteTransaction }: TransactionTableProps) {
+  const { toast } = useToast();
+  const [localTransactions, setLocalTransactions] = useState<Transaction[]>(transactions);
+  const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
+  const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
+  const [copyAllStatus, setCopyAllStatus] = useState(false);
 
-  // Get unclaim dialog functionality
-  const {
-    showUnclaimDialog,
-    setShowUnclaimDialog,
-    transactionToUnclaim,
-    openDialog,
-    handleUnclaimConfirm
-  } = useUnclaimDialog(transactions, setTransactions => {
-    // This is a workaround since we can't directly update transactions
-    // We'll instead refresh the data or handle it through the hook
-    // For now, this is just a placeholder function
-    console.log('Transactions updated', setTransactions);
-  });
-
-  // Handle claimed toggling
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
     if (currentValue) {
-      // If currently claimed, open unclaim dialog
-      const transactionToUnclaim = transactions.find(tx => tx.id === id);
-      if (transactionToUnclaim) {
-        openDialog(transactionToUnclaim);
+      const transaction = localTransactions.find(tx => tx.id === id);
+      if (transaction) {
+        setTransactionToUnclaim(transaction);
+        setShowUnclaimDialog(true);
       }
-    } else {
-      // If currently unclaimed, navigate to claim page or handle directly
-      console.log("Claim functionality not implemented");
+      return;
     }
+
+    const updatedTransactions = localTransactions.map(transaction => {
+      if (transaction.id === id) {
+        const today = new Date().toISOString().split('T')[0];
+        const balancePaid = transaction.balance;
+
+        addBalanceSheetEntry({
+          date: today,
+          transactionId: transaction.code,
+          balancePaid,
+          patientCode: transaction.patientCode
+        });
+
+        const updatedTransaction = {
+          ...transaction,
+          claimed: true,
+          dateClaimed: today,
+          balance: 0
+        };
+
+        toast({
+          title: "✓ Payment Claimed!",
+          description: `Balance of ${formatCurrency(balancePaid)} has been collected and recorded.`,
+          className: "bg-[#FFC42B] text-[#241715] rounded-lg",
+          duration: 3000,
+        });
+
+        return updatedTransaction;
+      }
+      return transaction;
+    });
+
+    setLocalTransactions(updatedTransactions);
+  };
+
+  const handleUnclaimConfirm = () => {
+    if (!transactionToUnclaim) return;
+
+    const updatedTransactions = localTransactions.map(transaction => {
+      if (transaction.id === transactionToUnclaim.id) {
+        if (transactionToUnclaim.dateClaimed) {
+          removeBalanceSheetEntry({
+            date: transactionToUnclaim.dateClaimed,
+            transactionId: transactionToUnclaim.code
+          });
+        }
+
+        const restoredBalance = transaction.grossAmount - transaction.deposit;
+
+        const restoredTransaction = {
+          ...transaction,
+          claimed: false,
+          dateClaimed: null,
+          balance: restoredBalance
+        };
+
+        toast({
+          title: "Claim Removed",
+          description: "Transaction restored to unclaimed status and balance sheet entry removed.",
+          variant: "default"
+        });
+
+        return restoredTransaction;
+      }
+      return transaction;
+    });
+
+    setLocalTransactions(updatedTransactions);
+    setShowUnclaimDialog(false);
+    setTransactionToUnclaim(null);
+  };
+
+  const allVisibleNumbers = transactions
+    .map((x) => x.phone)
+    .filter(Boolean)
+    .join(', ');
+
+  const handleCopyAll = () => {
+    if (allVisibleNumbers.length === 0) return;
+    navigator.clipboard.writeText(allVisibleNumbers);
+    setCopyAllStatus(true);
+    setTimeout(() => setCopyAllStatus(false), 1000);
   };
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="relative overflow-x-auto">
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-r from-transparent to-gray-50 pointer-events-none z-10"></div>
         <Table>
-          <TransactionTableHead allVisibleNumbers={allVisibleNumbers} />
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center justify-center space-x-1">
+                        <span>Date</span>
+                        <Info className="w-3 h-3 text-gray-400" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Transaction date</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </TableHead>
+              <TableHead>Transaction ID</TableHead>
+              <TableHead>Patient Name</TableHead>
+              <TableHead>Patient ID</TableHead>
+              <TableHead className="relative group">
+                <div className="flex items-center space-x-1">
+                  <span>Contact #</span>
+                  {allVisibleNumbers.length > 0 && (
+                    <button
+                      className="ml-1 p-1 rounded hover:bg-gray-100 focus:outline-none"
+                      title="Copy all contact numbers"
+                      onClick={handleCopyAll}
+                      type="button"
+                    >
+                      <Copy className={`w-4 h-4 ${copyAllStatus ? "text-green-500" : "text-gray-400"}`} />
+                    </button>
+                  )}
+                </div>
+              </TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="text-right">Gross Amount</TableHead>
+              <TableHead className="text-right">Deposit</TableHead>
+              <TableHead className="text-right">Balance</TableHead>
+              <TableHead>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-1">
+                        <span>Claimed</span>
+                        <Info className="w-3 h-3 text-gray-400" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Whether payment has been claimed</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </TableHead>
+              <TableHead>Claimed on</TableHead>
+              <TableHead className="w-[60px]"></TableHead>
+            </TableRow>
+          </TableHeader>
           <TableBody>
-            {transactions.map(transaction => (
+            {transactions.map((transaction) => (
               <TransactionTableRow
                 key={transaction.id}
                 transaction={transaction}
                 onClaimedToggle={handleClaimedToggle}
-                onDeleteTransaction={onDeleteTransaction}
               />
             ))}
           </TableBody>
         </Table>
       </div>
 
-      {/* Unclaim confirmation dialog */}
-      <UnclaimConfirmDialog 
-        open={showUnclaimDialog} 
-        onOpenChange={setShowUnclaimDialog} 
-        onConfirm={handleUnclaimConfirm} 
+      <UnclaimConfirmDialog
+        open={showUnclaimDialog}
+        onOpenChange={setShowUnclaimDialog}
+        onConfirm={handleUnclaimConfirm}
       />
     </>
   );
 }
-
-export default TransactionTable;
