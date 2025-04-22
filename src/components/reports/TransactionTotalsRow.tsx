@@ -13,8 +13,9 @@ interface TransactionTotalsRowProps {
 
 export function TransactionTotalsRow({ totals }: TransactionTotalsRowProps) {
   return (
-    <TableRow className="font-bold">
-      <TableCell colSpan={9} className="print:hidden">Totals</TableCell>
+    <TableRow className="font-bold bg-gray-50">
+      <TableCell className="print:hidden"></TableCell>
+      <TableCell colSpan={8} className="text-right">TOTALS:</TableCell>
       <TableCell className="text-right">{formatCurrency(totals.lensCapital)}</TableCell>
       <TableCell className="text-right">{formatCurrency(totals.edgingPrice)}</TableCell>
       <TableCell className="text-right">{formatCurrency(totals.otherExpenses)}</TableCell>

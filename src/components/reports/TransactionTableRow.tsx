@@ -23,6 +23,9 @@ export function TransactionTableRow({
     navigate(`/transactions/${transaction.code}`);
   };
   
+  // Get frame type (hardcoded for now, as it's not in the transaction model)
+  const frameType = "Full Rim";
+  
   return (
     <TableRow key={transaction.id}>
       <TableCell className="print:hidden">
@@ -43,9 +46,9 @@ export function TransactionTableRow({
       <TableCell>{transaction.patientName}</TableCell>
       <TableCell>{transaction.type}</TableCell>
       <TableCell>{transaction.refractiveIndex || 'N/A'}</TableCell>
-      <TableCell>Full Rim</TableCell>
-      <TableCell>{transaction.lensType}</TableCell>
-      <TableCell>{transaction.lensCoating}</TableCell>
+      <TableCell>{frameType}</TableCell>
+      <TableCell>{transaction.lensType || 'N/A'}</TableCell>
+      <TableCell>{transaction.lensCoating || 'N/A'}</TableCell>
       <TableCell className="text-right">{formatCurrency(transaction.lensCapital)}</TableCell>
       <TableCell className="text-right">{formatCurrency(transaction.edgingPrice)}</TableCell>
       <TableCell className="text-right">{formatCurrency(transaction.otherExpenses)}</TableCell>
