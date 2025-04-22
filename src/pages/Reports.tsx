@@ -6,12 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText } from "lucide-react";
 
 const Reports = () => {
+  const [showJobOrders, setShowJobOrders] = useState(false);
   // Use a patient ID that we know exists (Oscar Santos)
   const { transactions, loading } = usePatientTransactions('PX-OS-0000001');
 
   // Calculate totals from all transactions
   const totalTransactions = transactions?.length || 0;
-  const totalAmount = transactions?.reduce((sum, tx) => sum + tx.totalExpenses, 0) || 0;
+
+  // Sort transactions by date in descending order (latest first)
+  const sortedTransactions = [...(transactions || [])].sort((a, b) => 
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 
   return (
     <div className="space-y-6">
@@ -22,38 +27,30 @@ const Reports = () => {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+      <div>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setShowJobOrders(!showJobOrders)}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
+            <CardTitle className="text-sm font-medium">Job Orders</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalTransactions}</div>
             <p className="text-xs text-muted-foreground">
-              All recorded transactions
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₱{totalAmount.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all transactions
+              All recorded job orders
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {loading ? (
-        <div className="text-center py-10">Loading transactions...</div>
-      ) : (
-        <TransactionReport transactions={transactions} />
+      {showJobOrders && (
+        loading ? (
+          <div className="text-center py-10">Loading transactions...</div>
+        ) : (
+          <TransactionReport transactions={sortedTransactions} />
+        )
       )}
     </div>
   );
