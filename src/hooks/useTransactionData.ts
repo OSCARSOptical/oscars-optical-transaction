@@ -14,13 +14,20 @@ export const useTransactionData = (transactionCode: string | undefined, patientC
     const fetchData = () => {
       setLoading(true);
 
+      // Ensure we have a transaction code
+      if (!transactionCode) {
+        setLoading(false);
+        setTransaction(null);
+        return;
+      }
+
       setTimeout(() => {
         // Create the mock transaction - passing both params, even if patientCode is undefined
         let mockTransaction = createMockTransaction(transactionCode, patientCode);
         
         // Only try to update with payment data if we have a valid transaction
         if (mockTransaction) {
-          mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode || "");
+          mockTransaction = updateTransactionWithPayment(mockTransaction, transactionCode);
           setTransaction(mockTransaction);
         } else {
           setTransaction(null);
@@ -30,12 +37,7 @@ export const useTransactionData = (transactionCode: string | undefined, patientC
       }, 500);
     };
 
-    if (transactionCode) {
-      fetchData();
-    } else {
-      setLoading(false);
-      setTransaction(null);
-    }
+    fetchData();
   }, [transactionCode, patientCode]);
 
   const handleClaimedToggle = () => {

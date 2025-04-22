@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,7 +20,7 @@ export function TransactionTableRow({
   const navigate = useNavigate();
   
   const handleTransactionClick = () => {
-    // Navigate with patientCode as a query parameter
+    // Pass the patientCode as a query parameter
     navigate(`/transactions/${transaction.code}?patientCode=${transaction.patientCode}`);
   };
   
