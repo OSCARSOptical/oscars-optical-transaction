@@ -43,8 +43,14 @@ const JobOrders = () => {
     }
   };
 
+  // Fix: Using the correct API for useReactToPrint
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    documentTitle: "Job Orders Report",
+    onBeforePrint: () => console.log("Preparing to print..."),
+    onAfterPrint: () => console.log("Print completed or canceled"),
+    removeAfterPrint: true,
+    // Use contentRef instead of content
+    contentRef: printRef,
     pageStyle: `
       @page {
         size: landscape;
