@@ -7,7 +7,8 @@ import { formatCurrency } from '@/utils/formatters';
 import { UnclaimConfirmDialog } from './UnclaimConfirmDialog';
 import { TransactionTableRow } from './TransactionTableRow';
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -19,20 +20,8 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   const [localTransactions, setLocalTransactions] = useState<Transaction[]>(transactions);
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
-  // New state for sorting
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Sorting transactions by date based on sortOrder
-  const sortedTransactions = [...localTransactions].sort((a, b) => {
-    const dateA = new Date(a.date).getTime();
-    const dateB = new Date(b.date).getTime();
-    if (sortOrder === 'asc') return dateA - dateB;
-    else return dateB - dateA;
-  });
-
-  const toggleSortOrder = () => {
-    setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
-  };
+  // We're not sorting here anymore since sorting is handled in the parent component
 
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
     if (currentValue) {
@@ -128,15 +117,20 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="cursor-pointer select-none" onClick={toggleSortOrder}>
-                <div className="flex items-center justify-center space-x-1">
-                  <span>Date</span>
-                  {sortOrder === 'asc' ? (
-                    <ChevronUp className="w-4 h-4 text-gray-600" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-gray-600" />
-                  )}
-                </div>
+              <TableHead>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center justify-center space-x-1">
+                        <span>Date</span>
+                        <Info className="w-3 h-3 text-gray-400" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Transaction date</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead>Transaction ID</TableHead>
               <TableHead>Patient Name</TableHead>
@@ -145,13 +139,27 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
               <TableHead className="text-right">Gross Amount</TableHead>
               <TableHead className="text-right">Deposit</TableHead>
               <TableHead className="text-right">Balance</TableHead>
-              <TableHead>Claimed</TableHead>
+              <TableHead>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-1">
+                        <span>Claimed</span>
+                        <Info className="w-3 h-3 text-gray-400" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Whether payment has been claimed</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </TableHead>
               <TableHead>Claimed on</TableHead>
               <TableHead className="w-[60px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedTransactions.map((transaction) => (
+            {transactions.map((transaction) => (
               <TransactionTableRow
                 key={transaction.id}
                 transaction={transaction}
@@ -170,4 +178,3 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     </>
   );
 }
-

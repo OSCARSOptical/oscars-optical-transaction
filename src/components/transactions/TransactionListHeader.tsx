@@ -1,6 +1,7 @@
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Filter, SortAsc, SortDesc } from "lucide-react";
+import { ArrowUpZA, ArrowDownAZ, Filter } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TransactionListHeaderProps {
   sortOrder: 'asc' | 'desc';
@@ -17,21 +18,47 @@ export function TransactionListHeader({
 }: TransactionListHeaderProps) {
   return (
     <div className="flex gap-2 items-center">
-      <ToggleGroup type="single" value={sortOrder} onValueChange={(value) => value && onSortChange(value as 'asc' | 'desc')}>
-        <ToggleGroupItem value="asc" aria-label="Sort ascending">
-          <SortAsc className="h-4 w-4" />
-        </ToggleGroupItem>
-        <ToggleGroupItem value="desc" aria-label="Sort descending">
-          <SortDesc className="h-4 w-4" />
-        </ToggleGroupItem>
-      </ToggleGroup>
+      <TooltipProvider>
+        <ToggleGroup type="single" value={sortOrder} onValueChange={(value) => value && onSortChange(value as 'asc' | 'desc')}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="asc" aria-label="Sort ascending">
+                <ArrowUpZA className="h-4 w-4" />
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Sort from oldest to latest</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="desc" aria-label="Sort descending">
+                <ArrowDownAZ className="h-4 w-4" />
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Sort from latest to oldest</p>
+            </TooltipContent>
+          </Tooltip>
+        </ToggleGroup>
+      </TooltipProvider>
 
-      <ToggleGroup type="single" value={showUnclaimed ? "unclaimed" : "all"} onValueChange={(value) => onUnclaimedToggle(value === "unclaimed")}>
-        <ToggleGroupItem value="unclaimed" aria-label="Show unclaimed only">
-          <Filter className="h-4 w-4 mr-2" />
-          Unclaimed
-        </ToggleGroupItem>
-      </ToggleGroup>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <ToggleGroup type="single" value={showUnclaimed ? "unclaimed" : "all"} onValueChange={(value) => onUnclaimedToggle(value === "unclaimed")}>
+              <ToggleGroupItem value="unclaimed" aria-label="Show unclaimed only">
+                <Filter className="h-4 w-4 mr-2" />
+                Unclaimed
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Show only unclaimed transactions</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 }
