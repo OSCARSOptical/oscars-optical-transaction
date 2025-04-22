@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
 import Transactions from "./pages/Transactions";
+import Reports from "./pages/Reports";
 import BalanceSheetPage from "./pages/BalanceSheetPage";
 import NotFound from "./pages/NotFound";
 import PatientDetailPage from "./pages/PatientDetail";
