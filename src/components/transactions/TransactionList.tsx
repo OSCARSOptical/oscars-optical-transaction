@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard } from "lucide-react";
@@ -71,7 +72,7 @@ interface TransactionListProps {
 }
 
 export function TransactionList({ searchQuery = '' }: TransactionListProps) {
-  const [transactions] = useState<Transaction[]>(sampleTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>(sampleTransactions);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showUnclaimed, setShowUnclaimed] = useState(false);
