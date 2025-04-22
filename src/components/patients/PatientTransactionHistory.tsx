@@ -2,7 +2,6 @@
 import { TableCell, TableRow, Table, TableHeader, TableHead, TableBody } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import { MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -115,4 +114,3 @@ export function PatientTransactionHistory({ patientCode }: PatientTransactionHis
     </div>
   );
 }
-
