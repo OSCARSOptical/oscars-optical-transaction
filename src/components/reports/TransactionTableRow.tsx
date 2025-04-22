@@ -21,7 +21,7 @@ export function TransactionTableRow({
   const navigate = useNavigate();
   
   const handleTransactionClick = () => {
-    navigate(`/transactions/${transaction.code}`);
+    navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`);
   };
   
   const frameType = "Full Rim";
@@ -39,7 +39,10 @@ export function TransactionTableRow({
       </TableCell>
       <TableCell className="w-[80px]">{transaction.date}</TableCell>
       <TableCell className="w-[100px]">
-        <span className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 print:no-underline print:text-black">
+        <span 
+          className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 print:no-underline print:text-black"
+          onClick={handleTransactionClick}
+        >
           {transaction.code}
         </span>
       </TableCell>

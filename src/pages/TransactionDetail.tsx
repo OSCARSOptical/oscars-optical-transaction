@@ -7,8 +7,9 @@ import { useTransactionData } from '@/hooks/useTransactionData';
 import { usePatientData } from '@/hooks/usePatientData';
 
 const TransactionDetail = () => {
-  const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
-  const { transaction, loading, handleClaimedToggle } = useTransactionData(transactionCode, patientCode);
+  const { transactionCode } = useParams<{ transactionCode: string }>();
+  const { transaction, loading, handleClaimedToggle } = useTransactionData(transactionCode, undefined);
+  const patientCode = transaction?.patientCode;
   const { patient } = usePatientData(patientCode);
 
   if (loading) {
@@ -19,17 +20,12 @@ const TransactionDetail = () => {
     return <TransactionError transactionCode={transactionCode} />;
   }
 
-  // Define breadcrumb items based on whether we have a patient code or not
-  const breadcrumbItems = patientCode 
-    ? [
-        { label: 'Patients', href: '/patients' },
-        { label: patient ? `${patient.firstName} ${patient.lastName}` : patientCode || '', href: `/patients/${patientCode}` },
-        { label: transaction.code }
-      ]
-    : [
-        { label: 'Transactions', href: '/transactions' },
-        { label: transaction.code }
-      ];
+  // Define breadcrumb items to ensure consistent navigation structure
+  const breadcrumbItems = [
+    { label: 'Patients', href: '/patients' },
+    { label: `${transaction.firstName} ${transaction.lastName}`, href: `/patients/${patientCode}` },
+    { label: transaction.code }
+  ];
 
   return (
     <TransactionView

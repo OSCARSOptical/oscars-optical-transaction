@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -20,14 +19,8 @@ export function TransactionTableRow({
 }: TransactionTableRowProps) {
   const navigate = useNavigate();
 
-  // Format for "Claimed On" column per rules
-  const claimedOnDisplay = transaction.claimed && transaction.dateClaimed
-    ? formatDate(transaction.dateClaimed)
-    : <span className="text-[#8E9196]">Unclaimed</span>;
-
   const handleTransactionClick = () => {
-    // Navigate directly to the transaction route without requiring a patient code
-    navigate(`/transactions/${transaction.code}`);
+    navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`);
   };
 
   return (
