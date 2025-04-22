@@ -2,7 +2,7 @@
 import { format } from 'date-fns';
 import MetricCard from "./MetricCard";
 import { useMetricsData } from '@/hooks/useMetricsData';
-import { sampleTransactions, samplePatients } from '@/data/sampleData';
+import { sampleTransactions, samplePatients } from '@/data';
 import { getMetricsConfig } from '@/config/metricsConfig';
 
 const MetricsOverview = () => {

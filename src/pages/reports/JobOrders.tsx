@@ -1,6 +1,7 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import { sampleTransactions } from '@/data/sampleData';
+import { sampleTransactions } from '@/data';
 import { Transaction } from '@/types';
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import JobOrdersTable from '@/components/reports/JobOrdersTable';

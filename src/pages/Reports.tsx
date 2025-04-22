@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText } from 'lucide-react';
-import { sampleTransactions } from '@/data/sampleData';
+import { sampleTransactions } from '@/data';
 import ReportCard from '@/components/reports/ReportCard';
 
 const Reports = () => {

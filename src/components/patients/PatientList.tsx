@@ -7,7 +7,7 @@ import { Patient } from '@/types';
 import { PatientTableRow } from './PatientTableRow';
 import { filterPatients } from '@/utils/patientUtils';
 import { usePatientLatestTransaction } from '@/hooks/usePatientLatestTransaction';
-import { samplePatients, sampleTransactions } from '@/data/sampleData';
+import { samplePatients, sampleTransactions } from '@/data';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
