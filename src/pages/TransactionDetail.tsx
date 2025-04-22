@@ -7,8 +7,9 @@ import { AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TransactionView } from '@/components/transactions/detail/TransactionView';
 import { findPayment } from '@/utils/paymentsUtils';
+import { sampleTransactions } from '@/data';
 
-// Sample data with the same format as in PatientDetail component
+// Sample patients data with the same format as in PatientDetail component
 const samplePatients: Patient[] = [
   {
     id: '12345',
@@ -42,6 +43,83 @@ const samplePatients: Patient[] = [
     address: '789 Pine St, City, State',
     code: 'PX-OS-0000001',
     sex: 'Male'
+  },
+  {
+    id: '98765',
+    firstName: 'Maria',
+    lastName: 'Garcia',
+    age: 32,
+    email: 'maria@example.com',
+    phone: '(555) 444-3333',
+    address: '321 Elm St, City, State',
+    code: 'PX-MG-0000001',
+    sex: 'Female'
+  },
+  {
+    id: '12121',
+    firstName: 'Robert',
+    lastName: 'Johnson',
+    age: 45,
+    email: 'robert@example.com',
+    phone: '(555) 222-9999',
+    address: '567 Cedar St, City, State',
+    code: 'PX-RJ-0000001',
+    sex: 'Male'
+  },
+  {
+    id: '23232',
+    firstName: 'Sarah',
+    lastName: 'Williams',
+    age: 29,
+    email: 'sarah@example.com',
+    phone: '(555) 888-7777',
+    address: '890 Maple St, City, State',
+    code: 'PX-SW-0000001',
+    sex: 'Female'
+  },
+  {
+    id: '34343',
+    firstName: 'Michael',
+    lastName: 'Brown',
+    age: 38,
+    email: 'michael@example.com',
+    phone: '(555) 777-5555',
+    address: '654 Birch St, City, State',
+    code: 'PX-MB-0000001',
+    sex: 'Male'
+  },
+  {
+    id: '45454',
+    firstName: 'Emily',
+    lastName: 'Taylor',
+    age: 27,
+    email: 'emily@example.com',
+    phone: '(555) 666-4444',
+    address: '432 Walnut St, City, State',
+    code: 'PX-ET-0000001',
+    sex: 'Female'
+  },
+  {
+    id: '56565',
+    firstName: 'David',
+    lastName: 'Martinez',
+    age: 42,
+    email: 'david@example.com',
+    phone: '(555) 333-2222',
+    address: '765 Spruce St, City, State',
+    code: 'PX-DM-0000001',
+    sex: 'Male'
+  },
+  {
+    id: '67676',
+    firstName: 'Lisa',
+    lastName: 'Anderson',
+    age: 31,
+    email: 'lisa@example.com',
+    phone: '(555) 111-8888',
+    address: '987 Oak St, City, State',
+    code: 'PX-LA-0000001',
+    sex: 'Female'
   }
 ];
 
@@ -57,83 +135,62 @@ const TransactionDetail = () => {
     const fetchData = () => {
       setLoading(true);
 
-      // First, fetch the patient data from our sample database
-      const foundPatient = samplePatients.find(p => p.code === patientCode);
+      // First find the transaction in our sample transactions
+      const foundTransaction = sampleTransactions.find(t => t.code === transactionCode);
 
-      if (foundPatient) {
-        const storedFirstName = localStorage.getItem(`patient_${foundPatient.id}_firstName`);
-        const storedLastName = localStorage.getItem(`patient_${foundPatient.id}_lastName`);
-        const storedAge = localStorage.getItem(`patient_${foundPatient.id}_age`);
-        const storedEmail = localStorage.getItem(`patient_${foundPatient.id}_email`);
-        const storedPhone = localStorage.getItem(`patient_${foundPatient.id}_phone`);
-        const storedAddress = localStorage.getItem(`patient_${foundPatient.id}_address`);
-        const storedSex = localStorage.getItem(`patient_${foundPatient.id}_sex`);
+      if (foundTransaction) {
+        // If transaction is found, find the matching patient
+        const patientCodeToUse = patientCode || foundTransaction.patientCode;
+        const foundPatient = samplePatients.find(p => p.code === patientCodeToUse);
 
-        // Create updated patient with localStorage values if they exist
-        const updatedPatient = {
-          ...foundPatient,
-          firstName: storedFirstName || foundPatient.firstName,
-          lastName: storedLastName || foundPatient.lastName,
-          age: storedAge ? parseInt(storedAge) : foundPatient.age,
-          email: storedEmail || foundPatient.email,
-          phone: storedPhone || foundPatient.phone,
-          address: storedAddress || foundPatient.address,
-          sex: (storedSex as 'Male' | 'Female') || foundPatient.sex
-        };
+        if (foundPatient) {
+          // Apply any stored patient updates from localStorage
+          const storedFirstName = localStorage.getItem(`patient_${foundPatient.id}_firstName`);
+          const storedLastName = localStorage.getItem(`patient_${foundPatient.id}_lastName`);
+          const storedAge = localStorage.getItem(`patient_${foundPatient.id}_age`);
+          const storedEmail = localStorage.getItem(`patient_${foundPatient.id}_email`);
+          const storedPhone = localStorage.getItem(`patient_${foundPatient.id}_phone`);
+          const storedAddress = localStorage.getItem(`patient_${foundPatient.id}_address`);
+          const storedSex = localStorage.getItem(`patient_${foundPatient.id}_sex`);
 
-        setPatient(updatedPatient);
-
-        // After patient is set, create transaction data with this patient info
-        setTimeout(() => {
-          let mockTransaction: Transaction = {
-            id: "1",
-            code: transactionCode || "TX25-04-00001",
-            date: "2025-04-10",
-            patientCode: patientCode || "PX-JD-0000001",
-            patientName: `${updatedPatient.firstName} ${updatedPatient.lastName}`,
-            firstName: updatedPatient.firstName,
-            lastName: updatedPatient.lastName,
-            type: "Complete",
-            grossAmount: 7500.00,
-            deposit: 2500.00,
-            balance: 5000.00,
-            lensCapital: 1200.00,
-            edgingPrice: 150.00,
-            otherExpenses: 50.00,
-            totalExpenses: 1400.00,
-            claimed: false,
-            dateClaimed: null,
-            refractiveIndex: "1.56",
-            lensType: "SV",
-            lensCoating: "UC",
-            tint: "N/A",
-            color: "",
-            interpupillaryDistance: 62,
-            orderNotes: "Sample order notes",
-            previousRx: undefined,
-            fullRx: undefined,
-            prescribedPower: undefined,
-            doctorId: undefined,
-            doctorRemarks: undefined
+          // Create updated patient with localStorage values if they exist
+          const updatedPatient = {
+            ...foundPatient,
+            firstName: storedFirstName || foundPatient.firstName,
+            lastName: storedLastName || foundPatient.lastName,
+            age: storedAge ? parseInt(storedAge) : foundPatient.age,
+            email: storedEmail || foundPatient.email,
+            phone: storedPhone || foundPatient.phone,
+            address: storedAddress || foundPatient.address,
+            sex: (storedSex as 'Male' | 'Female') || foundPatient.sex
           };
 
-          const payment = findPayment(transactionCode || "", 'balance');
+          setPatient(updatedPatient);
 
+          // Check if transaction has been updated in local storage
+          const payment = findPayment(transactionCode || "", 'balance');
+          let updatedTransaction = { ...foundTransaction };
+          
           if (payment) {
-            mockTransaction = {
-              ...mockTransaction,
+            updatedTransaction = {
+              ...updatedTransaction,
               claimed: true,
               dateClaimed: payment.paymentDate,
               balance: 0,
-              deposit: mockTransaction.deposit + payment.amount
+              deposit: updatedTransaction.deposit + payment.amount
             };
           }
 
-          setTransaction(mockTransaction);
-          setLoading(false);
-        }, 500);
+          setTransaction(updatedTransaction);
+        } else {
+          // No patient found for this transaction
+          setPatient(null);
+          setTransaction(foundTransaction);
+        }
+        
+        setLoading(false);
       } else {
-        // Patient not found, no transaction should be fetched
+        // Transaction not found
         setLoading(false);
         setPatient(null);
         setTransaction(null);
@@ -194,7 +251,7 @@ const TransactionDetail = () => {
   // Pass both the transaction and complete patient data to the view, and set breadcrumb items:
   const breadcrumbItems = [
     { label: 'Patients', href: '/patients' },
-    { label: patient ? `${patient.firstName} ${patient.lastName}` : patientCode || '', href: `/patients/${patientCode}` },
+    { label: patient ? `${patient.firstName} ${patient.lastName}` : patientCode || '', href: `/patients/${patientCode || transaction.patientCode}` },
     { label: transaction.code }
   ];
 
@@ -204,7 +261,7 @@ const TransactionDetail = () => {
       patientData={patient}
       onClaimedToggle={handleClaimedToggle}
       pageTitle="Transaction Details"
-      breadcrumbItems={breadcrumbItems} // We need to add support for this in TransactionView
+      breadcrumbItems={breadcrumbItems}
     />
   );
 };

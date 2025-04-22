@@ -10,7 +10,7 @@ const Reports = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // In a real app, you would fetch this from an API
+    // Set transaction count from our sample data
     setTransactionCount(sampleTransactions.length);
   }, []);
 
