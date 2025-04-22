@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MoreHorizontal, Copy } from "lucide-react";
+import { MoreHorizontal, Copy, Trash } from "lucide-react";
 import { Transaction } from '@/types';
 import { formatDate, formatCurrency, getTypeColor } from '@/utils/formatters';
 import { useState } from "react";
@@ -14,12 +14,14 @@ interface TransactionTableRowProps {
   transaction: Transaction;
   onClaimedToggle: (id: string, currentValue: boolean) => void;
   onCopyNumber?: (number: string) => void; // For individual copy
+  onDeleteTransaction: (id: string) => void; // Added this missing prop
 }
 
 export function TransactionTableRow({
   transaction,
   onClaimedToggle,
-  onCopyNumber
+  onCopyNumber,
+  onDeleteTransaction
 }: TransactionTableRowProps) {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
@@ -113,10 +115,15 @@ export function TransactionTableRow({
             >
               View Full Transaction
             </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => onDeleteTransaction(transaction.id)}
+              className="cursor-pointer text-red-500 hover:text-red-700 focus:text-red-700"
+            >
+              Delete Transaction
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>
     </TableRow>
   );
 }
-
