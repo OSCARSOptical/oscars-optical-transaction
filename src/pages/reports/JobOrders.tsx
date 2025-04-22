@@ -46,10 +46,15 @@ const JobOrders = () => {
   // Fix: Using the correct API for useReactToPrint
   const handlePrint = useReactToPrint({
     documentTitle: "Job Orders Report",
-    onBeforePrint: () => console.log("Preparing to print..."),
-    onAfterPrint: () => console.log("Print completed or canceled"),
+    onBeforePrint: () => {
+      console.log("Preparing to print...");
+      return Promise.resolve();
+    },
+    onAfterPrint: () => {
+      console.log("Print completed or canceled");
+      return Promise.resolve();
+    },
     removeAfterPrint: true,
-    // Use contentRef instead of content
     contentRef: printRef,
     pageStyle: `
       @page {
@@ -74,6 +79,11 @@ const JobOrders = () => {
     { label: 'Job Orders' }
   ];
 
+  // Fix: Creating a wrapper function to handle the onClick event
+  const handlePrintClick = () => {
+    handlePrint();
+  };
+
   return (
     <div className="container mx-auto px-4 py-6">
       <BreadcrumbNav items={breadcrumbItems} />
@@ -84,7 +94,7 @@ const JobOrders = () => {
         <Button
           variant="outline"
           className="gap-2"
-          onClick={handlePrint}
+          onClick={handlePrintClick}
           disabled={selectedRows.length === 0}
         >
           <Printer className="h-4 w-4" />
