@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -42,36 +43,6 @@
     --sidebar-accent-foreground: 0 5.9% 10%;
     --sidebar-border: 0 13% 91%;
     --sidebar-ring: 0 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 223 12% 13%;
-    --foreground: 0 0% 100%;
-    --card: 240 9% 22%;
-    --card-foreground: 240 19% 98%;
-    --popover: 223 12% 13%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 0 100% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 3.7% 23%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 5% 22%;
-    --muted-foreground: 240 10% 70%;
-    --accent: 0 100% 60%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 61%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 240 6% 27%;
-    --input: 240 6% 27%;
-    --ring: 0 100% 60%;
-    --sidebar-background: 228 14% 16%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 100% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 6% 23%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 6% 27%;
-    --sidebar-ring: 0 100% 60%;
   }
 
   * {
@@ -152,3 +123,4 @@
     margin: 10mm;
   }
 }
+
