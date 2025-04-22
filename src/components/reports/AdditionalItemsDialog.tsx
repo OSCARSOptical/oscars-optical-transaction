@@ -101,7 +101,7 @@ const AdditionalItemsDialog = ({
           </Button>
 
           <div className="flex justify-between pt-4 border-t">
-            <div className="font-semibold">Transaction Total:</div>
+            <div className="font-semibold">Total Expenses:</div>
             <div>{formatCurrency(transactionTotal)}</div>
           </div>
 

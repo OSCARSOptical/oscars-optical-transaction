@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -29,6 +30,8 @@ const JobOrdersTable = ({
     const additionalTotal = additionalItems.reduce((sum, item) => sum + item.amount, 0);
     return transactionsTotal + additionalTotal;
   };
+
+  const transactionsTotal = transactions.reduce((sum, tx) => sum + tx.grossAmount, 0);
 
   return (
     <div className={`w-full overflow-auto ${isPrintView ? 'print-table' : ''}`}>
@@ -104,33 +107,29 @@ const JobOrdersTable = ({
         </TableBody>
       </Table>
 
-      {isPrintView && additionalItems.length > 0 && (
-        <>
-          <TableRow>
-            <TableCell colSpan={8} className="text-right font-semibold">Subtotal:</TableCell>
-            <TableCell colSpan={5} className="text-right">
-              {formatCurrency(transactions.reduce((sum, tx) => sum + tx.grossAmount, 0))}
-            </TableCell>
-          </TableRow>
-          
-          {additionalItems.map((item, index) => (
-            <TableRow key={`additional-${index}`}>
-              <TableCell colSpan={8} className="text-right">
-                {item.description}:
-              </TableCell>
-              <TableCell colSpan={5} className="text-right">
-                {formatCurrency(item.amount)}
-              </TableCell>
-            </TableRow>
-          ))}
-          
-          <TableRow>
-            <TableCell colSpan={8} className="text-right font-bold">GRAND TOTAL:</TableCell>
-            <TableCell colSpan={5} className="text-right font-bold">
-              {formatCurrency(calculateTotal())}
-            </TableCell>
-          </TableRow>
-        </>
+      {isPrintView && (
+        <div className="mt-6 border-t pt-4">
+          <div className="flex justify-between items-center px-4 font-semibold">
+            <div>Total Expenses:</div>
+            <div>{formatCurrency(transactionsTotal)}</div>
+          </div>
+
+          {additionalItems && additionalItems.length > 0 && (
+            <>
+              {additionalItems.map((item, index) => (
+                <div key={`additional-${index}`} className="flex justify-between items-center px-4 mt-2">
+                  <div>{item.description}:</div>
+                  <div>{formatCurrency(item.amount)}</div>
+                </div>
+              ))}
+              
+              <div className="flex justify-between items-center px-4 mt-4 pt-2 border-t font-bold">
+                <div>GRAND TOTAL:</div>
+                <div>{formatCurrency(calculateTotal())}</div>
+              </div>
+            </>
+          )}
+        </div>
       )}
     </div>
   );

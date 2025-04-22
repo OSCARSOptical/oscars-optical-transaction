@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { sampleTransactions } from '@/data/sampleData';
@@ -87,7 +88,9 @@ const JobOrders = () => {
   const handleAdditionalItems = (items: AdditionalItem[]) => {
     setAdditionalItems(items);
     setIsDialogOpen(false);
-    handlePrint();
+    setTimeout(() => {
+      handlePrint();
+    }, 100);
   };
 
   const breadcrumbItems = [
