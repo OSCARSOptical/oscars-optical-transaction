@@ -1,8 +1,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart } from "@/components/ui/chart";
-import { parseISO, format, startOfYear, isSameYear, getMonth } from 'date-fns';
+import { parseISO, format, isSameYear, getMonth } from 'date-fns';
 import { Patient } from "@/types";
+import { usePatientFirstTransaction } from "@/hooks/usePatientFirstTransaction";
 
 interface PatientTrendsProps {
   patients: Patient[];
@@ -13,17 +14,23 @@ const PatientTrends = ({ patients }: PatientTrendsProps) => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
 
+  // Get the earliest transaction date for each patient
+  const patientFirstDates = usePatientFirstTransaction();
+
   // Map of month index => patient count
   const monthsMap: { [k: number]: number } = {};
 
-  // Filter and count only those added in this year
+  // Filter and count patients based on their first transaction date
   patients.forEach(patient => {
-    // Skip patients without createdDate
-    if (!patient.createdDate) return;
+    // Get first transaction date for this patient
+    const firstDate = patientFirstDates[patient.code];
     
-    const createdDate = parseISO(patient.createdDate);
-    if (isSameYear(createdDate, currentDate)) {
-      const month = getMonth(createdDate);
+    // Skip patients without transaction history
+    if (!firstDate) return;
+    
+    const firstTransactionDate = parseISO(firstDate);
+    if (isSameYear(firstTransactionDate, currentDate)) {
+      const month = getMonth(firstTransactionDate);
       monthsMap[month] = (monthsMap[month] || 0) + 1;
     }
   });
