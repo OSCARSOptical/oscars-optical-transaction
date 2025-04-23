@@ -1,14 +1,15 @@
+
 import { useState } from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Transaction } from '@/types';
 import { formatCurrency } from '@/utils/formatters';
-import { UnclaimConfirmDialog } from './UnclaimConfirmDialog';
-import { TransactionTableRow } from './TransactionTableRow';
-import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Copy } from 'lucide-react';
+import { TransactionTableRow } from './TransactionTableRow';
+import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
+import { ContactCopyButton } from './ContactCopyButton';
+import { TransactionUnclaimDialog } from './TransactionUnclaimDialog';
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -20,7 +21,6 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   const [localTransactions, setLocalTransactions] = useState<Transaction[]>(transactions);
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
-  const [copyAllStatus, setCopyAllStatus] = useState(false);
 
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
     if (currentValue) {
@@ -36,14 +36,12 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
       if (transaction.id === id) {
         const today = new Date().toISOString().split('T')[0];
         const balancePaid = transaction.balance;
-
         addBalanceSheetEntry({
           date: today,
           transactionId: transaction.code,
           balancePaid,
           patientCode: transaction.patientCode
         });
-
         const updatedTransaction = {
           ...transaction,
           claimed: true,
@@ -57,7 +55,6 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
           className: "bg-[#FFC42B] text-[#241715] rounded-lg",
           duration: 3000,
         });
-
         return updatedTransaction;
       }
       return transaction;
@@ -103,18 +100,6 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     setTransactionToUnclaim(null);
   };
 
-  const allVisibleNumbers = transactions
-    .map((x) => x.phone)
-    .filter(Boolean)
-    .join(', ');
-
-  const handleCopyAll = () => {
-    if (allVisibleNumbers.length === 0) return;
-    navigator.clipboard.writeText(allVisibleNumbers);
-    setCopyAllStatus(true);
-    setTimeout(() => setCopyAllStatus(false), 1000);
-  };
-
   return (
     <>
       <div className="relative overflow-x-auto">
@@ -141,19 +126,7 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
               <TableHead>Patient Name</TableHead>
               <TableHead>Patient ID</TableHead>
               <TableHead className="relative group">
-                <div className="flex items-center space-x-1">
-                  <span>Contact #</span>
-                  {allVisibleNumbers.length > 0 && (
-                    <button
-                      className="ml-1 p-1 rounded hover:bg-gray-100 focus:outline-none"
-                      title="Copy all contact numbers"
-                      onClick={handleCopyAll}
-                      type="button"
-                    >
-                      <Copy className={`w-4 h-4 ${copyAllStatus ? "text-green-500" : "text-gray-400"}`} />
-                    </button>
-                  )}
-                </div>
+                <ContactCopyButton transactions={localTransactions} />
               </TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="text-right">Gross Amount</TableHead>
@@ -179,7 +152,7 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transactions.map((transaction) => (
+            {localTransactions.map((transaction) => (
               <TransactionTableRow
                 key={transaction.id}
                 transaction={transaction}
@@ -189,8 +162,7 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
           </TableBody>
         </Table>
       </div>
-
-      <UnclaimConfirmDialog
+      <TransactionUnclaimDialog
         open={showUnclaimDialog}
         onOpenChange={setShowUnclaimDialog}
         onConfirm={handleUnclaimConfirm}
@@ -198,3 +170,4 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     </>
   );
 }
+
