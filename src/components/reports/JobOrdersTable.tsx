@@ -40,6 +40,11 @@ const JobOrdersTable = ({
     return transactionsTotal + additionalTotal;
   };
 
+  // Calculate how many columns for colSpan in empty state row
+  // Exclude the "Total" column (removed), so col count is 1 less
+  // Non-print: 15 -> 14; Print: 13 -> 12
+  const emptyColSpan = isPrintView ? 12 : 14;
+
   return (
     <div className={`w-full overflow-auto ${isPrintView ? 'print-table' : ''}`}>
       <Table>
@@ -65,7 +70,7 @@ const JobOrdersTable = ({
             <TableHead className="text-right">Lens Capital</TableHead>
             <TableHead className="text-right">Edging Price</TableHead>
             <TableHead className="text-right">Other Expenses</TableHead>
-            <TableHead className="text-right">Total</TableHead>
+            {/* Removed: <TableHead className="text-right">Total</TableHead> */}
             <TableHead>Notes</TableHead>
             {!isPrintView && <TableHead>Status</TableHead>}
           </TableRow>
@@ -73,7 +78,7 @@ const JobOrdersTable = ({
         <TableBody>
           {transactions.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={isPrintView ? 13 : 15} className="text-center py-10">
+              <TableCell colSpan={emptyColSpan} className="text-center py-10">
                 No job orders found
               </TableCell>
             </TableRow>
@@ -107,7 +112,7 @@ const JobOrdersTable = ({
                 <TableCell className="text-right">{formatCurrency(tx.lensCapital)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(tx.edgingPrice)}</TableCell>
                 <TableCell className="text-right">{formatCurrency(tx.otherExpenses)}</TableCell>
-                <TableCell className="text-right">{formatCurrency(tx.grossAmount)}</TableCell>
+                {/* Removed: <TableCell className="text-right">{formatCurrency(tx.grossAmount)}</TableCell> */}
                 <TableCell className="max-w-[200px] truncate">{tx.orderNotes || '—'}</TableCell>
                 {!isPrintView && (
                   <TableCell>
@@ -169,3 +174,4 @@ const JobOrdersTable = ({
 };
 
 export default JobOrdersTable;
+
