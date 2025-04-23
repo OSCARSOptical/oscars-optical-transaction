@@ -25,7 +25,7 @@ export function LoginForm() {
       setIsLoading(false);
       toast({
         title: "Login successful",
-        description: "Welcome back to Crimson Ledger!",
+        description: "Welcome to OSCARS Optical!", // Updated welcome message
       });
       navigate('/dashboard');
     }, 1000);
