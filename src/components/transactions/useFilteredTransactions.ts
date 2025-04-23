@@ -4,7 +4,20 @@ import { Transaction } from "@/types";
 import { sampleTransactions } from "@/data";
 
 export function useFilteredTransactions(searchQuery = "", showUnclaimed = false) {
-  const [transactions, setTransactions] = useState<Transaction[]>(sampleTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    // Make sure each transaction has phone information from sample data
+    return sampleTransactions.map(transaction => {
+      // Try to find patient in local storage if not already set
+      if (!transaction.phone) {
+        const storedPhone = localStorage.getItem(`patient_${transaction.patientCode.split('-')[2]}_phone`);
+        if (storedPhone) {
+          return { ...transaction, phone: storedPhone };
+        }
+      }
+      return transaction;
+    });
+  });
+  
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showUnclaimedState, setShowUnclaimedState] = useState(showUnclaimed);
