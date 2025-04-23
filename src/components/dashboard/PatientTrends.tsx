@@ -2,11 +2,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart } from "@/components/ui/chart";
 import { parseISO, format, startOfYear, isSameYear, getMonth } from 'date-fns';
+import { Patient } from "@/types";
 
 interface PatientTrendsProps {
-  patients: {
-    createdDate: string;
-  }[];
+  patients: Patient[];
 }
 
 const PatientTrends = ({ patients }: PatientTrendsProps) => {
@@ -19,6 +18,9 @@ const PatientTrends = ({ patients }: PatientTrendsProps) => {
 
   // Filter and count only those added in this year
   patients.forEach(patient => {
+    // Skip patients without createdDate
+    if (!patient.createdDate) return;
+    
     const createdDate = parseISO(patient.createdDate);
     if (isSameYear(createdDate, currentDate)) {
       const month = getMonth(createdDate);
