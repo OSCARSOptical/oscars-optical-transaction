@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -28,21 +27,20 @@ const JobOrdersTable = ({
   additionalItems = [],
   printedTransactions = []
 }: JobOrdersTableProps) => {
-  // Calculate expense subtotals
+  // Calculate expense subtotals - using the actual values for each expense type
   const lensCapitalTotal = transactions.reduce((sum, tx) => sum + tx.lensCapital, 0);
   const edgingPriceTotal = transactions.reduce((sum, tx) => sum + tx.edgingPrice, 0);
   const otherExpensesTotal = transactions.reduce((sum, tx) => sum + tx.otherExpenses, 0);
   
-  const transactionsTotal = transactions.reduce((sum, tx) => sum + tx.grossAmount, 0);
+  // Calculate the total expenses as the sum of individual expense categories
+  const expensesTotal = lensCapitalTotal + edgingPriceTotal + otherExpensesTotal;
   
   const calculateTotal = () => {
     const additionalTotal = additionalItems.reduce((sum, item) => sum + item.amount, 0);
-    return transactionsTotal + additionalTotal;
+    return expensesTotal + additionalTotal;
   };
 
   // Calculate how many columns for colSpan in empty state row
-  // Exclude the "Total" column (removed), so col count is 1 less
-  // Non-print: 15 -> 14; Print: 13 -> 12
   const emptyColSpan = isPrintView ? 12 : 14;
 
   return (
@@ -149,7 +147,7 @@ const JobOrdersTable = ({
 
           <div className="flex justify-between font-bold mt-4 pt-2 border-t">
             <div>Total Expenses:</div>
-            <div>{formatCurrency(transactionsTotal)}</div>
+            <div>{formatCurrency(expensesTotal)}</div>
           </div>
 
           {additionalItems && additionalItems.length > 0 && (
@@ -174,4 +172,3 @@ const JobOrdersTable = ({
 };
 
 export default JobOrdersTable;
-

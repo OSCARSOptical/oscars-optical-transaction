@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { sampleTransactions } from '@/data';
@@ -35,7 +34,6 @@ const JobOrders = () => {
     );
     setTransactions(sortedTransactions);
     
-    // Try to retrieve previously printed transactions from localStorage
     const savedPrintedTx = localStorage.getItem('printedTransactions');
     if (savedPrintedTx) {
       setPrintedTransactions(JSON.parse(savedPrintedTx));
@@ -66,7 +64,7 @@ const JobOrders = () => {
   const calculateTransactionTotal = () => {
     return transactions
       .filter(tx => selectedRows.includes(tx.id))
-      .reduce((sum, tx) => sum + tx.grossAmount, 0);
+      .reduce((sum, tx) => sum + tx.lensCapital + tx.edgingPrice + tx.otherExpenses, 0);
   };
 
   const handlePrint = useReactToPrint({
@@ -78,11 +76,9 @@ const JobOrders = () => {
     onAfterPrint: () => {
       console.log("Print completed or canceled");
       
-      // Mark selected transactions as printed
       const newPrintedTransactions = [...printedTransactions, ...selectedRows];
       setPrintedTransactions(newPrintedTransactions);
       
-      // Save to localStorage
       localStorage.setItem('printedTransactions', JSON.stringify(newPrintedTransactions));
       
       setAdditionalItems([]);
