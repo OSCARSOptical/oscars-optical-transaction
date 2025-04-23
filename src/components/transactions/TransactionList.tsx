@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard } from "lucide-react";
@@ -231,18 +232,23 @@ const sampleTransactions: Transaction[] = [
 
 interface TransactionListProps {
   searchQuery?: string;
+  showUnclaimed?: boolean;
 }
 
-export function TransactionList({ searchQuery = '' }: TransactionListProps) {
+export function TransactionList({ searchQuery = '', showUnclaimed = false }: TransactionListProps) {
   const [transactions, setTransactions] = useState<Transaction[]>(sampleTransactions);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [showUnclaimed, setShowUnclaimed] = useState(false);
+  const [showUnclaimedState, setShowUnclaimedState] = useState(showUnclaimed);
   const { toast } = useToast();
 
   useEffect(() => {
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
+
+  useEffect(() => {
+    setShowUnclaimedState(showUnclaimed);
+  }, [showUnclaimed]);
 
   useEffect(() => {
     const hasCodeMismatch = transactions.some(transaction => {
@@ -269,7 +275,7 @@ export function TransactionList({ searchQuery = '' }: TransactionListProps) {
         transaction.lastName.toLowerCase().includes(localSearchQuery.toLowerCase())
       );
 
-      if (showUnclaimed) {
+      if (showUnclaimedState) {
         return matchesSearch && !transaction.claimed;
       }
       
@@ -299,8 +305,8 @@ export function TransactionList({ searchQuery = '' }: TransactionListProps) {
         <TransactionListHeader 
           sortOrder={sortOrder}
           onSortChange={setSortOrder}
-          showUnclaimed={showUnclaimed}
-          onUnclaimedToggle={setShowUnclaimed}
+          showUnclaimed={showUnclaimedState}
+          onUnclaimedToggle={setShowUnclaimedState}
         />
       </CardHeader>
       <CardContent>

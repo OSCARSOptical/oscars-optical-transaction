@@ -1,10 +1,24 @@
+
 import TransactionList from '@/components/transactions/TransactionList';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation, useSearchParams } from "react-router-dom";
 
 const Transactions = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showUnclaimed, setShowUnclaimed] = useState(false);
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // If ?unclaimed=1 in URL, set showUnclaimed to true
+    if (searchParams.get("unclaimed") === "1") {
+      setShowUnclaimed(true);
+    } else {
+      setShowUnclaimed(false);
+    }
+  }, [location.search, searchParams]);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -27,7 +41,7 @@ const Transactions = () => {
           onChange={e => handleSearch(e.target.value)} 
         />
       </div>
-      <TransactionList searchQuery={searchQuery} />
+      <TransactionList searchQuery={searchQuery} showUnclaimed={showUnclaimed} />
     </div>
   );
 };

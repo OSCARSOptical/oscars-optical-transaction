@@ -9,7 +9,8 @@ interface MetricCardProps {
   description: string;
   icon: LucideIcon;
   iconColor: string;
-  href: string;
+  href?: string;
+  onClick?: () => void;
 }
 
 const MetricCard = ({
@@ -19,21 +20,26 @@ const MetricCard = ({
   icon: Icon,
   iconColor,
   href,
+  onClick,
 }: MetricCardProps) => {
-  return (
-    <Link to={href}>
-      <Card className="shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-gray-200 cursor-pointer">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          <Icon className={`h-4 w-4 ${iconColor}`} />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{value}</div>
-          <p className="text-xs text-muted-foreground">{description}</p>
-        </CardContent>
-      </Card>
-    </Link>
+  // Prefer onClick if provided, otherwise default to link if href exists
+  const CardContentEl = (
+    <Card className="shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-gray-200 cursor-pointer"
+      onClick={onClick}
+      tabIndex={0}
+      role="button"
+      onKeyDown={e => { if (onClick && (e.key === "Enter" || e.key === " ")) onClick(); }}>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className={`h-4 w-4 ${iconColor}`} />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
   );
+  return href && !onClick ? <Link to={href}>{CardContentEl}</Link> : CardContentEl;
 };
 
 export default MetricCard;

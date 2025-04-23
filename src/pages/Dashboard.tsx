@@ -5,11 +5,19 @@ import RevenueChart from "@/components/dashboard/RevenueChart";
 import PatientTrends from "@/components/dashboard/PatientTrends";
 import TransactionTrends from "@/components/dashboard/TransactionTrends";
 import { format } from 'date-fns';
+import { useNavigate } from "react-router-dom";
+import { samplePatients } from "@/data";
 
 const Dashboard = () => {
   const currentDateTime = new Date();
   const formattedDate = format(currentDateTime, 'MMMM d, yyyy');
   const formattedTime = format(currentDateTime, 'h:mm a');
+  const navigate = useNavigate();
+
+  // Handler for pending payments widget
+  const handlePendingPaymentsClick = () => {
+    navigate("/transactions?unclaimed=1");
+  };
 
   return (
     <div className="space-y-6">
@@ -24,7 +32,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <MetricsOverview />
+      <MetricsOverview onPendingPaymentsClick={handlePendingPaymentsClick} />
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="bg-gray-100">
@@ -36,7 +44,7 @@ const Dashboard = () => {
           <RevenueChart />
         </TabsContent>
         <TabsContent value="patients" className="space-y-4">
-          <PatientTrends />
+          <PatientTrends patients={samplePatients} />
         </TabsContent>
         <TabsContent value="transactions" className="space-y-4">
           <TransactionTrends />
