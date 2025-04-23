@@ -5,39 +5,25 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MoreHorizontal, Copy, Phone } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Transaction } from '@/types';
 import { formatDate, formatCurrency, getTypeColor } from '@/utils/formatters';
-import { useState } from "react";
 
 interface TransactionTableRowProps {
   transaction: Transaction;
   onClaimedToggle: (id: string, currentValue: boolean) => void;
-  onCopyNumber?: (number: string) => void; // For individual copy
 }
 
 export function TransactionTableRow({
   transaction,
-  onClaimedToggle,
-  onCopyNumber
+  onClaimedToggle
 }: TransactionTableRowProps) {
   const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
 
   // Format for "Claimed On" column per rules
   const claimedOnDisplay = transaction.claimed && transaction.dateClaimed
     ? formatDate(transaction.dateClaimed)
     : <span className="text-[#8E9196]">Unclaimed</span>;
-
-  const handleCopy = (number: string) => {
-    if (onCopyNumber) {
-      onCopyNumber(number);
-    } else {
-      navigator.clipboard.writeText(number);
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
-  };
 
   return (
     <TableRow>
@@ -52,24 +38,6 @@ export function TransactionTableRow({
       </TableCell>
       <TableCell>{transaction.patientName}</TableCell>
       <TableCell>{transaction.patientCode}</TableCell>
-      <TableCell>
-        {/* Contact Number with copy icon */}
-        <div className="flex items-center space-x-2">
-          <span>{transaction.phone || "--"}</span>
-          {transaction.phone && (
-            <Button 
-              variant="ghost"
-              size="icon"
-              className="h-5 w-5 p-0"
-              aria-label="Copy Contact Number"
-              onClick={() => handleCopy(transaction.phone!)}
-              type="button"
-            >
-              <Copy className={`w-4 h-4 ${copied ? "text-green-500" : "text-gray-400"}`} />
-            </Button>
-          )}
-        </div>
-      </TableCell>
       <TableCell>
         <Badge 
           variant="outline" 

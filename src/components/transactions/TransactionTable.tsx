@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import React from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Transaction } from '@/types';
@@ -8,7 +7,6 @@ import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TransactionTableRow } from './TransactionTableRow';
 import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
-import { ContactCopyButton } from './ContactCopyButton';
 import { TransactionUnclaimDialog } from './TransactionUnclaimDialog';
 
 interface TransactionTableProps {
@@ -18,9 +16,9 @@ interface TransactionTableProps {
 
 export function TransactionTable({ transactions, onDeleteTransaction }: TransactionTableProps) {
   const { toast } = useToast();
-  const [localTransactions, setLocalTransactions] = useState<Transaction[]>(transactions);
-  const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
-  const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
+  const [localTransactions, setLocalTransactions] = React.useState<Transaction[]>(transactions);
+  const [showUnclaimDialog, setShowUnclaimDialog] = React.useState(false);
+  const [transactionToUnclaim, setTransactionToUnclaim] = React.useState<Transaction | null>(null);
 
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
     if (currentValue) {
@@ -125,9 +123,6 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
               <TableHead>Transaction ID</TableHead>
               <TableHead>Patient Name</TableHead>
               <TableHead>Patient ID</TableHead>
-              <TableHead className="relative group">
-                <ContactCopyButton transactions={localTransactions} />
-              </TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="text-right">Gross Amount</TableHead>
               <TableHead className="text-right">Deposit</TableHead>
@@ -170,4 +165,3 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
     </>
   );
 }
-
