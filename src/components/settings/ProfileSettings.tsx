@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { user as UserIcon, image as ImageIcon } from "lucide-react";
+import { User, Image } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -127,7 +127,7 @@ export default function ProfileSettings() {
                 {avatarURL ? (
                   <img src={avatarURL} alt="Avatar" className="object-cover w-full h-full" />
                 ) : (
-                  <UserIcon className="h-8 w-8 text-gray-400" />
+                  <User className="h-8 w-8 text-gray-400" />
                 )}
               </div>
               <input type="file" accept="image/*" onChange={handleAvatarChange} className="block" />
