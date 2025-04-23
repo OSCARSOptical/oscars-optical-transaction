@@ -1,4 +1,3 @@
-
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -63,11 +62,6 @@ const settingsSubItems = [
     icon: UsersIcon,
     href: "/settings/users",
   },
-  {
-    title: "Appearance",
-    icon: SlidersHorizontal,
-    href: "/settings/appearance",
-  }
 ];
 
 export function Sidebar({ isOpen }: { isOpen: boolean }) {
@@ -164,4 +158,3 @@ export function Sidebar({ isOpen }: { isOpen: boolean }) {
 }
 
 export default Sidebar;
-

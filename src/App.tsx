@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,7 +21,6 @@ import JobOrders from "./pages/reports/JobOrders";
 import Settings from "./pages/Settings";
 import ProfileSettings from "./components/settings/ProfileSettings";
 import UserManagementSettings from "./components/settings/UserManagementSettings";
-// AppearanceSettings import removed
 
 const queryClient = new QueryClient();
 
@@ -55,7 +53,6 @@ const App = () => (
             <Route path="/settings" element={<Settings />}>
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="users" element={<UserManagementSettings />} />
-              {/* AppearanceSettings route removed */}
             </Route>
             <Route path="*" element={<NotFound />} />
           </Route>
@@ -66,4 +63,3 @@ const App = () => (
 );
 
 export default App;
-
