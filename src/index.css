@@ -7,24 +7,34 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
+
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
+
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
+
     --primary: 0 72% 51%;
     --primary-foreground: 0 0% 98%;
+
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
+
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
+
     --accent: 0 72% 53%;
     --accent-foreground: 0 0% 100%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
+
     --border: 217 10% 92%;
     --input: 217 10% 92%;
     --ring: 0 72% 51%;
+
     --radius: 4px;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 0 72% 51%;
@@ -35,35 +45,6 @@
     --sidebar-ring: 0 91.2% 59.8%;
   }
 
-  .dark {
-    --background: 231 13% 13%; /* #202123 */
-    --foreground: 0 0% 100%; /* #fff */
-    --card: 237 15% 23%;     /* #343541 */
-    --card-foreground: 240 8% 92%;   /* #ECECF1 */
-    --popover: 237 15% 23%;   /* #343541 */
-    --popover-foreground: 240 8% 92%; /* #ECECF1 */
-    --primary: 0 100% 56%;          /* #FF4A4A */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 233 13% 17%;        /* #2A2E39 */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 233 13% 17%;          /* #2A2E39 */
-    --muted-foreground: 240 5% 89%; /* #ECECF1 */
-    --accent: 0 100% 56%;           /* #FF4A4A */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 100% 45%;     /* #b22222 */
-    --destructive-foreground: 0 0% 100%;
-    --border: 242 10% 28%;         /* #44444F */
-    --input: 242 10% 28%;          /* #44444F */
-    --ring: 0 100% 56%;            /* #FF4A4A */
-    --sidebar-background: 237 15% 23%; /* #343541 */
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 100% 56%;     /* #FF4A4A */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 233 13% 17%;     /* #2A2E39 */
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 242 10% 28%;     /* #44444F */
-    --sidebar-ring: 0 100% 56%;        /* #FF4A4A */
-  }
   * {
     @apply border-border;
   }
@@ -82,34 +63,29 @@
   }
   
   .notion-card {
-    @apply bg-card rounded-md border border-border shadow-sm hover:shadow-md transition-shadow;
+    @apply bg-white rounded-md border border-gray-200 shadow-sm hover:shadow-md transition-shadow;
   }
   
   .notion-input {
-    @apply w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all;
-    background-color: var(--input);
-    color: var(--foreground);
+    @apply w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-crimson-500 focus:border-transparent transition-all;
   }
   
   .notion-button {
     @apply px-4 py-2 rounded-md font-medium transition-colors;
-    background-color: var(--primary);
-    color: var(--primary-foreground);
   }
   
   .notion-text-title {
-    @apply text-2xl font-bold text-foreground;
+    @apply text-2xl font-bold text-gray-900;
   }
   
   .notion-text-heading {
-    @apply text-xl font-semibold text-foreground;
+    @apply text-xl font-semibold text-gray-800;
   }
   
   .notion-text-subheading {
-    @apply text-lg font-medium text-muted-foreground;
+    @apply text-lg font-medium text-gray-700;
   }
 }
-
 
 @media print {
   body {
@@ -147,3 +123,4 @@
     margin: 10mm;
   }
 }
+
