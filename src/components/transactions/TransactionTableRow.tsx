@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MoreHorizontal, Copy } from "lucide-react";
+import { MoreHorizontal, Copy, Phone } from "lucide-react";
 import { Transaction } from '@/types';
 import { formatDate, formatCurrency, getTypeColor } from '@/utils/formatters';
 import { useState } from "react";

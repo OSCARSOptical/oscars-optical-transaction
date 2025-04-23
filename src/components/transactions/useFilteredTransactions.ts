@@ -1,19 +1,30 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Transaction } from "@/types";
 import { sampleTransactions } from "@/data";
+import { samplePatients } from "@/data/samplePatients";
 
 export function useFilteredTransactions(searchQuery = "", showUnclaimed = false) {
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    // Make sure each transaction has phone information from sample data
+    // Make sure each transaction has phone information from the patients data
     return sampleTransactions.map(transaction => {
-      // Try to find patient in local storage if not already set
-      if (!transaction.phone) {
-        const storedPhone = localStorage.getItem(`patient_${transaction.patientCode.split('-')[2]}_phone`);
-        if (storedPhone) {
-          return { ...transaction, phone: storedPhone };
-        }
+      // Try to find the patient by patient code in our sample patients
+      const patientCode = transaction.patientCode;
+      const patientId = patientCode.split('-')[2]; // Extract the ID from the PX-XX-0000001 format
+      
+      // First, try to find the patient in our sample data
+      const matchingPatient = samplePatients.find(patient => patient.code === patientCode);
+      
+      if (matchingPatient && matchingPatient.phone) {
+        return { ...transaction, phone: matchingPatient.phone };
       }
+      
+      // If not found in sample data, try localStorage
+      const storedPhone = localStorage.getItem(`patient_${patientId}_phone`);
+      if (storedPhone) {
+        return { ...transaction, phone: storedPhone };
+      }
+      
+      // If no phone is found, keep the existing phone or set to null
       return transaction;
     });
   });
