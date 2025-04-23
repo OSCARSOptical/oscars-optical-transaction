@@ -1,22 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import { sampleTransactions } from '@/data';
 import { Transaction } from '@/types';
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import JobOrdersTable from '@/components/reports/JobOrdersTable';
 import AdditionalItemsDialog, { AdditionalItem } from '@/components/reports/AdditionalItemsDialog';
-import { Button } from '@/components/ui/button';
-import { Printer, RefreshCw } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import JobOrdersSelection from "@/components/reports/JobOrdersSelection";
+import JobOrdersActionsBar from "@/components/reports/JobOrdersActionsBar";
+import { useJobOrdersPrint } from "@/components/reports/useJobOrdersPrint";
 
 const JobOrders = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -33,32 +24,16 @@ const JobOrders = () => {
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
     setTransactions(sortedTransactions);
-    
+
     const savedPrintedTx = localStorage.getItem('printedTransactions');
     if (savedPrintedTx) {
       setPrintedTransactions(JSON.parse(savedPrintedTx));
     }
   }, []);
 
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(transactions.map(tx => tx.id));
-    }
-    setSelectAll(!selectAll);
-  };
-
-  const handleSelectRow = (id: string) => {
-    if (selectedRows.includes(id)) {
-      setSelectedRows(selectedRows.filter(rowId => rowId !== id));
-      setSelectAll(false);
-    } else {
-      setSelectedRows([...selectedRows, id]);
-      if (selectedRows.length + 1 === transactions.length) {
-        setSelectAll(true);
-      }
-    }
+  const handleSelectionChange = (rows: string[], all: boolean) => {
+    setSelectedRows(rows);
+    setSelectAll(all);
   };
 
   const calculateTransactionTotal = () => {
@@ -67,40 +42,12 @@ const JobOrders = () => {
       .reduce((sum, tx) => sum + tx.lensCapital + tx.edgingPrice + tx.otherExpenses, 0);
   };
 
-  const handlePrint = useReactToPrint({
-    documentTitle: "Job Orders Report",
-    onBeforePrint: () => {
-      console.log("Preparing to print...");
-      return Promise.resolve();
-    },
-    onAfterPrint: () => {
-      console.log("Print completed or canceled");
-      
-      const newPrintedTransactions = [...printedTransactions, ...selectedRows];
-      setPrintedTransactions(newPrintedTransactions);
-      
-      localStorage.setItem('printedTransactions', JSON.stringify(newPrintedTransactions));
-      
-      setAdditionalItems([]);
-      return Promise.resolve();
-    },
-    contentRef: printRef,
-    pageStyle: `
-      @page {
-        size: landscape;
-        margin: 10mm;
-      }
-      @media print {
-        body {
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
-        table { page-break-inside: auto; }
-        tr { page-break-inside: avoid; page-break-after: auto; }
-        tr:nth-child(25n) { page-break-after: always; }
-        thead { display: table-header-group; }
-      }
-    `,
+  const handlePrint = useJobOrdersPrint({
+    printRef,
+    printedTransactions,
+    setPrintedTransactions,
+    selectedRows,
+    setAdditionalItems
   });
 
   const handlePrintClick = () => {
@@ -128,46 +75,58 @@ const JobOrders = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
+
       <BreadcrumbNav items={breadcrumbItems} />
-      
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Job Orders</h1>
-        
-        <div className="flex gap-2">
-          {printedTransactions.length > 0 && (
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={() => setShowClearHistoryDialog(true)}
-            >
-              <RefreshCw className="h-4 w-4" />
-              Clear Print History
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            className="gap-2"
-            onClick={handlePrintClick}
-            disabled={selectedRows.length === 0}
-          >
-            <Printer className="h-4 w-4" />
-            Print Selected
-          </Button>
-        </div>
+        <JobOrdersActionsBar
+          printDisabled={selectedRows.length === 0}
+          onPrintClick={handlePrintClick}
+          onClearHistoryClick={() => setShowClearHistoryDialog(true)}
+          printedTransactionsCount={printedTransactions.length}
+        />
       </div>
-      
-      <JobOrdersTable 
+
+      <JobOrdersTable
         transactions={transactions}
         selectedRows={selectedRows}
         selectAll={selectAll}
-        onSelectAll={handleSelectAll}
-        onSelectRow={handleSelectRow}
+        onSelectAll={() => {
+          if (selectAll) {
+            setSelectedRows([]);
+            setSelectAll(false);
+          } else {
+            setSelectedRows(transactions.map(tx => tx.id));
+            setSelectAll(true);
+          }
+        }}
+        onSelectRow={(id) => {
+          let nextRows: string[];
+          let nextSelectAll = false;
+          if (selectedRows.includes(id)) {
+            nextRows = selectedRows.filter(rowId => rowId !== id);
+            nextSelectAll = false;
+          } else {
+            nextRows = [...selectedRows, id];
+            if (nextRows.length === transactions.length) nextSelectAll = true;
+          }
+          setSelectedRows(nextRows);
+          setSelectAll(nextSelectAll);
+        }}
         printedTransactions={printedTransactions}
       />
-      
+
+      <JobOrdersSelection
+        transactions={transactions}
+        onSelectionChange={handleSelectionChange}
+        initialSelectedRows={selectedRows}
+        initialSelectAll={selectAll}
+      />
+
       <div className="hidden">
         <div ref={printRef}>
-          <JobOrdersTable 
+          <JobOrdersTable
             transactions={transactions.filter(tx => selectedRows.includes(tx.id))}
             isPrintView={true}
             additionalItems={additionalItems}
@@ -175,7 +134,7 @@ const JobOrders = () => {
         </div>
       </div>
 
-      <AdditionalItemsDialog 
+      <AdditionalItemsDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         onConfirm={handleAdditionalItems}
