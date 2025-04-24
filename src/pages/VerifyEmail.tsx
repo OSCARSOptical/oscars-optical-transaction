@@ -87,6 +87,41 @@ const VerifyEmail = () => {
     setCode('');
   };
 
+  const resendVerification = async () => {
+    try {
+      setIsLoading(true);
+      if (verificationType === 'email' && email) {
+        const { error } = await supabase.auth.resend({
+          type: 'signup',
+          email: email,
+        });
+        if (error) throw error;
+        toast({
+          title: "Verification email sent",
+          description: "Please check your inbox for the verification code"
+        });
+      } else if (verificationType === 'sms' && phone) {
+        const { error } = await supabase.auth.signUp({
+          phone,
+          password: Math.random().toString(36).slice(2, 10)  // Random password for SMS verification
+        });
+        if (error) throw error;
+        toast({
+          title: "Verification SMS sent",
+          description: "Please check your phone for the verification code"
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Failed to resend verification",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
       <div className="mb-8 text-center">
@@ -113,8 +148,8 @@ const VerifyEmail = () => {
               onChange={(value) => setCode(value)}
               render={({ slots }) => (
                 <InputOTPGroup>
-                  {slots.map((slot, index) => (
-                    <InputOTPSlot key={index} {...slot} index={index} />
+                  {slots.map((slot, i) => (
+                    <InputOTPSlot key={i} {...slot} index={i} />
                   ))}
                 </InputOTPGroup>
               )}
@@ -127,15 +162,26 @@ const VerifyEmail = () => {
           >
             {isLoading ? "Verifying..." : "Verify"}
           </Button>
-          {email && phone && (
+          <div className="flex flex-col space-y-2">
+            {email && phone && (
+              <Button
+                variant="link"
+                className="text-crimson-600"
+                onClick={switchVerificationMethod}
+                disabled={isLoading}
+              >
+                Verify using {verificationType === 'email' ? 'phone number' : 'email'} instead
+              </Button>
+            )}
             <Button
-              variant="link"
-              className="w-full text-crimson-600"
-              onClick={switchVerificationMethod}
+              variant="ghost"
+              className="text-gray-600"
+              onClick={resendVerification}
+              disabled={isLoading}
             >
-              Verify using {verificationType === 'email' ? 'phone number' : 'email'} instead
+              Didn't receive a code? Resend
             </Button>
-          )}
+          </div>
         </CardContent>
       </Card>
     </div>
