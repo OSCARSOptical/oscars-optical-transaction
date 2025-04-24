@@ -1,4 +1,3 @@
-
 import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -51,6 +50,10 @@ export function AppHeader({ toggleSidebar, children }: AppHeaderProps) {
       .substring(0, 2);
   };
 
+  const handleProfileClick = () => {
+    navigate('/settings/profile');
+  };
+
   return (
     <header className={cn(
       "sticky top-0 z-50 w-full border-b bg-white flex items-center justify-between h-16 px-4",
@@ -92,7 +95,7 @@ export function AppHeader({ toggleSidebar, children }: AppHeaderProps) {
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 className="cursor-pointer"
-                onClick={() => navigate('/profile')}
+                onClick={handleProfileClick}
               >
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>

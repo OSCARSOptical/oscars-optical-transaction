@@ -5,14 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { LockKeyhole, Mail, User } from "lucide-react";
+import { LockKeyhole, Mail, User, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 export function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -32,13 +35,13 @@ export function RegisterForm() {
     setIsLoading(true);
     
     try {
-      // Register the user with Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: name,
+            phone: phone
           }
         }
       });
@@ -49,7 +52,7 @@ export function RegisterForm() {
 
       toast({
         title: "Registration successful",
-        description: "Your account has been created! Please check your email for confirmation.",
+        description: "Your account has been created! Please login to continue.",
       });
       navigate('/login');
     } catch (error: any) {
@@ -97,6 +100,21 @@ export function RegisterForm() {
                 className="pl-10"
                 required
               />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="relative flex items-center">
+              <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <div className="w-full">
+                <PhoneInput
+                  country={'ph'}
+                  value={phone}
+                  onChange={setPhone}
+                  inputClass="!w-full !pl-10 !py-2 !pr-4 !rounded-md !border !border-input"
+                  containerClass="!w-full"
+                  buttonClass="!border-input !bg-background"
+                />
+              </div>
             </div>
           </div>
           <div className="space-y-2">
