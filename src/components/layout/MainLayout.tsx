@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import AppHeader from './AppHeader';
@@ -109,4 +108,3 @@ export function MainLayout() {
 }
 
 export default MainLayout;
-
