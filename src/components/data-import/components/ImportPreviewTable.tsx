@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Patient } from "@/types";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 interface ImportPreviewTableProps {
   data: Patient[];
@@ -13,9 +14,9 @@ interface ImportPreviewTableProps {
 }
 
 export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTableProps) {
-  // Show original CSV headers if available
+  const navigate = useNavigate();
   const csvHeaders = rawData && rawData.length > 0 ? Object.keys(rawData[0]) : [];
-  
+
   return (
     <div className="space-y-4">
       {csvHeaders.length > 0 && (
@@ -38,31 +39,45 @@ export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTable
               <TableHead>Last Name</TableHead>
               <TableHead>Age</TableHead>
               <TableHead>Sex</TableHead>
+              <TableHead>Transactions</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                   No patient data to display
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((patient, index) => (
-                <TableRow key={patient.id}>
-                  <TableCell>{patient.code}</TableCell>
-                  <TableCell>{patient.firstName}</TableCell>
-                  <TableCell>{patient.lastName}</TableCell>
-                  <TableCell>{patient.age}</TableCell>
-                  <TableCell>{patient.sex}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="outline" size="sm" onClick={() => onEdit(index)}>
-                      Edit
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+              data.map((patient, index) => {
+                // Generate a transaction code based on patient code
+                const transactionCode = `TX-${patient.code?.split('-')[2] || '000000'}-001`;
+                
+                return (
+                  <TableRow key={patient.id}>
+                    <TableCell>{patient.code}</TableCell>
+                    <TableCell>{patient.firstName}</TableCell>
+                    <TableCell>{patient.lastName}</TableCell>
+                    <TableCell>{patient.age}</TableCell>
+                    <TableCell>{patient.sex}</TableCell>
+                    <TableCell>
+                      <span 
+                        className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+                        onClick={() => navigate(`/patients/${patient.code}/transactions/${transactionCode}`)}
+                      >
+                        {transactionCode}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm" onClick={() => onEdit(index)}>
+                        Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
             )}
           </TableBody>
         </Table>
@@ -80,3 +95,4 @@ export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTable
     </div>
   );
 }
+
