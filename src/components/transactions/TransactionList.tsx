@@ -26,6 +26,12 @@ export default function TransactionList({ searchQuery = '', showUnclaimed = fals
     setLocalSearchQuery(searchQuery);
   }, [searchQuery, setLocalSearchQuery]);
 
+  // Dummy handler for onDeleteTransaction as it's required by TransactionTable
+  const handleDeleteTransaction = (id: string) => {
+    console.log(`Delete transaction with ID: ${id}`);
+    // In a real implementation, this would delete the transaction
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between">
@@ -34,7 +40,10 @@ export default function TransactionList({ searchQuery = '', showUnclaimed = fals
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
           </TabsList>
           <TabsContent value="transactions">
-            <TransactionTable transactions={filteredTransactions} />
+            <TransactionTable 
+              transactions={filteredTransactions} 
+              onDeleteTransaction={handleDeleteTransaction}
+            />
           </TabsContent>
         </Tabs>
       </div>
