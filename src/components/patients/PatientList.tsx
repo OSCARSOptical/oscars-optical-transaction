@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { filterPatients } from '@/utils/patientUtils';
-import { PatientTableRow } from './PatientTableRow';
+import PatientTableRow from './PatientTableRow';
 import { getPatients } from '@/data/storageData';
 
 interface PatientListProps {
@@ -59,7 +59,7 @@ export default function PatientList({ initialSearchQuery = '' }: PatientListProp
               </tr>
             ) : (
               filteredPatients.map((patient) => (
-                <PatientTableRow key={patient.id} patient={patient} latestTransaction={null} />
+                <PatientTableRow key={patient.id} patient={patient} />
               ))
             )}
           </tbody>
