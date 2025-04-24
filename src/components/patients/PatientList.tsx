@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { User, ArrowUpAZ, ArrowDownAZ, Filter } from "lucide-react";
@@ -7,7 +6,6 @@ import { Patient } from '@/types';
 import { PatientTableRow } from './PatientTableRow';
 import { filterPatients } from '@/utils/patientUtils';
 import { usePatientLatestTransaction } from '@/hooks/usePatientLatestTransaction';
-import { samplePatients, sampleTransactions } from '@/data';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -30,8 +28,8 @@ type SortOrder = 'none' | 'asc' | 'desc';
 type FilterBy = 'none' | 'age' | 'address';
 
 export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
-  const [patients] = useState<Patient[]>(samplePatients);
-  const [transactions] = useState(sampleTransactions);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [transactions] = useState([]);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [sortOrder, setSortOrder] = useState<SortOrder>('none');
   const [filterBy, setFilterBy] = useState<FilterBy>('none');
@@ -170,7 +168,7 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {displayedPatients.length > 0 ? displayedPatients.map(patient => (
+            {patients.length > 0 ? patients.map(patient => (
               <PatientTableRow 
                 key={patient.id}
                 patient={patient}
@@ -179,7 +177,7 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
             )) : (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
-                  No patients found.
+                  No patients found. Use the import feature to add patients.
                 </TableCell>
               </TableRow>
             )}

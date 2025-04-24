@@ -1,3 +1,3 @@
 
-export * from './samplePatients';
-export * from './sampleTransactions';
+export const samplePatients: any[] = [];
+export const sampleTransactions: any[] = [];
