@@ -1,12 +1,11 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { User, Image } from "lucide-react";
+import { User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Profile {
@@ -34,7 +33,6 @@ export default function ProfileSettings() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        // Get the current session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -53,7 +51,6 @@ export default function ProfileSettings() {
         
         console.log("Fetching profile for user:", session.user.id);
         
-        // Fetch the profile data
         const { data, error } = await supabase
           .from("profiles")
           .select("*")
@@ -73,7 +70,6 @@ export default function ProfileSettings() {
           }
         } else {
           console.log("No profile found for this user, creating new profile");
-          // Create a new profile if one doesn't exist
           const newProfile = {
             id: session.user.id,
             first_name: null,
@@ -87,7 +83,6 @@ export default function ProfileSettings() {
           
           setProfile(newProfile);
           
-          // Insert the new profile
           const { error: insertError } = await supabase
             .from("profiles")
             .insert([newProfile]);
@@ -198,116 +193,167 @@ export default function ProfileSettings() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>User Profile</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6 max-w-lg mx-auto">
-            <div className="flex items-center gap-4">
-              <Skeleton className="w-16 h-16 rounded-full" />
-              <div className="space-y-2 flex-1">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold">User Profile</h2>
+          <Skeleton className="h-10 w-24" />
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-16 w-16 rounded-full" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </div>
+              <Skeleton className="h-10 w-full" />
+              <div className="grid grid-cols-2 gap-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
               </div>
             </div>
-            <Skeleton className="h-10 w-full" />
-            <div className="flex gap-2">
-              <Skeleton className="h-10 flex-1" />
-              <Skeleton className="h-10 flex-1" />
-            </div>
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (!profile) {
-    return <div className="p-6 text-center text-red-500">No profile found. Please try logging in again.</div>;
+    return (
+      <div className="p-6 text-center text-red-500">
+        No profile found. Please try logging in again.
+      </div>
+    );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>User Profile</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-6 max-w-lg mx-auto" onSubmit={handleSave}>
-          <div>
-            <label className="block font-medium mb-1">Profile Photo</label>
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full border bg-gray-100 flex items-center justify-center overflow-hidden">
-                {avatarURL ? (
-                  <img src={avatarURL} alt="Avatar" className="object-cover w-full h-full" />
-                ) : (
-                  <User className="h-8 w-8 text-gray-400" />
-                )}
-              </div>
-              <input type="file" accept="image/*" onChange={handleAvatarChange} className="block" />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <label className="block font-medium mb-1">First Name</label>
-              <Input
-                value={profile.first_name || ""}
-                onChange={e => setProfile({ ...profile, first_name: e.target.value })}
-                required
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block font-medium mb-1">Last Name</label>
-              <Input
-                value={profile.last_name || ""}
-                onChange={e => setProfile({ ...profile, last_name: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Role</label>
-            <select
-              className="w-full border rounded px-3 py-2"
-              value={profile.role || "Staff"}
-              onChange={e => setProfile({ ...profile, role: e.target.value as any })}
-              required
-            >
-              {roles.map(r => <option key={r} value={r ?? "Staff"}>{r}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Phone</label>
-            <Input
-              value={profile.phone || ""}
-              onChange={e => setProfile({ ...profile, phone: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Email</label>
-            <Input
-              type="email"
-              value={profile.email || ""}
-              onChange={e => setProfile({ ...profile, email: e.target.value })}
-              required
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Address</label>
-            <Textarea
-              value={profile.address || ""}
-              onChange={e => setProfile({ ...profile, address: e.target.value })}
-              rows={2}
-            />
-          </div>
-          <Button className="w-full mt-2" type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold">User Profile</h2>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            Cancel
           </Button>
-        </form>
-      </CardContent>
-    </Card>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save changes"}
+          </Button>
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="p-6">
+          <form className="space-y-8" onSubmit={handleSave}>
+            <div className="space-y-4">
+              <h3 className="font-medium text-gray-900">Profile Photo</h3>
+              <div className="flex items-center gap-6">
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
+                    {avatarURL ? (
+                      <img src={avatarURL} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-12 h-12 text-gray-400" />
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-2">
+                    Update your photo (SVG, PNG, JPG or GIF, max. 800x800px)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-medium
+                      file:bg-gray-100 file:text-gray-700
+                      hover:file:bg-gray-200
+                      cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-medium text-gray-900 mb-4">Personal Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      First Name
+                    </label>
+                    <Input
+                      value={profile.first_name || ""}
+                      onChange={e => setProfile({ ...profile, first_name: e.target.value })}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Last Name
+                    </label>
+                    <Input
+                      value={profile.last_name || ""}
+                      onChange={e => setProfile({ ...profile, last_name: e.target.value })}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email
+                    </label>
+                    <Input
+                      type="email"
+                      value={profile.email || ""}
+                      onChange={e => setProfile({ ...profile, email: e.target.value })}
+                      className="w-full"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone
+                    </label>
+                    <Input
+                      value={profile.phone || ""}
+                      onChange={e => setProfile({ ...profile, phone: e.target.value })}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Role
+                    </label>
+                    <select
+                      value={profile.role || "Staff"}
+                      onChange={e => setProfile({ ...profile, role: e.target.value as Profile["role"] })}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      required
+                    >
+                      {roles.map(r => <option key={r} value={r ?? "Staff"}>{r}</option>)}
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Address
+                    </label>
+                    <Textarea
+                      value={profile.address || ""}
+                      onChange={e => setProfile({ ...profile, address: e.target.value })}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
