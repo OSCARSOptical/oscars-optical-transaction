@@ -1,12 +1,13 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import ImageCropper from "@/components/common/ImageCropper";
 
 interface Profile {
   id: string;
@@ -15,7 +16,6 @@ interface Profile {
   role: "Admin" | "Doctor" | "Staff" | null;
   phone: string | null;
   email: string | null;
-  address: string | null;
   photo_url: string | null;
 }
 
@@ -27,6 +27,8 @@ export default function ProfileSettings() {
   const [saving, setSaving] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [croppedImageUrl, setCroppedImageUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -77,7 +79,6 @@ export default function ProfileSettings() {
             role: "Staff" as const,
             phone: null,
             email: session.user.email,
-            address: null,
             photo_url: null
           };
           
@@ -104,11 +105,30 @@ export default function ProfileSettings() {
     fetchProfile();
   }, [toast]);
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setAvatarFile(e.target.files[0]);
       setAvatarURL(URL.createObjectURL(e.target.files[0]));
+      setShowCropper(true);
     }
+  };
+
+  const handleCroppedImage = (blob: Blob) => {
+    if (blob) {
+      // Create a File object from Blob
+      const file = new File([blob], avatarFile?.name || "profile.jpg", { 
+        type: avatarFile?.type || "image/jpeg" 
+      });
+      setAvatarFile(file);
+      setCroppedImageUrl(URL.createObjectURL(blob));
+      setShowCropper(false);
+    }
+  };
+
+  const handleCancelCrop = () => {
+    setShowCropper(false);
+    setAvatarFile(null);
+    setAvatarURL(profile?.photo_url ? supabase.storage.from("profile-photos").getPublicUrl(profile.photo_url).data.publicUrl : null);
   };
 
   const handleUploadPhoto = async () => {
@@ -157,22 +177,36 @@ export default function ProfileSettings() {
         const uploadedPath = await handleUploadPhoto();
         if (uploadedPath) {
           photo_url = uploadedPath;
-          setAvatarURL(supabase.storage.from("profile-photos").getPublicUrl(uploadedPath).data.publicUrl);
+          const newAvatarURL = supabase.storage.from("profile-photos").getPublicUrl(uploadedPath).data.publicUrl;
+          setAvatarURL(newAvatarURL);
+          
+          // Update local storage with profile photo URL for header component
+          localStorage.setItem('profilePhotoUrl', newAvatarURL);
         }
+      }
+      
+      const updateData = {
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        role: profile.role,
+        phone: profile.phone,
+        email: profile.email,
+        photo_url,
+        updated_at: new Date().toISOString(),
+      };
+      
+      // Update user data in localStorage for header component
+      if (profile.first_name && profile.last_name) {
+        const userData = {
+          name: `${profile.first_name} ${profile.last_name}`,
+          email: profile.email || ''
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
       }
       
       const { error } = await supabase
         .from("profiles")
-        .update({
-          first_name: profile.first_name,
-          last_name: profile.last_name,
-          role: profile.role,
-          phone: profile.phone,
-          email: profile.email,
-          address: profile.address,
-          photo_url,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", profile.id);
         
       if (error) {
@@ -182,6 +216,9 @@ export default function ProfileSettings() {
         console.log("Profile updated successfully");
         toast({ title: "Profile updated", description: "Your profile has been saved." });
         setAvatarFile(null);
+        
+        // Force a page refresh to update the header component
+        window.location.reload();
       }
     } catch (err) {
       console.error("Unexpected save error:", err);
@@ -236,51 +273,68 @@ export default function ProfileSettings() {
           <Button variant="outline" onClick={() => window.location.reload()}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSave} disabled={saving || showCropper}>
             {saving ? "Saving..." : "Save changes"}
           </Button>
         </div>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="bg-gray-50 px-6 py-4 border-b">
+          <h3 className="font-medium text-gray-900">Profile Settings</h3>
+          <p className="text-sm text-gray-500">Manage your account information</p>
+        </div>
         <CardContent className="p-6">
           <form className="space-y-8" onSubmit={handleSave}>
             <div className="space-y-4">
               <h3 className="font-medium text-gray-900">Profile Photo</h3>
-              <div className="flex items-center gap-6">
-                <div className="relative">
-                  <div className="w-24 h-24 rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
-                    {avatarURL ? (
-                      <img src={avatarURL} alt="Profile" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-12 h-12 text-gray-400" />
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-600 mb-2">
-                    Update your photo (SVG, PNG, JPG or GIF, max. 800x800px)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-medium
-                      file:bg-gray-100 file:text-gray-700
-                      hover:file:bg-gray-200
-                      cursor-pointer"
+              {showCropper && avatarURL ? (
+                <div className="space-y-4">
+                  <ImageCropper 
+                    imageUrl={avatarURL} 
+                    onCropComplete={handleCroppedImage}
+                    onCancel={handleCancelCrop}
                   />
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
+                      {croppedImageUrl ? (
+                        <img src={croppedImageUrl} alt="Profile" className="w-full h-full object-cover" />
+                      ) : avatarURL ? (
+                        <img src={avatarURL} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-12 h-12 text-gray-400" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-600 mb-2">
+                      Update your photo (SVG, PNG, JPG or GIF, max. 800x800px)
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-medium
+                        file:bg-gray-100 file:text-gray-700
+                        hover:file:bg-gray-200
+                        cursor-pointer"
+                    />
+                    <p className="text-xs text-gray-500">Click on upload to select an image and crop it</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-6">
               <div>
                 <h3 className="font-medium text-gray-900 mb-4">Personal Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       First Name
@@ -337,16 +391,6 @@ export default function ProfileSettings() {
                     >
                       {roles.map(r => <option key={r} value={r ?? "Staff"}>{r}</option>)}
                     </select>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Address
-                    </label>
-                    <Textarea
-                      value={profile.address || ""}
-                      onChange={e => setProfile({ ...profile, address: e.target.value })}
-                      className="min-h-[100px]"
-                    />
                   </div>
                 </div>
               </div>
