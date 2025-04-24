@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
@@ -39,6 +40,30 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
   useEffect(() => {
     setSearchQuery(initialSearchQuery);
   }, [initialSearchQuery]);
+  
+  useEffect(() => {
+    // Load patients from localStorage
+    const loadedPatients: Patient[] = [];
+    
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('patient_') && !key.includes('_firstName') && !key.includes('_lastName')) {
+        try {
+          const patientJson = localStorage.getItem(key);
+          if (patientJson) {
+            const patient = JSON.parse(patientJson);
+            if (patient && patient.id) {
+              loadedPatients.push(patient);
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing patient data from localStorage:', error);
+        }
+      }
+    }
+    
+    setPatients(loadedPatients);
+  }, []);
   
   const sortPatients = (patientsToSort: Patient[]) => {
     if (sortOrder === 'none') return patientsToSort;
