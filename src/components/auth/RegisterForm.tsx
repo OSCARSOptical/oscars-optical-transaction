@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { LockKeyhole, Mail, User, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import PhoneInput from 'react-phone-input-2';
@@ -42,7 +42,8 @@ export function RegisterForm() {
           data: {
             full_name: name,
             phone: phone
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/verify-email`
         }
       });
 
@@ -50,11 +51,12 @@ export function RegisterForm() {
         throw error;
       }
 
+      // Navigate to verification page with email
+      navigate('/verify-email', { state: { email } });
       toast({
-        title: "Registration successful",
-        description: "Your account has been created! Please login to continue.",
+        title: "Registration initiated",
+        description: "Please check your email for the verification code.",
       });
-      navigate('/login');
     } catch (error: any) {
       toast({
         title: "Registration failed",
