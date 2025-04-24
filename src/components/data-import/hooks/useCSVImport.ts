@@ -31,17 +31,36 @@ export const useCSVImport = () => {
     }
   };
 
+  // Improved column detection function
   const findColumn = (row: Record<string, string>, searchTerms: string[]): string => {
+    // Log the available headers for debugging
+    console.log("Available headers:", Object.keys(row));
+    
+    // First try exact matches (case-insensitive)
     for (const term of searchTerms) {
-      const key = Object.keys(row).find(k => 
-        k.toLowerCase().includes(term.toLowerCase()) || 
+      const exactMatch = Object.keys(row).find(k => 
         k.toLowerCase() === term.toLowerCase()
       );
-      if (key && row[key]?.trim()) {
-        console.log(`Found match for "${term}": "${key}" = "${row[key]}"`);
-        return row[key].trim();
+      
+      if (exactMatch && row[exactMatch]?.trim()) {
+        console.log(`Found exact match for "${term}": "${exactMatch}" = "${row[exactMatch]}"`);
+        return row[exactMatch].trim();
       }
     }
+    
+    // Then try partial matches
+    for (const term of searchTerms) {
+      const partialMatch = Object.keys(row).find(k => 
+        k.toLowerCase().includes(term.toLowerCase())
+      );
+      
+      if (partialMatch && row[partialMatch]?.trim()) {
+        console.log(`Found partial match for "${term}": "${partialMatch}" = "${row[partialMatch]}"`);
+        return row[partialMatch].trim();
+      }
+    }
+    
+    console.log(`No match found for search terms: ${searchTerms.join(", ")}`);
     return '';
   };
 
@@ -51,40 +70,52 @@ export const useCSVImport = () => {
     let hasName = false;
     let hasAge = false;
     
-    console.log("All headers in CSV:", Object.keys(row));
+    console.log("Checking required fields in headers:", Object.keys(row));
 
+    // Check for ID field
     if (Object.keys(row).some(header => 
       header.toLowerCase().includes('id') || 
-      header.toLowerCase().includes('code'))) {
+      header.toLowerCase().includes('code') || 
+      header.toLowerCase().includes('patient id') || 
+      header.toLowerCase().includes('patient code'))) {
       hasId = true;
+      console.log("Found ID field");
     } else {
       missingFields.push('id');
+      console.log("Missing ID field");
     }
     
+    // Check for name field
     if (Object.keys(row).some(header => 
       header.toLowerCase().includes('name') ||
       header.toLowerCase() === 'patient' ||
+      header.toLowerCase().includes('patient name') ||
       (
         Object.keys(row).some(h => h.toLowerCase().includes('first') || h.toLowerCase().includes('given')) &&
         Object.keys(row).some(h => h.toLowerCase().includes('last') || h.toLowerCase().includes('family') || h.toLowerCase().includes('surname'))
       )
     )) {
       hasName = true;
+      console.log("Found name field");
     } else {
       missingFields.push('name');
+      console.log("Missing name field");
     }
     
+    // Check for age field
     if (Object.keys(row).some(header => 
       header.toLowerCase().includes('age') || 
       header.toLowerCase().includes('years') ||
       header.toLowerCase().includes('birth'))) {
       hasAge = true;
+      console.log("Found age field");
     } else {
       missingFields.push('age');
+      console.log("Missing age field");
     }
     
     return {
-      valid: missingFields.length === 0 || (hasId && hasName),
+      valid: hasId && hasName, // We'll make age optional
       missing: missingFields
     };
   };
@@ -113,6 +144,9 @@ export const useCSVImport = () => {
           setRawData(data);
           setCsvHeaders(Object.keys(data[0]));
           
+          // Log headers for debugging
+          console.log("CSV Headers:", Object.keys(data[0]));
+          
           const hasRequiredFields = checkRequiredFields(data[0]);
           
           if (!hasRequiredFields.valid) {
@@ -120,18 +154,43 @@ export const useCSVImport = () => {
           }
           
           const patients: Patient[] = data.map((row, index) => {
-            const patientId = findColumn(row, ['Patient ID', 'ID', 'Code', 'Patient Code', 'patient id', 'id']);
-            const patientName = findColumn(row, ['Patient Name', 'Name', 'Full Name', 'name', 'patient name', 'Patient']);
-            const firstName = findColumn(row, ['First Name', 'Given Name', 'first name', 'First']);
-            const lastName = findColumn(row, ['Last Name', 'Family Name', 'Surname', 'last name', 'Last']);
+            // Look for Patient ID with various possible column names
+            const patientId = findColumn(row, [
+              'Patient ID', 'ID', 'Code', 'Patient Code', 
+              'patient id', 'id', 'code', 'patient code'
+            ]);
+            
+            console.log(`Row ${index} - Found patient ID:`, patientId);
+            
+            // Look for patient name with various possible column names
+            const patientName = findColumn(row, [
+              'Patient Name', 'Name', 'Full Name', 'name', 
+              'patient name', 'Patient', 'fullname', 'patient'
+            ]);
+            
+            console.log(`Row ${index} - Found patient name:`, patientName);
+            
+            // Try to find first and last name separately if they exist
+            const firstName = findColumn(row, [
+              'First Name', 'Given Name', 'first name', 
+              'First', 'firstname', 'given name'
+            ]);
+            
+            const lastName = findColumn(row, [
+              'Last Name', 'Family Name', 'Surname', 'last name',
+              'Last', 'lastname', 'surname'
+            ]);
             
             let firstNameValue = '';
             let lastNameValue = '';
             
             if (firstName && lastName) {
+              // Use separate first/last name columns if available
               firstNameValue = firstName;
               lastNameValue = lastName;
+              console.log(`Row ${index} - Using separate name fields:`, firstNameValue, lastNameValue);
             } else if (patientName) {
+              // Split full name into parts
               const nameParts = patientName.trim().split(' ');
               if (nameParts.length >= 2) {
                 lastNameValue = nameParts[nameParts.length - 1];
@@ -140,20 +199,57 @@ export const useCSVImport = () => {
                 firstNameValue = patientName;
                 lastNameValue = '';
               }
+              console.log(`Row ${index} - Split patient name:`, firstNameValue, lastNameValue);
             }
 
-            const age = findColumn(row, ['Age', 'age', 'Years', 'years']);
-            const sex = findColumn(row, ['Sex', 'Gender', 'sex', 'gender']);
-            const phone = findColumn(row, ['Contact', 'Phone', 'Mobile', 'Telephone', 'phone', 'contact', 'Contact Number', 'contact number', 'Cell', 'Number']);
-            const address = findColumn(row, ['Address', 'Location', 'address', 'Addr', 'addr', 'Home Address']);
-            const email = findColumn(row, ['Email', 'E-mail', 'email', 'Mail', 'mail']);
+            // Find age in various formats
+            const age = findColumn(row, [
+              'Age', 'age', 'Years', 'years', 'year', 'Age (years)'
+            ]);
             
-            const recentTransaction = findColumn(row, ['Recent Transaction', 'Transaction', 'Last Transaction']);
-            const transactionDate = findColumn(row, ['Date of Recent Transaction', 'Transaction Date', 'Date']);
+            console.log(`Row ${index} - Found age:`, age);
+            
+            // Find other fields
+            const sex = findColumn(row, [
+              'Sex', 'Gender', 'sex', 'gender'
+            ]);
+            
+            const phone = findColumn(row, [
+              'Contact', 'Phone', 'Mobile', 'Telephone', 'phone', 
+              'contact', 'Contact Number', 'contact number', 'Cell', 
+              'Number', 'Cellphone', 'Contact No.', 'Phone No.'
+            ]);
+            
+            const address = findColumn(row, [
+              'Address', 'Location', 'address', 'Addr', 
+              'addr', 'Home Address', 'location'
+            ]);
+            
+            const email = findColumn(row, [
+              'Email', 'E-mail', 'email', 'Mail', 'mail', 'e-mail'
+            ]);
+            
+            const recentTransaction = findColumn(row, [
+              'Recent Transaction', 'Transaction', 'Last Transaction',
+              'Transaction ID', 'transaction', 'Transaction Id'
+            ]);
+            
+            const transactionDate = findColumn(row, [
+              'Date of Recent Transaction', 'Transaction Date', 'Date',
+              'date', 'Recent Date', 'Last Transaction Date'
+            ]);
+            
+            const transactionHistory = findColumn(row, [
+              'Transaction History', 'History', 'Previous Transactions',
+              'Past Transactions', 'transaction history'
+            ]);
+
+            // Use a default code sequence if ID is missing
+            const finalPatientId = patientId || `PX${index + 1}`;
             
             return {
               id: crypto.randomUUID(),
-              code: normalizePatientCode(patientId || `P${index + 1}`),
+              code: normalizePatientCode(finalPatientId),
               firstName: firstNameValue,
               lastName: lastNameValue,
               age: parseInt(age) || 0,

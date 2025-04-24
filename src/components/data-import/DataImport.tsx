@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, FileText, Upload } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useCSVImport } from './hooks/useCSVImport';
 import { EditPatientDialog } from './components/EditPatientDialog';
@@ -23,6 +22,7 @@ export function DataImport() {
     isLoading,
     errorMessage,
     csvHeaders,
+    rawData,
     handleFileChange,
     handleUpload,
     handleImport
@@ -95,17 +95,6 @@ export function DataImport() {
           </Button>
         </div>
         
-        {csvHeaders.length > 0 && (
-          <div className="bg-muted p-3 rounded-md">
-            <p className="text-sm font-medium mb-2">Detected columns:</p>
-            <div className="flex flex-wrap gap-2">
-              {csvHeaders.map(header => (
-                <Badge key={header} variant="outline">{header}</Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
         {errorMessage && (
           <Alert variant="destructive" className="mt-4">
             <AlertCircle className="h-4 w-4" />
@@ -116,6 +105,7 @@ export function DataImport() {
         {editableData.length > 0 && (
           <ImportPreviewTable 
             data={editableData}
+            rawData={rawData}
             onEdit={handleEdit}
           />
         )}
