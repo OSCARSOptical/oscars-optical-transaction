@@ -1,24 +1,30 @@
 import { useState, useEffect, useMemo } from "react";
 import { Transaction } from "@/types";
-import { getTransactions } from "@/data/storageData";
-import { getPatients } from "@/data/storageData";
+import { sampleTransactions } from "@/data";
+import { samplePatients } from "@/data/samplePatients";
 
 export function useFilteredTransactions(searchQuery = "", showUnclaimed = false) {
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
     // Make sure each transaction has phone information from the patients data
-    const storedTransactions = getTransactions();
-    const allPatients = getPatients();
-    
-    return storedTransactions.map(transaction => {
-      // Try to find the patient by patient code
+    return sampleTransactions.map(transaction => {
+      // Try to find the patient by patient code in our sample patients
       const patientCode = transaction.patientCode;
-      const matchingPatient = allPatients.find(patient => patient.code === patientCode);
+      const patientId = patientCode.split('-')[2]; // Extract the ID from the PX-XX-0000001 format
       
-      if (matchingPatient && matchingPatient.phone && !transaction.phone) {
+      // First, try to find the patient in our sample data
+      const matchingPatient = samplePatients.find(patient => patient.code === patientCode);
+      
+      if (matchingPatient && matchingPatient.phone) {
         return { ...transaction, phone: matchingPatient.phone };
       }
       
-      // If no phone is found, keep the existing phone or set to empty string
+      // If not found in sample data, try localStorage
+      const storedPhone = localStorage.getItem(`patient_${patientId}_phone`);
+      if (storedPhone) {
+        return { ...transaction, phone: storedPhone };
+      }
+      
+      // If no phone is found, keep the existing phone or set to null
       return transaction;
     });
   });
@@ -39,11 +45,11 @@ export function useFilteredTransactions(searchQuery = "", showUnclaimed = false)
     return transactions
       .filter(transaction => {
         const matchesSearch = (
-          transaction.patientName?.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
-          transaction.patientCode?.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
-          transaction.code?.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
-          transaction.firstName?.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
-          transaction.lastName?.toLowerCase().includes(localSearchQuery.toLowerCase())
+          transaction.patientName.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
+          transaction.patientCode.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
+          transaction.code.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
+          transaction.firstName.toLowerCase().includes(localSearchQuery.toLowerCase()) ||
+          transaction.lastName.toLowerCase().includes(localSearchQuery.toLowerCase())
         );
 
         if (showUnclaimedState) {
