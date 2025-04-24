@@ -1,41 +1,51 @@
 
-import { TransactionCard } from './TransactionCard';
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from 'react-router-dom';
+import TransactionTable from './TransactionTable';
+import { getTransactions } from '@/data/storageData';
 import { useFilteredTransactions } from './useFilteredTransactions';
-import { useTransactionCodeMismatchToast } from './useTransactionCodeMismatchToast';
 
 interface TransactionListProps {
-  searchQuery?: string;
-  showUnclaimed?: boolean;
+  searchQuery: string;
+  showUnclaimed: boolean;
 }
 
-export function TransactionList({ searchQuery = "", showUnclaimed = false }: TransactionListProps) {
+export default function TransactionList({ searchQuery = '', showUnclaimed = false }: TransactionListProps) {
   const {
-    transactions,
-    setTransactions,
-    sortOrder,
-    setSortOrder,
-    showUnclaimedState,
-    setShowUnclaimedState,
     filteredTransactions,
+    localSearchQuery,
+    setLocalSearchQuery,
   } = useFilteredTransactions(searchQuery, showUnclaimed);
+  
+  const navigate = useNavigate();
 
-  useTransactionCodeMismatchToast(transactions);
-
-  const handleDeleteTransaction = (id: string) => {
-    setTransactions(transactions.filter(transaction => transaction.id !== id));
-    // The toast is already handled in TransactionTable for deletion.
-  };
+  // Update the search query when the prop changes
+  useEffect(() => {
+    setLocalSearchQuery(searchQuery);
+  }, [searchQuery, setLocalSearchQuery]);
 
   return (
-    <TransactionCard 
-      sortOrder={sortOrder}
-      setSortOrder={setSortOrder}
-      showUnclaimed={showUnclaimedState}
-      setShowUnclaimed={setShowUnclaimedState}
-      filteredTransactions={filteredTransactions}
-      handleDeleteTransaction={handleDeleteTransaction}
-    />
+    <div className="space-y-4">
+      <div className="flex justify-between">
+        <Tabs defaultValue="transactions" className="w-full">
+          <TabsList>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+          </TabsList>
+          <TabsContent value="transactions">
+            <TransactionTable transactions={filteredTransactions} />
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          onClick={() => navigate('/new-transaction')}
+        >
+          Add New Transaction
+        </Button>
+      </div>
+    </div>
   );
 }
-
-export default TransactionList;
