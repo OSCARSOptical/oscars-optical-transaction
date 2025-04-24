@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      patients: {
+        Row: {
+          address: string | null
+          age: number | null
+          contact_number: string | null
+          created_at: string | null
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string
+          patient_code: string | null
+          sex: string | null
+        }
+        Insert: {
+          address?: string | null
+          age?: number | null
+          contact_number?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          patient_code?: string | null
+          sex?: string | null
+        }
+        Update: {
+          address?: string | null
+          age?: number | null
+          contact_number?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          patient_code?: string | null
+          sex?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -47,6 +86,151 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      refractions: {
+        Row: {
+          add_power: string | null
+          id: string
+          near_va: string | null
+          od_axis: string | null
+          od_cylinder: string | null
+          od_sphere: string | null
+          od_va: string | null
+          os_axis: string | null
+          os_cylinder: string | null
+          os_sphere: string | null
+          os_va: string | null
+          transaction_id: string | null
+          type: string | null
+        }
+        Insert: {
+          add_power?: string | null
+          id?: string
+          near_va?: string | null
+          od_axis?: string | null
+          od_cylinder?: string | null
+          od_sphere?: string | null
+          od_va?: string | null
+          os_axis?: string | null
+          os_cylinder?: string | null
+          os_sphere?: string | null
+          os_va?: string | null
+          transaction_id?: string | null
+          type?: string | null
+        }
+        Update: {
+          add_power?: string | null
+          id?: string
+          near_va?: string | null
+          od_axis?: string | null
+          od_cylinder?: string | null
+          od_sphere?: string | null
+          od_va?: string | null
+          os_axis?: string | null
+          os_cylinder?: string | null
+          os_sphere?: string | null
+          os_va?: string | null
+          transaction_id?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refractions_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          attending_doctor: string | null
+          balance: number | null
+          claimed: boolean | null
+          claimed_on: string | null
+          created_at: string | null
+          deposit: number | null
+          doctor_remarks: string | null
+          edging_price: number | null
+          gross_amount: number | null
+          id: string
+          interpupillary_distance: number | null
+          lens_capital: number | null
+          lens_coating: string | null
+          lens_type: string | null
+          net_income: number | null
+          notes: string | null
+          other_expenses: number | null
+          patient_id: string | null
+          refractive_index: string | null
+          tint: string | null
+          total_expenses: number | null
+          transaction_code: string | null
+          transaction_date: string | null
+          transaction_type: string | null
+        }
+        Insert: {
+          attending_doctor?: string | null
+          balance?: number | null
+          claimed?: boolean | null
+          claimed_on?: string | null
+          created_at?: string | null
+          deposit?: number | null
+          doctor_remarks?: string | null
+          edging_price?: number | null
+          gross_amount?: number | null
+          id?: string
+          interpupillary_distance?: number | null
+          lens_capital?: number | null
+          lens_coating?: string | null
+          lens_type?: string | null
+          net_income?: number | null
+          notes?: string | null
+          other_expenses?: number | null
+          patient_id?: string | null
+          refractive_index?: string | null
+          tint?: string | null
+          total_expenses?: number | null
+          transaction_code?: string | null
+          transaction_date?: string | null
+          transaction_type?: string | null
+        }
+        Update: {
+          attending_doctor?: string | null
+          balance?: number | null
+          claimed?: boolean | null
+          claimed_on?: string | null
+          created_at?: string | null
+          deposit?: number | null
+          doctor_remarks?: string | null
+          edging_price?: number | null
+          gross_amount?: number | null
+          id?: string
+          interpupillary_distance?: number | null
+          lens_capital?: number | null
+          lens_coating?: string | null
+          lens_type?: string | null
+          net_income?: number | null
+          notes?: string | null
+          other_expenses?: number | null
+          patient_id?: string | null
+          refractive_index?: string | null
+          tint?: string | null
+          total_expenses?: number | null
+          transaction_code?: string | null
+          transaction_date?: string | null
+          transaction_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

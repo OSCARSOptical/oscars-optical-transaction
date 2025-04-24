@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { LockKeyhole, Mail } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -18,17 +19,37 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     
-    // For demo purposes we're just simulating a login
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Set user data in localStorage for compatibility with existing code
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('user', JSON.stringify({ email, name: email.split('@')[0] }));
-      setIsLoading(false);
+      localStorage.setItem('user', JSON.stringify({ 
+        email, 
+        name: data.user?.user_metadata?.full_name || email.split('@')[0] 
+      }));
+      
       toast({
         title: "Login successful",
         description: "Welcome to OSCARS Optical!", // Updated welcome message
       });
       navigate('/dashboard');
-    }, 1000);
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid email or password",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

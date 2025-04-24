@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { LockKeyhole, Mail, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function RegisterForm() {
   const [name, setName] = useState('');
@@ -30,15 +31,36 @@ export function RegisterForm() {
     
     setIsLoading(true);
     
-    // For demo purposes we're just simulating registration
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Register the user with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          }
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
       toast({
         title: "Registration successful",
-        description: "Your account has been created!",
+        description: "Your account has been created! Please check your email for confirmation.",
       });
       navigate('/login');
-    }, 1000);
+    } catch (error: any) {
+      toast({
+        title: "Registration failed",
+        description: error.message || "An error occurred during registration.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -88,6 +110,7 @@ export function RegisterForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10"
                 required
+                minLength={6}
               />
             </div>
           </div>
@@ -102,6 +125,7 @@ export function RegisterForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="pl-10"
                 required
+                minLength={6}
               />
             </div>
           </div>
