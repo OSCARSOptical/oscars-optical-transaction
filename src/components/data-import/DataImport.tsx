@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Patient } from '@/types';
 import Papa from 'papaparse';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertCircle } from 'lucide-react';
 
 export function DataImport() {
   const [file, setFile] = useState<File | null>(null);
@@ -19,12 +20,14 @@ export function DataImport() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile && (selectedFile.type === "text/csv" || selectedFile.name.endsWith('.csv'))) {
       setFile(selectedFile);
+      setErrorMessage(null);
     } else {
       toast({
         title: "Invalid file type",
@@ -38,6 +41,7 @@ export function DataImport() {
     if (!file) return;
 
     setIsLoading(true);
+    setErrorMessage(null);
     
     Papa.parse(file, {
       header: true,
@@ -54,53 +58,25 @@ export function DataImport() {
             throw new Error("The CSV file appears to be empty");
           }
           
-          // Check if required columns exist (more flexible column name matching)
-          const requiredFields = ['id', 'name', 'age'];
-          const headers = Object.keys(data[0]).map(h => h.toLowerCase());
+          // Log headers to debug
+          console.log("CSV Headers:", Object.keys(data[0]));
           
-          const missingFields = requiredFields.filter(field => {
-            const fieldExists = headers.some(header => {
-              switch (field) {
-                case 'id':
-                  return header.includes('id') || header.includes('code');
-                case 'name': 
-                  return header.includes('name') || (
-                    (header.includes('first') || header.includes('given')) && 
-                    headers.some(h => h.includes('last') || h.includes('family') || h.includes('surname'))
-                  );
-                case 'age':
-                  return header.includes('age') || header.includes('birth');
-                default:
-                  return false;
-              }
-            });
-            return !fieldExists;
-          });
+          // More flexible column name matching - case insensitive
+          const hasRequiredFields = checkRequiredFields(data[0]);
           
-          if (missingFields.length > 0) {
-            throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+          if (!hasRequiredFields.valid) {
+            throw new Error(`Missing required fields: ${hasRequiredFields.missing.join(', ')}`);
           }
           
-          // Map CSV data to Patient objects with better error handling
+          // Map CSV data to Patient objects with better handling
           const patients: Patient[] = data.map((row, index) => {
-            // Find the appropriate column names (case insensitive matching)
-            const findColumn = (searchTerms: string[]): string => {
-              for (const term of searchTerms) {
-                const key = Object.keys(row).find(k => 
-                  k.toLowerCase().includes(term.toLowerCase())
-                );
-                if (key && row[key]?.trim()) return row[key].trim();
-              }
-              return '';
-            };
-
-            // For patient ID
-            const patientId = findColumn(['Patient ID', 'ID', 'Code']);
+            // For patient ID/code
+            const patientId = findColumn(row, ['Patient ID', 'ID', 'Code', 'Patient Code', 'patient id']);
             
-            // For patient name - handle full name that needs splitting
-            const patientName = findColumn(['Patient Name', 'Name', 'Full Name']);
-            const firstName = findColumn(['First Name', 'Given Name']);
-            const lastName = findColumn(['Last Name', 'Family Name', 'Surname']);
+            // For patient name handling
+            const patientName = findColumn(row, ['Patient Name', 'Name', 'Full Name', 'name', 'patient name']);
+            const firstName = findColumn(row, ['First Name', 'Given Name', 'first name']);
+            const lastName = findColumn(row, ['Last Name', 'Family Name', 'Surname', 'last name']);
             
             // Handle name splitting depending on what's available
             let firstNameValue = '';
@@ -111,21 +87,28 @@ export function DataImport() {
               firstNameValue = firstName;
               lastNameValue = lastName;
             } else if (patientName) {
-              // Default split: first word is firstName, rest is lastName
+              // Need smarter name splitting
               const nameParts = patientName.split(' ');
-              firstNameValue = nameParts[0] || '';
-              lastNameValue = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+              if (nameParts.length >= 2) {
+                // Last word is the last name, everything else is first name
+                lastNameValue = nameParts[nameParts.length - 1];
+                firstNameValue = nameParts.slice(0, nameParts.length - 1).join(' ');
+              } else {
+                firstNameValue = patientName;
+                lastNameValue = '';
+              }
             }
-            
-            const age = findColumn(['Age']);
-            const sex = findColumn(['Sex', 'Gender']);
-            const phone = findColumn(['Contact', 'Phone', 'Mobile', 'Telephone']);
-            const address = findColumn(['Address', 'Location']);
-            const email = findColumn(['Email', 'E-mail']);
+
+            // Find other fields
+            const age = findColumn(row, ['Age', 'age']);
+            const sex = findColumn(row, ['Sex', 'Gender', 'sex', 'gender']);
+            const phone = findColumn(row, ['Contact', 'Phone', 'Mobile', 'Telephone', 'phone', 'contact']);
+            const address = findColumn(row, ['Address', 'Location', 'address']);
+            const email = findColumn(row, ['Email', 'E-mail', 'email']);
             
             return {
               id: crypto.randomUUID(),
-              code: normalizePatientCode(patientId.trim() || `P${index + 1}`),
+              code: normalizePatientCode(patientId || `P${index + 1}`),
               firstName: firstNameValue,
               lastName: lastNameValue,
               age: parseInt(age) || 0,
@@ -134,33 +117,74 @@ export function DataImport() {
               phone: phone || '',
               address: address || '',
               createdDate: new Date().toISOString(),
-              originalFullName: patientName || `${firstNameValue} ${lastNameValue}`
-            } as Patient & { originalFullName: string };
+              originalFullName: patientName || `${firstNameValue} ${lastNameValue}`,
+              originalData: {...row} // Store original data for reference
+            } as Patient & { originalFullName: string; originalData: Record<string, string> };
           });
 
           setPreview(patients);
           setEditableData([...patients]);
           setIsLoading(false);
+          setErrorMessage(null);
         } catch (error: any) {
           console.error('CSV processing error:', error);
-          toast({
-            title: "Error processing file",
-            description: error.message || "Please check the file format and try again",
-            variant: "destructive",
-          });
+          setErrorMessage(error.message || "Please check the file format and try again");
           setIsLoading(false);
         }
       },
       error: (error) => {
         console.error('PapaParse error:', error);
-        toast({
-          title: "Error processing file",
-          description: "Could not parse the CSV file. Please check the format and try again.",
-          variant: "destructive",
-        });
+        setErrorMessage("Could not parse the CSV file. Please check the format and try again.");
         setIsLoading(false);
       }
     });
+  };
+
+  // Helper function to check if required fields exist
+  const checkRequiredFields = (row: Record<string, string>) => {
+    const missingFields: string[] = [];
+    const requiredFields = ['id', 'name', 'age'];
+    
+    // Check for id field
+    if (!Object.keys(row).some(header => 
+      header.toLowerCase().includes('id') || 
+      header.toLowerCase().includes('code'))) {
+      missingFields.push('id');
+    }
+    
+    // Check for name field
+    if (!Object.keys(row).some(header => 
+      header.toLowerCase().includes('name') ||
+      (
+        Object.keys(row).some(h => h.toLowerCase().includes('first') || h.toLowerCase().includes('given')) &&
+        Object.keys(row).some(h => h.toLowerCase().includes('last') || h.toLowerCase().includes('family') || h.toLowerCase().includes('surname'))
+      )
+    )) {
+      missingFields.push('name');
+    }
+    
+    // Check for age field
+    if (!Object.keys(row).some(header => 
+      header.toLowerCase().includes('age') || 
+      header.toLowerCase().includes('birth'))) {
+      missingFields.push('age');
+    }
+    
+    return {
+      valid: missingFields.length === 0,
+      missing: missingFields
+    };
+  };
+
+  // Helper function to find column values
+  const findColumn = (row: Record<string, string>, searchTerms: string[]): string => {
+    for (const term of searchTerms) {
+      const key = Object.keys(row).find(k => 
+        k.toLowerCase().includes(term.toLowerCase())
+      );
+      if (key && row[key]?.trim()) return row[key].trim();
+    }
+    return '';
   };
 
   const handleEdit = (index: number) => {
@@ -205,6 +229,7 @@ export function DataImport() {
       setFile(null);
       setPreview([]);
       setEditableData([]);
+      setErrorMessage(null);
       
       // Clear the file input
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -240,6 +265,13 @@ export function DataImport() {
             Import Data
           </Button>
         </div>
+
+        {errorMessage && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
 
         {editableData.length > 0 && (
           <div className="border rounded-md shadow">
