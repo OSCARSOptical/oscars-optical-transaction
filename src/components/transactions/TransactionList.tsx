@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
-import TransactionTable from './TransactionTable';
+import { TransactionTable } from './TransactionTable';
 import { getTransactions } from '@/data/storageData';
 import { useFilteredTransactions } from './useFilteredTransactions';
 

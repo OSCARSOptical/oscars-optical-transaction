@@ -200,7 +200,7 @@ export default function DataImport() {
                   />
                 </div>
                 {patientCsv && (
-                  <Alert variant="success" className="bg-green-50">
+                  <Alert>
                     <CheckCircle className="h-4 w-4" />
                     <AlertTitle>Patient file ready</AlertTitle>
                     <AlertDescription>
@@ -231,7 +231,7 @@ export default function DataImport() {
                   />
                 </div>
                 {transactionCsv && (
-                  <Alert variant="success" className="bg-green-50">
+                  <Alert>
                     <CheckCircle className="h-4 w-4" />
                     <AlertTitle>Transaction file ready</AlertTitle>
                     <AlertDescription>
@@ -445,7 +445,7 @@ export default function DataImport() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Alert variant="success" className="bg-green-50">
+            <Alert>
               <AlertTitle>Summary</AlertTitle>
               <AlertDescription>
                 <ul className="list-disc pl-5 space-y-1">
