@@ -10,7 +10,7 @@ export function normalizePatientCode(code: string): string {
     return code;
   }
   
-  // Handle legacy format (PX-XX00000)
+  // Handle legacy format without hyphen (PX-XX00000)
   const match = code.match(/^PX-([A-Z]{2})(\d+)$/);
   if (match) {
     const [, initials, numericPart] = match;
@@ -18,7 +18,18 @@ export function normalizePatientCode(code: string): string {
     return `PX-${initials}-${paddedNumber}`;
   }
   
+  // Handle formats like just PX-12345 (no initials)
+  const simpleMatch = code.match(/^PX-(\d+)$/);
+  if (simpleMatch) {
+    const [, numericPart] = simpleMatch;
+    return `PX-PT-${numericPart.padStart(7, '0')}`;
+  }
+  
+  // If only numeric format is provided (just numbers)
+  if (code.match(/^\d+$/)) {
+    return `PX-PT-${code.padStart(7, '0')}`;
+  }
+  
   // If the format is completely different or invalid, return with a placeholder format
-  // This ensures we have a consistent code format even for new entries
   return code.startsWith('PX-') ? code : `PX-PT-${code.replace(/\D/g, '').padStart(7, '0') || Math.floor(Math.random() * 1000000).toString().padStart(7, '0')}`;
 }

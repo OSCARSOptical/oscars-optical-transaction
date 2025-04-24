@@ -10,7 +10,8 @@ import { Patient } from '@/types';
 import Papa from 'papaparse';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, FileText, Upload } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
 
 export function DataImport() {
   const [file, setFile] = useState<File | null>(null);
@@ -21,6 +22,8 @@ export function DataImport() {
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [rawData, setRawData] = useState<any[]>([]);
   const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,6 +31,8 @@ export function DataImport() {
     if (selectedFile && (selectedFile.type === "text/csv" || selectedFile.name.endsWith('.csv'))) {
       setFile(selectedFile);
       setErrorMessage(null);
+      setPreview([]);
+      setEditableData([]);
     } else {
       toast({
         title: "Invalid file type",
@@ -58,10 +63,13 @@ export function DataImport() {
             throw new Error("The CSV file appears to be empty");
           }
           
-          // Log headers to debug
+          // Save raw data and headers for debugging
+          setRawData(data);
+          setCsvHeaders(Object.keys(data[0]));
           console.log("CSV Headers:", Object.keys(data[0]));
+          console.log("First row data:", data[0]);
           
-          // More flexible column name matching - case insensitive
+          // More flexible column name matching with detailed logging
           const hasRequiredFields = checkRequiredFields(data[0]);
           
           if (!hasRequiredFields.valid) {
@@ -71,12 +79,15 @@ export function DataImport() {
           // Map CSV data to Patient objects with better handling
           const patients: Patient[] = data.map((row, index) => {
             // For patient ID/code
-            const patientId = findColumn(row, ['Patient ID', 'ID', 'Code', 'Patient Code', 'patient id']);
+            const patientId = findColumn(row, ['Patient ID', 'ID', 'Code', 'Patient Code', 'patient id', 'id']);
+            console.log(`Row ${index} - Found ID:`, patientId);
             
             // For patient name handling
-            const patientName = findColumn(row, ['Patient Name', 'Name', 'Full Name', 'name', 'patient name']);
-            const firstName = findColumn(row, ['First Name', 'Given Name', 'first name']);
-            const lastName = findColumn(row, ['Last Name', 'Family Name', 'Surname', 'last name']);
+            const patientName = findColumn(row, ['Patient Name', 'Name', 'Full Name', 'name', 'patient name', 'Patient']);
+            const firstName = findColumn(row, ['First Name', 'Given Name', 'first name', 'First']);
+            const lastName = findColumn(row, ['Last Name', 'Family Name', 'Surname', 'last name', 'Last']);
+            
+            console.log(`Row ${index} - Name info:`, { patientName, firstName, lastName });
             
             // Handle name splitting depending on what's available
             let firstNameValue = '';
@@ -88,7 +99,7 @@ export function DataImport() {
               lastNameValue = lastName;
             } else if (patientName) {
               // Need smarter name splitting
-              const nameParts = patientName.split(' ');
+              const nameParts = patientName.trim().split(' ');
               if (nameParts.length >= 2) {
                 // Last word is the last name, everything else is first name
                 lastNameValue = nameParts[nameParts.length - 1];
@@ -100,11 +111,16 @@ export function DataImport() {
             }
 
             // Find other fields
-            const age = findColumn(row, ['Age', 'age']);
+            const age = findColumn(row, ['Age', 'age', 'Years', 'years']);
             const sex = findColumn(row, ['Sex', 'Gender', 'sex', 'gender']);
-            const phone = findColumn(row, ['Contact', 'Phone', 'Mobile', 'Telephone', 'phone', 'contact']);
-            const address = findColumn(row, ['Address', 'Location', 'address']);
-            const email = findColumn(row, ['Email', 'E-mail', 'email']);
+            const phone = findColumn(row, ['Contact', 'Phone', 'Mobile', 'Telephone', 'phone', 'contact', 'Contact Number', 'contact number', 'Cell', 'Number']);
+            const address = findColumn(row, ['Address', 'Location', 'address', 'Addr', 'addr', 'Home Address']);
+            const email = findColumn(row, ['Email', 'E-mail', 'email', 'Mail', 'mail']);
+            
+            // Additional transaction-related fields (for future use)
+            const recentTransaction = findColumn(row, ['Recent Transaction', 'Transaction', 'Last Transaction']);
+            const transactionDate = findColumn(row, ['Date of Recent Transaction', 'Transaction Date', 'Date']);
+            const transactionHistory = findColumn(row, ['Transaction History', 'History']);
             
             return {
               id: crypto.randomUUID(),
@@ -112,11 +128,11 @@ export function DataImport() {
               firstName: firstNameValue,
               lastName: lastNameValue,
               age: parseInt(age) || 0,
-              sex: sex?.trim()?.toLowerCase().startsWith('m') ? 'Male' : 'Female',
+              sex: sex?.trim()?.toLowerCase().startsWith('m') ? 'Male' : sex?.trim()?.toLowerCase().startsWith('f') ? 'Female' : 'Male',
               email: email || '',
               phone: phone || '',
               address: address || '',
-              createdDate: new Date().toISOString(),
+              createdDate: transactionDate || new Date().toISOString(),
               originalFullName: patientName || `${firstNameValue} ${lastNameValue}`,
               originalData: {...row} // Store original data for reference
             } as Patient & { originalFullName: string; originalData: Record<string, string> };
@@ -140,49 +156,76 @@ export function DataImport() {
     });
   };
 
-  // Helper function to check if required fields exist
+  // Helper function to check if required fields exist, with more detailed logging
   const checkRequiredFields = (row: Record<string, string>) => {
     const missingFields: string[] = [];
-    const requiredFields = ['id', 'name', 'age'];
+    let hasId = false;
+    let hasName = false;
+    let hasAge = false;
     
+    // Output all headers for debugging
+    console.log("All headers in CSV:", Object.keys(row));
+
     // Check for id field
-    if (!Object.keys(row).some(header => 
+    if (Object.keys(row).some(header => 
       header.toLowerCase().includes('id') || 
       header.toLowerCase().includes('code'))) {
+      hasId = true;
+      console.log("Found ID field:", Object.keys(row).find(h => 
+        h.toLowerCase().includes('id') || h.toLowerCase().includes('code')));
+    } else {
       missingFields.push('id');
+      console.log("Missing ID field");
     }
     
     // Check for name field
-    if (!Object.keys(row).some(header => 
+    if (Object.keys(row).some(header => 
       header.toLowerCase().includes('name') ||
+      header.toLowerCase() === 'patient' ||
       (
         Object.keys(row).some(h => h.toLowerCase().includes('first') || h.toLowerCase().includes('given')) &&
         Object.keys(row).some(h => h.toLowerCase().includes('last') || h.toLowerCase().includes('family') || h.toLowerCase().includes('surname'))
       )
     )) {
+      hasName = true;
+      const nameField = Object.keys(row).find(h => 
+        h.toLowerCase().includes('name') || h.toLowerCase() === 'patient');
+      console.log("Found name field:", nameField);
+    } else {
       missingFields.push('name');
+      console.log("Missing name field");
     }
     
     // Check for age field
-    if (!Object.keys(row).some(header => 
+    if (Object.keys(row).some(header => 
       header.toLowerCase().includes('age') || 
+      header.toLowerCase().includes('years') ||
       header.toLowerCase().includes('birth'))) {
+      hasAge = true;
+      console.log("Found age field:", Object.keys(row).find(h => 
+        h.toLowerCase().includes('age') || h.toLowerCase().includes('years')));
+    } else {
       missingFields.push('age');
+      console.log("Missing age field");
     }
     
     return {
-      valid: missingFields.length === 0,
+      valid: missingFields.length === 0 || (hasId && hasName), // We'll be more lenient - require at least ID and name
       missing: missingFields
     };
   };
 
-  // Helper function to find column values
+  // Helper function to find column values with more logging
   const findColumn = (row: Record<string, string>, searchTerms: string[]): string => {
     for (const term of searchTerms) {
       const key = Object.keys(row).find(k => 
-        k.toLowerCase().includes(term.toLowerCase())
+        k.toLowerCase().includes(term.toLowerCase()) || 
+        k.toLowerCase() === term.toLowerCase()
       );
-      if (key && row[key]?.trim()) return row[key].trim();
+      if (key && row[key]?.trim()) {
+        console.log(`Found match for "${term}": "${key}" = "${row[key]}"`);
+        return row[key].trim();
+      }
     }
     return '';
   };
@@ -230,6 +273,8 @@ export function DataImport() {
       setPreview([]);
       setEditableData([]);
       setErrorMessage(null);
+      setCsvHeaders([]);
+      setRawData([]);
       
       // Clear the file input
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -244,27 +289,97 @@ export function DataImport() {
     }
   };
 
+  // Debug function to show raw data for inspection
+  const showRawData = () => {
+    if (rawData.length === 0) return null;
+    
+    return (
+      <Dialog>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Raw CSV Data</DialogTitle>
+            <DialogDescription>
+              This is the raw data parsed from your CSV file
+            </DialogDescription>
+          </DialogHeader>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {csvHeaders.map(header => (
+                    <TableHead key={header}>{header}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rawData.slice(0, 5).map((row, i) => (
+                  <TableRow key={i}>
+                    {csvHeaders.map(header => (
+                      <TableCell key={`${i}-${header}`}>{row[header]}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Import Patient Data</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Input
-          type="file"
-          accept=".csv"
-          onChange={handleFileChange}
-          className="max-w-sm"
-        />
+        <div className="flex flex-col space-y-2">
+          <label className="text-sm font-medium">Choose CSV File</label>
+          <Input
+            type="file"
+            accept=".csv"
+            onChange={handleFileChange}
+            className="max-w-sm"
+          />
+          <p className="text-sm text-muted-foreground">
+            Your CSV should contain at least patient name and patient ID columns
+          </p>
+        </div>
         
         <div className="flex gap-2">
-          <Button onClick={handleUpload} disabled={!file || isLoading}>
-            {isLoading ? "Processing..." : "Preview Data"}
+          <Button 
+            onClick={handleUpload} 
+            disabled={!file || isLoading}
+            className="flex items-center gap-2"
+          >
+            {isLoading ? "Processing..." : 
+              <>
+                <FileText className="h-4 w-4" />
+                Preview Data
+              </>
+            }
           </Button>
-          <Button onClick={handleImport} disabled={editableData.length === 0}>
+          
+          <Button 
+            onClick={handleImport} 
+            disabled={editableData.length === 0}
+            className="flex items-center gap-2"
+          >
+            <Upload className="h-4 w-4" />
             Import Data
           </Button>
         </div>
+        
+        {csvHeaders.length > 0 && (
+          <div className="bg-muted p-3 rounded-md">
+            <p className="text-sm font-medium mb-2">Detected columns:</p>
+            <div className="flex flex-wrap gap-2">
+              {csvHeaders.map(header => (
+                <Badge key={header} variant="outline">{header}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
 
         {errorMessage && (
           <Alert variant="destructive" className="mt-4">
@@ -342,6 +457,18 @@ export function DataImport() {
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="patientCode" className="text-right text-sm">Patient Code:</label>
+                  <Input
+                    id="patientCode"
+                    value={currentPatient.code}
+                    onChange={(e) => currentPatient && setCurrentPatient({
+                      ...currentPatient, 
+                      code: e.target.value
+                    })}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
                   <label htmlFor="age" className="text-right text-sm">Age:</label>
                   <Input
                     id="age"
@@ -377,6 +504,30 @@ export function DataImport() {
                     onChange={(e) => currentPatient && setCurrentPatient({
                       ...currentPatient,
                       phone: e.target.value
+                    })}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="email" className="text-right text-sm">Email:</label>
+                  <Input
+                    id="email"
+                    value={currentPatient.email}
+                    onChange={(e) => currentPatient && setCurrentPatient({
+                      ...currentPatient,
+                      email: e.target.value
+                    })}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <label htmlFor="address" className="text-right text-sm">Address:</label>
+                  <Input
+                    id="address"
+                    value={currentPatient.address}
+                    onChange={(e) => currentPatient && setCurrentPatient({
+                      ...currentPatient,
+                      address: e.target.value
                     })}
                     className="col-span-3"
                   />
