@@ -11,7 +11,8 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
 export function RegisterForm() {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -40,7 +41,8 @@ export function RegisterForm() {
         password,
         options: {
           data: {
-            full_name: name,
+            first_name: firstName,
+            last_name: lastName,
             phone: phone
           },
           emailRedirectTo: `${window.location.origin}/verify-email`
@@ -51,11 +53,18 @@ export function RegisterForm() {
         throw error;
       }
 
-      // Navigate to verification page with email
-      navigate('/verify-email', { state: { email } });
+      navigate('/verify-email', { 
+        state: { 
+          email,
+          phone,
+          firstName,
+          lastName
+        } 
+      });
+      
       toast({
         title: "Registration initiated",
-        description: "Please check your email for the verification code.",
+        description: "Please verify your email or phone number to continue.",
       });
     } catch (error: any) {
       toast({
@@ -76,15 +85,25 @@ export function RegisterForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <div className="relative">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
               <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                id="name"
                 type="text"
-                placeholder="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="pl-10"
+                required
+              />
+            </div>
+            <div className="relative flex-1">
+              <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 className="pl-10"
                 required
               />
@@ -94,7 +113,6 @@ export function RegisterForm() {
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                id="email"
                 type="email"
                 placeholder="Email"
                 value={email}

@@ -10,16 +10,17 @@ import { supabase } from "@/integrations/supabase/client";
 const VerifyEmail = () => {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [verificationType, setVerificationType] = useState<'email' | 'sms'>('email');
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email;
+  const { email, phone, firstName, lastName } = location.state || {};
 
   useEffect(() => {
-    if (!email) {
+    if (!email && !phone) {
       navigate('/register');
     }
-  }, [email, navigate]);
+  }, [email, phone, navigate]);
 
   const handleVerify = async () => {
     if (code.length !== 6) {
@@ -33,16 +34,40 @@ const VerifyEmail = () => {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: code,
-        type: 'signup'
-      });
+      if (verificationType === 'email') {
+        const { error } = await supabase.auth.verifyOtp({
+          email,
+          token: code,
+          type: 'signup'
+        });
+        if (error) throw error;
+      } else {
+        // Handle SMS verification here
+        const { error } = await supabase.auth.verifyOtp({
+          phone,
+          token: code,
+          type: 'sms'
+        });
+        if (error) throw error;
+      }
 
-      if (error) throw error;
+      // Create profile after successful verification
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: (await supabase.auth.getUser()).data.user?.id,
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone,
+            email: email
+          }
+        ]);
+
+      if (profileError) throw profileError;
 
       toast({
-        title: "Email verified successfully",
+        title: "Verification successful",
         description: "You can now log in to your account",
       });
       navigate('/login');
@@ -57,6 +82,11 @@ const VerifyEmail = () => {
     }
   };
 
+  const switchVerificationMethod = () => {
+    setVerificationType(prev => prev === 'email' ? 'sms' : 'email');
+    setCode('');
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
       <div className="mb-8 text-center">
@@ -69,10 +99,10 @@ const VerifyEmail = () => {
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center text-crimson-700">
-            Verify Your Email
+            Verify Your {verificationType === 'email' ? 'Email' : 'Phone'}
           </CardTitle>
           <CardDescription className="text-center">
-            Please enter the verification code sent to {email}
+            Please enter the verification code sent to {verificationType === 'email' ? email : phone}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -95,8 +125,17 @@ const VerifyEmail = () => {
             onClick={handleVerify}
             disabled={isLoading}
           >
-            {isLoading ? "Verifying..." : "Verify Email"}
+            {isLoading ? "Verifying..." : "Verify"}
           </Button>
+          {email && phone && (
+            <Button
+              variant="link"
+              className="w-full text-crimson-600"
+              onClick={switchVerificationMethod}
+            >
+              Verify using {verificationType === 'email' ? 'phone number' : 'email'} instead
+            </Button>
+          )}
         </CardContent>
       </Card>
     </div>
