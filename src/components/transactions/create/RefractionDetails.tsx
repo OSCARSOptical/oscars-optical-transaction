@@ -7,6 +7,14 @@ import { RefractionData } from "@/types";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { 
   Select,
   SelectContent,
@@ -52,8 +60,8 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
   const [previousRxLensType, setPreviousRxLensType] = useState<string>(
     initialData?.previousRxLensType || ""
   );
-  const [previousRxDate, setPreviousRxDate] = useState<string>(
-    initialData?.previousRxDate || ""
+  const [previousRxDate, setPreviousRxDate] = useState<Date | undefined>(
+    initialData?.previousRxDate ? new Date(initialData.previousRxDate) : undefined
   );
 
   const [copyEnabled, setCopyEnabled] = useState(false);
@@ -92,6 +100,8 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
     }
   };
 
+  const formattedPreviousRxDate = previousRxDate ? format(previousRxDate, "yyyy-MM-dd") : "";
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -114,8 +124,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
               <SelectValue placeholder="Select IPD" />
             </SelectTrigger>
             <SelectContent>
-              {/* Fix: Replacing placeholder item with a non-empty string value */}
-              <SelectItem value="default">Select IPD</SelectItem>
               {ipdOptions.map(opt => (
                 <SelectItem key={opt} value={opt}>{opt}</SelectItem>
               ))}
@@ -143,8 +151,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
                     <SelectValue placeholder="Select Lens Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* Fix: Changed empty string to a default value */}
-                    <SelectItem value="default">Select Lens Type</SelectItem>
                     <SelectItem value="Single Vision">Single Vision</SelectItem>
                     <SelectItem value="Bifocal">Bifocal</SelectItem>
                     <SelectItem value="Progressive">Progressive</SelectItem>
@@ -155,16 +161,38 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
                 <Label htmlFor="previousRxDate" className="text-xs text-muted-foreground">
                   Date Prescribed
                 </Label>
-                <div className="relative">
+                {readOnly ? (
                   <Input
                     id="previousRxDate"
-                    type="date"
-                    className="w-full pr-10 mt-1"
-                    value={previousRxDate}
-                    onChange={(e) => setPreviousRxDate(e.target.value)}
-                    disabled={readOnly}
+                    type="text"
+                    value={formattedPreviousRxDate}
+                    readOnly
+                    className="mt-1"
                   />
-                </div>
+                ) : (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div className="relative mt-1">
+                        <Input
+                          id="previousRxDate"
+                          type="text"
+                          value={formattedPreviousRxDate}
+                          readOnly
+                          className="w-full pr-10 cursor-pointer"
+                        />
+                        <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={previousRxDate}
+                        onSelect={(date) => date && setPreviousRxDate(date)}
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
             </div>
             <RefractionTable

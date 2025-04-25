@@ -11,7 +11,15 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 const NA_TRANSACTION_TYPES = [
   "Eye Exam",
@@ -46,7 +54,7 @@ const OrderDetails = ({
 }: OrderDetailsProps) => {
   const [transactionType, setTransactionType] = useState(initialData.transactionType || "");
   const [transactionDate, setTransactionDate] = useState(
-    initialData.transactionDate || new Date().toISOString().substring(0, 10)
+    initialData.transactionDate ? new Date(initialData.transactionDate) : new Date()
   );
   const [refractiveIndex, setRefractiveIndex] = useState(initialData.refractiveIndex || "");
   const [lensType, setLensType] = useState(initialData.lensType || "");
@@ -78,6 +86,8 @@ const OrderDetails = ({
       onTypeChange(value);
     }
   };
+
+  const formattedDate = transactionDate ? format(transactionDate, "yyyy-MM-dd") : "";
   
   return (
     <Card>
@@ -89,17 +99,38 @@ const OrderDetails = ({
           <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="transactionDate" className="text-xs text-muted-foreground">Transaction Date</Label>
-              <div className="relative">
+              {readOnly ? (
                 <Input
                   id="transactionDate"
-                  type="date"
-                  value={transactionDate}
-                  onChange={(e) => setTransactionDate(e.target.value)}
-                  disabled={readOnly}
-                  className="w-full pr-10"
+                  type="text"
+                  value={formattedDate}
+                  readOnly
+                  className="w-full"
                 />
-                <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
-              </div>
+              ) : (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <Input
+                        id="transactionDate"
+                        type="text"
+                        value={formattedDate}
+                        readOnly
+                        className="w-full pr-10 cursor-pointer"
+                      />
+                      <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={transactionDate}
+                      onSelect={(date) => date && setTransactionDate(date)}
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
             <div>
               <Label htmlFor="transactionType" className="text-xs text-muted-foreground">Transaction Type</Label>
