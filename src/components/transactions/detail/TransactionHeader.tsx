@@ -1,165 +1,131 @@
+
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
+import { PopoverContent, Popover, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { CalendarIcon, Trash2 } from "lucide-react";
 import { Transaction } from '@/types';
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from 'react';
-import { useToast } from "@/hooks/use-toast";
-import { addBalanceSheetEntry, removeBalanceSheetEntry } from '@/utils/balanceSheetUtils';
-import { UnclaimConfirmDialog } from '../UnclaimConfirmDialog';
-import { findPayment } from '@/utils/paymentsUtils';
 
 interface TransactionHeaderProps {
   transaction: Transaction;
   onClaimedToggle: () => void;
-  readOnly?: boolean;
-  pageTitle?: string; // "Transaction Details" or "New Transaction"
+  pageTitle?: string;
   patientName?: string;
   patientCode?: string;
-}
-
-function formatDateLong(dateString: string | null) {
-  if (!dateString) return "—";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric"
-  });
 }
 
 export function TransactionHeader({
   transaction,
   onClaimedToggle,
-  readOnly = false,
   pageTitle = "Transaction Details",
-  patientName = "",
-  patientCode = ""
+  patientName,
+  patientCode
 }: TransactionHeaderProps) {
-  const {
-    toast
-  } = useToast();
-  const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
-  const [localTransaction, setLocalTransaction] = useState<Transaction>(transaction);
+  const navigate = useNavigate();
+  const transactionDate = transaction.date ? new Date(transaction.date) : new Date();
 
-  const handleClaimedChange = (checked: boolean | string) => {
-    if (readOnly) return;
-    if (localTransaction.claimed) {
-      setShowUnclaimDialog(true);
-      return;
+  const handleDelete = () => {
+    // Remove transaction from localStorage
+    localStorage.removeItem(`transaction_${transaction.code}`);
+    
+    // Navigate back to patient's transactions
+    navigate(`/patients/${transaction.patientCode}`);
+  };
+
+  const handleDateChange = (date: Date | undefined) => {
+    if (!date) return;
+
+    // Update transaction date in localStorage
+    const storedTransaction = localStorage.getItem(`transaction_${transaction.code}`);
+    if (storedTransaction) {
+      const parsedTransaction = JSON.parse(storedTransaction);
+      parsedTransaction.date = format(date, 'yyyy-MM-dd');
+      localStorage.setItem(`transaction_${transaction.code}`, JSON.stringify(parsedTransaction));
+      
+      // Refresh the page to show updated date
+      window.location.reload();
     }
-    const balancePaid = localTransaction.balance;
-    const today = new Date().toISOString().split('T')[0];
-    addBalanceSheetEntry({
-      date: today,
-      transactionId: localTransaction.code,
-      balancePaid: balancePaid,
-      patientCode: localTransaction.patientCode
-    });
-    setLocalTransaction({
-      ...localTransaction,
-      claimed: true,
-      dateClaimed: today,
-      balance: 0,
-      deposit: localTransaction.deposit + balancePaid
-    });
-    onClaimedToggle();
-    toast({
-      title: "✓ Payment Claimed!",
-      description: `Balance of ${balancePaid.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'PHP'
-      })} has been collected and recorded.`,
-      className: "bg-[#FFC42B] text-[#241715] rounded-lg",
-      duration: 3000
-    });
   };
 
-  const handleUnclaimConfirm = () => {
-    if (!localTransaction.dateClaimed) return;
-    removeBalanceSheetEntry({
-      date: localTransaction.dateClaimed,
-      transactionId: localTransaction.code
-    });
-    const payment = findPayment(localTransaction.code, 'balance');
-    const amountToRestore = payment?.amount || localTransaction.grossAmount - localTransaction.deposit + localTransaction.balance;
-    setLocalTransaction({
-      ...localTransaction,
-      claimed: false,
-      dateClaimed: null,
-      balance: amountToRestore,
-      deposit: localTransaction.deposit - amountToRestore
-    });
-    onClaimedToggle();
-    setShowUnclaimDialog(false);
-    toast({
-      title: "Claim Removed",
-      description: "Transaction restored to unclaimed status and balance sheet entry removed.",
-      variant: "default"
-    });
-  };
-
-  return <>
-      <Card className="mb-4 bg-white border border-gray-200 shadow-sm rounded-xl">
-        <CardContent className="py-6 px-6">
-          <div className="flex flex-col md:flex-row justify-between md:items-start">
-            <div>
-              <div className="text-2xl md:text-2xl font-bold text-[#1A1F2C] mb-0" style={{
-              letterSpacing: ".02em"
-            }}>
-                {pageTitle}
-              </div>
-              <div className="text-base font-normal text-[#8E9196] mt-1">
-                {localTransaction.code}
-              </div>
-            </div>
-            {(patientName || patientCode) && <div className="flex flex-col items-end mt-4 md:mt-0">
-                <span className="text-xl font-bold text-[#1A1F2C]">{patientName}</span>
-                <span className="font-normal text-[#8E9196] text-base">{patientCode}</span>
-              </div>}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="mb-4 mt-4 bg-white border border-gray-200 shadow-sm rounded-xl">
-        <CardContent className="px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span className="text-[#8E9196]">Transaction Date :</span>
-              <span className="text-[#1A1F2C] font-medium">
-                {formatDateLong(localTransaction.date)}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-[#8E9196]">Claimed :</span>
-              <Checkbox 
-                checked={localTransaction.claimed} 
-                onCheckedChange={handleClaimedChange} 
-                id="claimed" 
-                disabled={readOnly} 
-                className={`border-2 !border-[#8E9196] bg-white h-5 w-5
-                  ${localTransaction.claimed ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]" : "!text-[#1A1F2C]"}`}
-                style={{
-                  color: localTransaction.claimed ? "#ea384c" : "#1A1F2C"
-                }}
+  return (
+    <div className="flex flex-col space-y-4">
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold">{pageTitle}</h1>
+          {patientName && (
+            <p className="text-muted-foreground">
+              Patient: {patientName} ({patientCode})
+            </p>
+          )}
+        </div>
+        <div className="flex gap-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="justify-start text-left font-normal">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {format(transactionDate, 'PPP')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={transactionDate}
+                onSelect={handleDateChange}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
               />
-            </div>
+            </PopoverContent>
+          </Popover>
 
-            <div className="flex items-center gap-2">
-              <span className="text-[#8E9196]">Claimed On :</span>
-              <span className="text-[#1A1F2C] font-medium">
-                {localTransaction.claimed && localTransaction.dateClaimed 
-                  ? formatDateLong(localTransaction.dateClaimed) 
-                  : "Unclaimed"}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <UnclaimConfirmDialog 
-        open={showUnclaimDialog} 
-        onOpenChange={setShowUnclaimDialog} 
-        onConfirm={handleUnclaimConfirm} 
-      />
-    </>;
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Transaction
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete transaction {transaction.code}
+                  and all associated data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <Badge variant={transaction.claimed ? "default" : "secondary"}>
+          {transaction.claimed ? "Claimed" : "Unclaimed"}
+        </Badge>
+        {transaction.claimed && transaction.dateClaimed && (
+          <span className="text-sm text-muted-foreground">
+            Claimed on {format(new Date(transaction.dateClaimed), 'PPP')}
+          </span>
+        )}
+      </div>
+    </div>
+  );
 }
