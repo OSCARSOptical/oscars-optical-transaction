@@ -22,7 +22,6 @@ import Settings from "./pages/Settings";
 import ProfileSettings from "./components/settings/ProfileSettings";
 import UserManagementSettings from "./components/settings/UserManagementSettings";
 import VerifyEmail from "./pages/VerifyEmail";
-import DataImportPage from "./pages/DataImportPage";
 
 const queryClient = new QueryClient();
 
@@ -57,7 +56,6 @@ const App = () => (
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="users" element={<UserManagementSettings />} />
             </Route>
-            <Route path="/import" element={<DataImportPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

@@ -1,3 +1,4 @@
+
 export const useTransactionCode = () => {
   const generateTransactionCode = () => {
     const date = new Date();
@@ -43,55 +44,27 @@ export const useTransactionCode = () => {
     return `${prefix}-${nextSequence}`;
   };
 
+  // New function to normalize transaction codes
   const normalizeTransactionCode = (code: string): string => {
-    // If empty or undefined
-    if (!code || code.trim() === '') {
-      return '';
-    }
-    
     // Check if the code is already in the new format (TXXX-XX-XXXXX)
     if (code.match(/^TX\d{2}-\d{2}-\d{5}$/)) {
       return code;
     }
     
-    // Handle format without leading zeros in sequence number (TXXX-XX-XXX)
-    const match = code.match(/^(TX\d{2}-\d{2}-?)(\d+)$/);
+    // Handle legacy format (TXXX-XX-XXXX)
+    const match = code.match(/^(TX\d{2}-\d{2}-)(\d+)$/);
     if (match) {
       const [, prefix, numericPart] = match;
-      // Ensure prefix ends with a hyphen
-      const correctedPrefix = prefix.endsWith('-') ? prefix : `${prefix}-`;
       const paddedNumber = numericPart.padStart(5, '0');
-      return `${correctedPrefix}${paddedNumber}`;
+      return `${prefix}${paddedNumber}`;
     }
     
-    // If it has no hyphens but starts with TX (e.g., TX250400001)
-    const noHyphensMatch = code.match(/^TX(\d{2})(\d{2})(\d+)$/);
-    if (noHyphensMatch) {
-      const [, year, month, numericPart] = noHyphensMatch;
-      const paddedNumber = numericPart.padStart(5, '0');
-      return `TX${year}-${month}-${paddedNumber}`;
-    }
-    
-    // If the format is completely different, return as is
+    // If the format is completely different or invalid, return the original
     return code;
-  };
-  
-  // Function to split multiple transaction IDs (for transaction history)
-  const parseMultipleTransactionCodes = (transactionsStr: string): string[] => {
-    if (!transactionsStr || transactionsStr.trim() === '') {
-      return [];
-    }
-    
-    // Split by common delimiters (semicolon, comma)
-    const rawCodes = transactionsStr.split(/[;,]/).map(code => code.trim()).filter(Boolean);
-    
-    // Normalize each transaction code
-    return rawCodes.map(code => normalizeTransactionCode(code));
   };
 
   return { 
     generateTransactionCode,
-    normalizeTransactionCode,
-    parseMultipleTransactionCodes
+    normalizeTransactionCode
   };
 };
