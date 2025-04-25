@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Transaction } from '@/types';
-import { sampleTransactions } from '@/data';
+import { supabase } from "@/integrations/supabase/client";
 
 export function usePatientTransactions(patientCode: string) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -14,14 +14,32 @@ export function usePatientTransactions(patientCode: string) {
         setLoading(true);
         console.log("Fetching transactions for patient:", patientCode);
         
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 500));
+        if (!patientCode) {
+          setTransactions([]);
+          return;
+        }
         
-        // Filter transactions for this patient from our sample data
-        // When real data is available, this will be replaced with a database call
-        const patientTransactions = sampleTransactions.filter(
-          transaction => transaction.patientCode === patientCode
-        );
+        // Fetch transactions from Supabase instead of sample data
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('patient_code', patientCode);
+          
+        if (error) {
+          throw error;
+        }
+        
+        // Transform Supabase data to match our Transaction type
+        const patientTransactions = data.map(transaction => ({
+          id: transaction.id,
+          code: transaction.transaction_code,
+          patientCode: patientCode,
+          date: transaction.transaction_date,
+          type: transaction.transaction_type || 'Regular',
+          status: transaction.claimed ? 'Claimed' : 'Pending',
+          amount: transaction.gross_amount || 0,
+          balance: transaction.balance || 0
+        }));
         
         console.log("Found transactions:", patientTransactions.length);
         setTransactions(patientTransactions);
