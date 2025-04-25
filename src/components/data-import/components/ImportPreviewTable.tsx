@@ -1,4 +1,3 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -64,22 +63,21 @@ export function ImportPreviewTable({
     return { inGroup: false };
   };
 
-  // Logic to organize rows based on view mode with fixed type safety
+  // Logic to organize rows based on view mode
   const organizedData: OrganizedRow[] = viewMode === 'transaction' 
-    ? Object.entries(transactionGroups)
-        .sort(([txIdA], [txIdB]) => txIdA.localeCompare(txIdB))
-        .flatMap(([txId, indices]) => indices.map(idx => ({ index: idx, groupId: txId })))
-        .concat(
-          // Include rows without transaction groups at the end
-          data.map((_, idx) => {
-            // Check if this index is not in any transaction group
-            const notInGroup = !Object.values(transactionGroups)
-              .some(groupIndices => groupIndices.includes(idx));
-              
-            return notInGroup ? { index: idx } : { index: idx, groupId: undefined };
-          }).filter(({ index }) => !Object.values(transactionGroups)
-              .some(groupIndices => groupIndices.includes(index)))
-        )
+    ? [
+        // First add all rows that are part of transaction groups
+        ...Object.entries(transactionGroups)
+          .sort(([txIdA], [txIdB]) => txIdA.localeCompare(txIdB))
+          .flatMap(([txId, indices]) => indices.map(idx => ({ index: idx, groupId: txId }))),
+        
+        // Then add rows without transaction groups
+        ...Array.from({ length: data.length })
+          .map((_, idx) => idx)
+          .filter(idx => !Object.values(transactionGroups)
+            .some(groupIndices => groupIndices.includes(idx)))
+          .map(idx => ({ index: idx }))
+      ]
     : data.map((_, idx) => ({ index: idx }));
 
   return (
