@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Transaction } from '@/types';
 import { formatCurrency } from '@/utils/formatters';
@@ -123,13 +124,21 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
             </TableRow>
           </TableHeader>
           <TableBody>
-            {localTransactions.map((transaction) => (
-              <TransactionTableRow
-                key={transaction.id}
-                transaction={transaction}
-                onClaimedToggle={handleClaimedToggle}
-              />
-            ))}
+            {localTransactions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={12} className="h-24 text-center">
+                  No transactions found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              localTransactions.map((transaction) => (
+                <TransactionTableRow
+                  key={transaction.id}
+                  transaction={transaction}
+                  onClaimedToggle={handleClaimedToggle}
+                />
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

@@ -29,7 +29,7 @@ export function ContactCopyButton({ transactions }: ContactCopyButtonProps) {
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="flex items-center space-x-1">
-            <span>Contact No.</span>
+            <span>Contact Number</span>
             {allVisibleNumbers.length > 0 && (
               <Button
                 variant="ghost"
