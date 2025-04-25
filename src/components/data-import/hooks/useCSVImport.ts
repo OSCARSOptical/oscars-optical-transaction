@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Papa from 'papaparse';
-import { Patient } from '@/types';
+import { Patient, Transaction } from '@/types';
 import { normalizePatientCode } from '@/utils/idNormalizer';
 import { useTransactionCode } from '@/hooks/useTransactionCode';
 
@@ -14,6 +14,9 @@ export const useCSVImport = () => {
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [rawData, setRawData] = useState<any[]>([]);
   const [duplicates, setDuplicates] = useState<Set<number>>(new Set());
+  const [transactionGroups, setTransactionGroups] = useState<Record<string, number[]>>({});
+  const [promotionalItems, setPromotionalItems] = useState<Set<number>>(new Set());
+  const [importMode, setImportMode] = useState<'patient' | 'transaction'>('patient');
   const { toast } = useToast();
   const { normalizeTransactionCode, parseMultipleTransactionCodes } = useTransactionCode();
 
@@ -24,6 +27,8 @@ export const useCSVImport = () => {
       setErrorMessage(null);
       setPreview([]);
       setEditableData([]);
+      setTransactionGroups({});
+      setPromotionalItems(new Set());
     } else {
       toast({
         title: "Invalid file type",
@@ -142,6 +147,41 @@ export const useCSVImport = () => {
     return duplicateIndexes;
   };
 
+  const analyzeTransactions = (patients: Patient[]) => {
+    const txGroups: Record<string, number[]> = {};
+    const promoItems = new Set<number>();
+    
+    patients.forEach((patient, patientIndex) => {
+      if (patient.transactions && patient.transactions.length > 0) {
+        patient.transactions.forEach(txId => {
+          const normalizedTxId = normalizeTransactionCode(txId);
+          if (!txGroups[normalizedTxId]) {
+            txGroups[normalizedTxId] = [];
+          }
+          txGroups[normalizedTxId].push(patientIndex);
+        });
+      }
+    });
+    
+    Object.entries(txGroups).forEach(([txId, patientIndices]) => {
+      if (patientIndices.length > 1) {
+        const uniquePatientCodes = new Set(patientIndices.map(idx => patients[idx].code));
+        
+        if (uniquePatientCodes.size > 1) {
+          console.log(`Transaction ${txId} shared between different patients - possible error`);
+        } else {
+          console.log(`Transaction ${txId} appears ${patientIndices.length} times for patient ${patients[patientIndices[0]].code} - potential promotional item`);
+          
+          for (let i = 1; i < patientIndices.length; i++) {
+            promoItems.add(patientIndices[i]);
+          }
+        }
+      }
+    });
+    
+    return { txGroups, promoItems };
+  };
+
   const handleUpload = async () => {
     if (!file) return;
 
@@ -254,6 +294,16 @@ export const useCSVImport = () => {
               'date', 'Recent Date', 'Last Transaction Date'
             ]);
             
+            const isPromo = findColumn(row, [
+              'Promo', 'Promotion', 'Is Promotion', 'is promo',
+              'Promotional', 'BOGO', 'Buy One Take One', 'Offer'
+            ]).toLowerCase();
+            
+            const promoGroup = findColumn(row, [
+              'Promo Group', 'Promotion Group', 'Group ID', 'group',
+              'Related Transaction', 'Parent Transaction', 'Main Transaction'
+            ]);
+            
             const transactions: string[] = [];
             
             if (recentTransaction) {
@@ -290,8 +340,14 @@ export const useCSVImport = () => {
               address: address || '',
               createdDate: transactionDate || new Date().toISOString(),
               transactions: transactions,
-              originalData: {...row}
-            } as Patient & { originalData: Record<string, string> };
+              originalData: {...row},
+              isPromotionalItem: isPromo === 'yes' || isPromo === 'true' || isPromo === '1' || isPromo === 'y',
+              promotionalGroupId: promoGroup || null
+            } as Patient & { 
+              originalData: Record<string, string>;
+              isPromotionalItem?: boolean;
+              promotionalGroupId?: string | null;
+            };
           });
 
           setPreview(patients);
@@ -299,6 +355,10 @@ export const useCSVImport = () => {
           
           const duplicatesFound = checkDuplicates(patients);
           setDuplicates(duplicatesFound);
+          
+          const { txGroups, promoItems } = analyzeTransactions(patients);
+          setTransactionGroups(txGroups);
+          setPromotionalItems(promoItems);
           
           setErrorMessage(null);
         } catch (error: any) {
@@ -313,6 +373,10 @@ export const useCSVImport = () => {
         setIsLoading(false);
       }
     });
+  };
+
+  const toggleImportMode = () => {
+    setImportMode(prevMode => prevMode === 'patient' ? 'transaction' : 'patient');
   };
 
   const handleImport = (selectedData: Patient[]) => {
@@ -334,6 +398,8 @@ export const useCSVImport = () => {
       setErrorMessage(null);
       setCsvHeaders([]);
       setRawData([]);
+      setTransactionGroups({});
+      setPromotionalItems(new Set());
       
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
@@ -347,6 +413,52 @@ export const useCSVImport = () => {
     }
   };
 
+  const markAsPromotionalItem = (index: number, isPromo: boolean) => {
+    setEditableData(prevData => {
+      const newData = [...prevData];
+      newData[index] = {
+        ...newData[index],
+        isPromotionalItem: isPromo
+      };
+      return newData;
+    });
+    
+    if (isPromo) {
+      setPromotionalItems(prev => {
+        const newSet = new Set(prev);
+        newSet.add(index);
+        return newSet;
+      });
+    } else {
+      setPromotionalItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(index);
+        return newSet;
+      });
+    }
+  };
+
+  const linkPromotionalItems = (indices: number[], groupId: string) => {
+    setEditableData(prevData => {
+      return prevData.map((patient, idx) => {
+        if (indices.includes(idx)) {
+          return {
+            ...patient,
+            promotionalGroupId: groupId,
+            isPromotionalItem: indices.indexOf(idx) > 0
+          };
+        }
+        return patient;
+      });
+    });
+    
+    const promoSet = new Set<number>();
+    indices.forEach((idx, i) => {
+      if (i > 0) promoSet.add(idx);
+    });
+    setPromotionalItems(promoSet);
+  };
+
   return {
     file,
     preview,
@@ -357,8 +469,14 @@ export const useCSVImport = () => {
     csvHeaders,
     rawData,
     duplicates,
+    transactionGroups,
+    promotionalItems,
+    importMode,
     handleFileChange,
     handleUpload,
-    handleImport
+    handleImport,
+    toggleImportMode,
+    markAsPromotionalItem,
+    linkPromotionalItems
   };
 };

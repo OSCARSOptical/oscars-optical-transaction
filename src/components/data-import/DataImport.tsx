@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, FileText, Upload } from 'lucide-react';
+import { AlertCircle, FileText, Upload, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { useCSVImport } from './hooks/useCSVImport';
 import { EditPatientDialog } from './components/EditPatientDialog';
@@ -26,9 +26,14 @@ export function DataImport() {
     csvHeaders,
     rawData,
     duplicates: detectedDuplicates,
+    transactionGroups,
+    promotionalItems,
+    importMode,
     handleFileChange,
     handleUpload,
-    handleImport
+    handleImport,
+    toggleImportMode,
+    markAsPromotionalItem
   } = useCSVImport();
 
   // Update the duplicates state when detected duplicates change
@@ -87,6 +92,11 @@ export function DataImport() {
     setSelectedRows(new Set());
   };
 
+  const handleTogglePromotional = (index: number) => {
+    const isCurrentlyPromo = promotionalItems.has(index);
+    markAsPromotionalItem(index, !isCurrentlyPromo);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -128,6 +138,26 @@ export function DataImport() {
             <Upload className="h-4 w-4" />
             Import Selected ({selectedRows.size})
           </Button>
+          
+          {editableData.length > 0 && (
+            <Button
+              onClick={toggleImportMode}
+              variant="outline"
+              className="ml-auto flex items-center gap-2"
+            >
+              {importMode === 'patient' ? (
+                <>
+                  <ToggleLeft className="h-4 w-4" />
+                  Patient View
+                </>
+              ) : (
+                <>
+                  <ToggleRight className="h-4 w-4" />
+                  Transaction View
+                </>
+              )}
+            </Button>
+          )}
         </div>
         
         {errorMessage && (
@@ -146,6 +176,10 @@ export function DataImport() {
             onSelectRow={handleSelectRow}
             onSelectAll={handleSelectAll}
             duplicates={duplicates}
+            transactionGroups={transactionGroups}
+            promotionalItems={promotionalItems}
+            viewMode={importMode}
+            onTogglePromotional={handleTogglePromotional}
           />
         )}
         
