@@ -14,7 +14,7 @@ export function usePatientFirstTransaction() {
         // Fetch all transactions from Supabase
         const { data, error } = await supabase
           .from('transactions')
-          .select('patient_code, transaction_date')
+          .select('patient_id, transaction_date')
           .order('transaction_date', { ascending: true });
           
         if (error) {
@@ -25,12 +25,12 @@ export function usePatientFirstTransaction() {
         
         // Process the data to find earliest transaction per patient
         data.forEach(transaction => {
-          const patientCode = transaction.patient_code;
+          const patientId = transaction.patient_id;
           
-          if (patientCode && transaction.transaction_date) {
-            if (!firstDatesMap[patientCode] || 
-                new Date(transaction.transaction_date) < new Date(firstDatesMap[patientCode])) {
-              firstDatesMap[patientCode] = transaction.transaction_date;
+          if (patientId && transaction.transaction_date) {
+            if (!firstDatesMap[patientId] || 
+                new Date(transaction.transaction_date) < new Date(firstDatesMap[patientId])) {
+              firstDatesMap[patientId] = transaction.transaction_date;
             }
           }
         });
