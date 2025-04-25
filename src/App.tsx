@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,6 +22,7 @@ import Settings from "./pages/Settings";
 import ProfileSettings from "./components/settings/ProfileSettings";
 import UserManagementSettings from "./components/settings/UserManagementSettings";
 import VerifyEmail from "./pages/VerifyEmail";
+import TranscriptSettings from "./components/settings/TranscriptSettings";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +54,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />}>
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="users" element={<UserManagementSettings />} />
+              <Route path="transcript" element={<TranscriptSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Route>

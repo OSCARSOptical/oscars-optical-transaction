@@ -13,6 +13,7 @@ import {
   User as UserIcon,
   Users as UsersIcon,
   SlidersHorizontal,
+  Download
 } from "lucide-react";
 import { 
   Tooltip,
@@ -61,6 +62,11 @@ const settingsSubItems = [
     title: "User Management",
     icon: UsersIcon,
     href: "/settings/users",
+  },
+  {
+    title: "Download Transcript",
+    icon: Download,
+    href: "/settings/transcript",
   },
 ];
 
