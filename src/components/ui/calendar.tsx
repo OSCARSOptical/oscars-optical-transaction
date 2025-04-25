@@ -18,7 +18,7 @@ function Calendar({
   const [month, setMonth] = React.useState<Date>();
 
   // Custom caption component with month/year selection
-  function CustomCaption({ displayMonth, goToMonth }: CaptionProps) {
+  function CustomCaption({ displayMonth, onMonthChange }: CaptionProps) {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const years = Array.from({ length: 10 }, (_, i) => displayMonth.getFullYear() - 5 + i);
     
@@ -29,7 +29,7 @@ function Calendar({
           onValueChange={(newMonth) => {
             const newDate = new Date(displayMonth);
             newDate.setMonth(months.indexOf(newMonth));
-            goToMonth(newDate);
+            onMonthChange(newDate);
           }}
         >
           <SelectTrigger className="h-7 w-[100px] border-none bg-transparent text-sm font-medium hover:bg-accent hover:text-accent-foreground">
@@ -49,7 +49,7 @@ function Calendar({
           onValueChange={(newYear) => {
             const newDate = new Date(displayMonth);
             newDate.setFullYear(parseInt(newYear));
-            goToMonth(newDate);
+            onMonthChange(newDate);
           }}
         >
           <SelectTrigger className="h-7 w-[70px] border-none bg-transparent text-sm font-medium hover:bg-accent hover:text-accent-foreground">
@@ -69,7 +69,7 @@ function Calendar({
             onClick={() => {
               const prevMonth = new Date(displayMonth);
               prevMonth.setMonth(prevMonth.getMonth() - 1);
-              goToMonth(prevMonth);
+              onMonthChange(prevMonth);
             }}
             className={cn(
               buttonVariants({ variant: "outline" }),
@@ -82,7 +82,7 @@ function Calendar({
             onClick={() => {
               const nextMonth = new Date(displayMonth);
               nextMonth.setMonth(nextMonth.getMonth() + 1);
-              goToMonth(nextMonth);
+              onMonthChange(nextMonth);
             }}
             className={cn(
               buttonVariants({ variant: "outline" }),
@@ -141,3 +141,4 @@ function Calendar({
 Calendar.displayName = "Calendar";
 
 export { Calendar };
+
