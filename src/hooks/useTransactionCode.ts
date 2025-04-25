@@ -7,23 +7,14 @@ export const useTransactionCode = () => {
     
     const prefix = `TX${year}-${month}`;
     
+    // We'll now only track codes in localStorage without assuming sampleTransactions
     const existingCodes: string[] = [];
-    
-    const sampleTransactions = [
-      { code: "TX25-04-00001" },
-      { code: "TX25-04-00002" },
-      { code: "TX25-04-00003" }
-    ];
-    
-    sampleTransactions.forEach(tx => {
-      existingCodes.push(tx.code);
-    });
     
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith(`transaction_`) && key.endsWith('_code')) {
         const code = localStorage.getItem(key);
-        if (code && code.startsWith(prefix) && !existingCodes.includes(code)) {
+        if (code && code.startsWith(prefix)) {
           existingCodes.push(code);
         }
       }

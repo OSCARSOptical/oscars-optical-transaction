@@ -23,7 +23,22 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
+  const [patientCode, setPatientCode] = useState("");
   const { toast } = useToast();
+
+  // Update patient code whenever first or last name changes
+  useEffect(() => {
+    const updatePatientCode = async () => {
+      if (firstName && lastName) {
+        const code = await generatePatientCode(firstName, lastName);
+        setPatientCode(code);
+      } else {
+        setPatientCode("");
+      }
+    };
+    
+    updatePatientCode();
+  }, [firstName, lastName]);
 
   const generatePatientCode = async (first: string, last: string) => {
     if (!first || !last) return "";
@@ -95,7 +110,8 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
     setLoading(true);
     
     try {
-      const patientCode = await generatePatientCode(firstName, lastName);
+      // Use the already generated patient code
+      const finalPatientCode = patientCode;
       
       // Save patient to Supabase
       const { data, error } = await supabase
@@ -109,7 +125,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
             email: email || null,
             contact_number: phone || null,
             address: address || null,
-            patient_code: patientCode
+            patient_code: finalPatientCode
           }
         ])
         .select();
@@ -128,7 +144,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
       
       // Get the newly created patient with the generated ID
       const newPatient: Omit<Patient, "id"> = {
-        code: patientCode,
+        code: finalPatientCode,
         firstName,
         lastName,
         email,
@@ -172,7 +188,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
           <Label htmlFor="patientCode">Patient Code</Label>
           <Input
             id="patientCode"
-            value={firstName && lastName ? "Will be generated" : ""}
+            value={patientCode || "Enter first and last name"}
             disabled
             className="bg-gray-100"
           />
