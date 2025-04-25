@@ -6,6 +6,7 @@ import { AlertCircle } from "lucide-react";
 import { Patient } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useTransactionCode } from "@/hooks/useTransactionCode";
 
 interface ImportPreviewTableProps {
   data: Patient[];
@@ -15,6 +16,7 @@ interface ImportPreviewTableProps {
 
 export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTableProps) {
   const navigate = useNavigate();
+  const { normalizeTransactionCode } = useTransactionCode();
   const csvHeaders = rawData && rawData.length > 0 ? Object.keys(rawData[0]) : [];
 
   return (
@@ -52,9 +54,7 @@ export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTable
               </TableRow>
             ) : (
               data.map((patient, index) => {
-                // Generate a transaction code based on patient code
-                const transactionCode = `TX-${patient.code?.split('-')[2] || '000000'}-001`;
-                
+                // Display transactions from patient data if available
                 return (
                   <TableRow key={patient.id}>
                     <TableCell>{patient.code}</TableCell>
@@ -63,12 +63,21 @@ export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTable
                     <TableCell>{patient.age}</TableCell>
                     <TableCell>{patient.sex}</TableCell>
                     <TableCell>
-                      <span 
-                        className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-                        onClick={() => navigate(`/patients/${patient.code}/transactions/${transactionCode}`)}
-                      >
-                        {transactionCode}
-                      </span>
+                      {patient.transactions && patient.transactions.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {patient.transactions.map((transactionId, idx) => (
+                            <span 
+                              key={idx}
+                              className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
+                              onClick={() => navigate(`/patients/${patient.code}/transactions/${transactionId}`)}
+                            >
+                              {transactionId}{idx < patient.transactions.length - 1 ? ", " : ""}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">No transactions</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="outline" size="sm" onClick={() => onEdit(index)}>
@@ -95,4 +104,3 @@ export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTable
     </div>
   );
 }
-

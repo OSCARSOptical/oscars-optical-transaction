@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Papa from 'papaparse';
 import { Patient } from '@/types';
 import { normalizePatientCode } from '@/utils/idNormalizer';
+import { useTransactionCode } from '@/hooks/useTransactionCode';
 
 export const useCSVImport = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -14,6 +14,7 @@ export const useCSVImport = () => {
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [rawData, setRawData] = useState<any[]>([]);
   const { toast } = useToast();
+  const { normalizeTransactionCode, parseMultipleTransactionCodes } = useTransactionCode();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -229,20 +230,58 @@ export const useCSVImport = () => {
               'Email', 'E-mail', 'email', 'Mail', 'mail', 'e-mail'
             ]);
             
+            // TRANSACTION DATA EXTRACTION
+            // Look for transaction ID in various formats
             const recentTransaction = findColumn(row, [
               'Recent Transaction', 'Transaction', 'Last Transaction',
-              'Transaction ID', 'transaction', 'Transaction Id'
+              'Transaction ID', 'transaction', 'Transaction Id',
+              'Recent Transaction ID'
             ]);
             
+            // Look for transaction history (multiple transactions)
+            const transactionHistory = findColumn(row, [
+              'Transaction History', 'History', 'Previous Transactions',
+              'Past Transactions', 'transaction history', 'All Transactions',
+              'Transactions'
+            ]);
+            
+            // Look for transaction date
             const transactionDate = findColumn(row, [
               'Date of Recent Transaction', 'Transaction Date', 'Date',
               'date', 'Recent Date', 'Last Transaction Date'
             ]);
             
-            const transactionHistory = findColumn(row, [
-              'Transaction History', 'History', 'Previous Transactions',
-              'Past Transactions', 'transaction history'
-            ]);
+            console.log(`Row ${index} - Found transactions:`, {
+              recent: recentTransaction,
+              history: transactionHistory,
+              date: transactionDate
+            });
+            
+            // Normalize and collect all transaction IDs
+            const transactions: string[] = [];
+            
+            // Add recent transaction if it exists
+            if (recentTransaction) {
+              const normalizedCode = normalizeTransactionCode(recentTransaction);
+              if (normalizedCode && !transactions.includes(normalizedCode)) {
+                transactions.push(normalizedCode);
+              }
+            }
+            
+            // Add transaction history if it exists
+            if (transactionHistory) {
+              const historyCodes = parseMultipleTransactionCodes(transactionHistory);
+              historyCodes.forEach(code => {
+                if (code && !transactions.includes(code)) {
+                  transactions.push(code);
+                }
+              });
+            }
+            
+            // Generate placeholder transaction if none found
+            if (transactions.length === 0) {
+              console.log(`Row ${index} - No transactions found`);
+            }
 
             // Use a default code sequence if ID is missing
             const finalPatientId = patientId || `PX${index + 1}`;
@@ -258,9 +297,9 @@ export const useCSVImport = () => {
               phone: phone || '',
               address: address || '',
               createdDate: transactionDate || new Date().toISOString(),
-              originalFullName: patientName || `${firstNameValue} ${lastNameValue}`,
+              transactions: transactions,
               originalData: {...row}
-            } as Patient & { originalFullName: string; originalData: Record<string, string> };
+            } as Patient & { originalData: Record<string, string> };
           });
 
           setPreview(patients);

@@ -10,6 +10,7 @@ export interface Patient {
   phone: string;
   address: string;
   createdDate?: string;
+  transactions?: string[]; // Array of transaction IDs associated with this patient
 }
 
 export interface RefractionData {
