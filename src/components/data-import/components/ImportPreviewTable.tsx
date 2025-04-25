@@ -1,14 +1,13 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Gift, Tag } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Patient } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useTransactionCode } from "@/hooks/useTransactionCode";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Switch } from "@/components/ui/switch";
 
 interface ImportPreviewTableProps {
   data: Patient[];
@@ -18,17 +17,7 @@ interface ImportPreviewTableProps {
   onSelectRow: (index: number, checked: boolean) => void;
   onSelectAll: (checked: boolean) => void;
   duplicates: Set<number>;
-  transactionGroups?: Record<string, number[]>;
-  promotionalItems?: Set<number>;
-  viewMode?: 'patient' | 'transaction';
-  onTogglePromotional?: (index: number) => void;
 }
-
-// Define the organizedRow type with optional groupId
-type OrganizedRow = {
-  index: number;
-  groupId?: string | undefined;
-};
 
 export function ImportPreviewTable({ 
   data, 
@@ -37,48 +26,11 @@ export function ImportPreviewTable({
   selectedRows,
   onSelectRow,
   onSelectAll,
-  duplicates,
-  transactionGroups = {},
-  promotionalItems = new Set(),
-  viewMode = 'patient',
-  onTogglePromotional
+  duplicates
 }: ImportPreviewTableProps) {
   const navigate = useNavigate();
   const { normalizeTransactionCode } = useTransactionCode();
   const csvHeaders = rawData && rawData.length > 0 ? Object.keys(rawData[0]) : [];
-  
-  // Function to check if a row is part of a transaction group
-  const getTransactionGroupInfo = (index: number) => {
-    for (const [txId, indices] of Object.entries(transactionGroups)) {
-      if (indices.includes(index)) {
-        return {
-          inGroup: true,
-          isFirst: indices[0] === index,
-          groupSize: indices.length,
-          transactionId: txId,
-          groupIndices: indices
-        };
-      }
-    }
-    return { inGroup: false };
-  };
-
-  // Logic to organize rows based on view mode
-  const organizedData: OrganizedRow[] = viewMode === 'transaction' 
-    ? [
-        // First add all rows that are part of transaction groups
-        ...Object.entries(transactionGroups)
-          .sort(([txIdA], [txIdB]) => txIdA.localeCompare(txIdB))
-          .flatMap(([txId, indices]) => indices.map(idx => ({ index: idx, groupId: txId }))),
-        
-        // Then add rows without transaction groups
-        ...Array.from({ length: data.length })
-          .map((_, idx) => idx)
-          .filter(idx => !Object.values(transactionGroups)
-            .some(groupIndices => groupIndices.includes(idx)))
-          .map(idx => ({ index: idx }))
-      ]
-    : data.map((_, idx) => ({ index: idx }));
 
   return (
     <div className="space-y-4">
@@ -109,76 +61,37 @@ export function ImportPreviewTable({
               <TableHead>Age</TableHead>
               <TableHead>Sex</TableHead>
               <TableHead>Transactions</TableHead>
-              {viewMode === 'transaction' && (
-                <TableHead>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>Promotional</TooltipTrigger>
-                      <TooltipContent>
-                        <p>Mark as promotional item (Buy One Take One)</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </TableHead>
-              )}
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={viewMode === 'transaction' ? 9 : 8} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                   No patient data to display
                 </TableCell>
               </TableRow>
             ) : (
-              organizedData.map((row) => {
-                const patient = data[row.index];
-                const isDuplicate = duplicates.has(row.index);
-                const isPromoItem = promotionalItems.has(row.index);
-                const groupInfo = getTransactionGroupInfo(row.index);
-                
-                // Get background color based on status
-                let rowClass = "";
-                if (isDuplicate) rowClass = "bg-orange-50";
-                if (isPromoItem) rowClass = "bg-green-50";
-                if (groupInfo.inGroup && !groupInfo.isFirst && viewMode === 'transaction') {
-                  // Add a subtle indicator for grouped items when not first in group
-                  rowClass = "bg-blue-50 border-l-4 border-blue-300";
-                }
-                
+              data.map((patient, index) => {
+                const isDuplicate = duplicates.has(index);
                 return (
                   <TableRow 
-                    key={`${patient.id}-${row.index}`}
-                    className={rowClass}
+                    key={patient.id}
+                    className={isDuplicate ? "bg-orange-50" : undefined}
                   >
                     <TableCell>
                       <Checkbox 
-                        checked={selectedRows.has(row.index)}
-                        onCheckedChange={(checked) => onSelectRow(row.index, checked as boolean)}
+                        checked={selectedRows.has(index)}
+                        onCheckedChange={(checked) => onSelectRow(index, checked as boolean)}
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        {patient.code}
-                        {isDuplicate && (
-                          <Badge variant="outline" className="bg-orange-100 text-orange-700">
-                            Duplicate
-                          </Badge>
-                        )}
-                        {isPromoItem && (
-                          <Badge className="bg-green-100 text-green-700 flex items-center gap-1">
-                            <Gift className="h-3 w-3" />
-                            Promo
-                          </Badge>
-                        )}
-                        {groupInfo.inGroup && groupInfo.isFirst && (
-                          <Badge variant="outline" className="bg-blue-100 text-blue-700 flex items-center gap-1">
-                            <Tag className="h-3 w-3" />
-                            {`Group (${groupInfo.groupSize})`}
-                          </Badge>
-                        )}
-                      </div>
+                      {patient.code}
+                      {isDuplicate && (
+                        <Badge variant="outline" className="ml-2 bg-orange-100 text-orange-700">
+                          Duplicate
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell>{patient.firstName}</TableCell>
                     <TableCell>{patient.lastName}</TableCell>
@@ -190,9 +103,7 @@ export function ImportPreviewTable({
                           {patient.transactions.map((transactionId, idx) => (
                             <span 
                               key={idx}
-                              className={`hover:underline cursor-pointer hover:text-opacity-80 ${
-                                row.groupId === transactionId ? 'text-blue-600 font-medium' : 'text-[#9E0214]'
-                              }`}
+                              className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
                               onClick={() => navigate(`/patients/${patient.code}/transactions/${transactionId}`)}
                             >
                               {transactionId}{idx < patient.transactions.length - 1 ? ", " : ""}
@@ -203,25 +114,13 @@ export function ImportPreviewTable({
                         <span className="text-muted-foreground text-sm">No transactions</span>
                       )}
                     </TableCell>
-                    
-                    {viewMode === 'transaction' && (
-                      <TableCell>
-                        {groupInfo.inGroup && !groupInfo.isFirst && onTogglePromotional && (
-                          <Switch 
-                            checked={isPromoItem}
-                            onCheckedChange={() => onTogglePromotional(row.index)}
-                          />
-                        )}
-                      </TableCell>
-                    )}
-                    
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => onEdit(row.index)}>
+                      <Button variant="outline" size="sm" onClick={() => onEdit(index)}>
                         Edit
                       </Button>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })
             )}
           </TableBody>
@@ -232,14 +131,8 @@ export function ImportPreviewTable({
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Found and mapped {data.length} patients from your CSV. 
-            {Object.keys(transactionGroups).length > 0 && (
-              <>
-                <br />
-                Detected {Object.keys(transactionGroups).length} transaction groups that may contain promotional items.
-                Toggle to Transaction View to manage promotional items.
-              </>
-            )}
+            Found and mapped {data.length} patients from your CSV. If data looks incorrect,
+            please check that your CSV has columns for patient ID/code, name, and age.
           </AlertDescription>
         </Alert>
       )}

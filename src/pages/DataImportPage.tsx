@@ -12,7 +12,7 @@ export default function DataImportPage() {
       <Tabs defaultValue="patients" className="w-full">
         <TabsList>
           <TabsTrigger value="patients">Patient Data</TabsTrigger>
-          <TabsTrigger value="transactions">Transaction Data</TabsTrigger>
+          <TabsTrigger value="transactions" disabled>Transaction Data</TabsTrigger>
         </TabsList>
         <TabsContent value="patients" className="mt-4">
           <div className="mb-6 p-4 bg-muted/50 rounded-md border border-muted">
