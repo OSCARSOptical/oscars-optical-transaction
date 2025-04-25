@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +28,6 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
     const prefix = "PX";
     const initials = `${first[0]}${last.split(' ')[0][0]}`.toUpperCase();
     
-    // Get all existing patient codes with the same initials
     const existingCodes: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -41,7 +39,6 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
       }
     }
     
-    // Find the highest sequence number for these initials
     let maxSequence = 0;
     existingCodes.forEach(code => {
       const sequencePart = code.split('-')[2];
@@ -53,7 +50,6 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
       }
     });
     
-    // Generate next sequence number (padded to 7 digits)
     const nextSequence = (maxSequence + 1).toString().padStart(7, "0");
     
     return `${prefix}-${initials}-${nextSequence}`;
@@ -87,9 +83,8 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-12 gap-4">
-        {/* Row 1: First Name, Last Name, Patient Code */}
         <div className="col-span-4 space-y-2">
-          <Label htmlFor="firstName">First Name</Label>
+          <Label htmlFor="firstName">First Name *</Label>
           <Input
             id="firstName"
             required
@@ -98,7 +93,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
           />
         </div>
         <div className="col-span-4 space-y-2">
-          <Label htmlFor="lastName">Last Name</Label>
+          <Label htmlFor="lastName">Last Name *</Label>
           <Input
             id="lastName"
             required
@@ -116,13 +111,11 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
           />
         </div>
 
-        {/* Row 2: Age, Sex and Contact Number */}
         <div className="col-span-4 space-y-2">
           <Label htmlFor="age">Age</Label>
           <Input
             id="age"
             type="number"
-            required
             value={age}
             onChange={(e) => setAge(e.target.value)}
           />
@@ -147,30 +140,25 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
           <Input
             id="phone"
             type="tel"
-            required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
         </div>
 
-        {/* Row 3: Email Address */}
         <div className="col-span-12 space-y-2">
           <Label htmlFor="email">Email Address</Label>
           <Input
             id="email"
             type="email"
-            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
-        {/* Row 4: Address */}
         <div className="col-span-12 space-y-2">
           <Label htmlFor="address">Address</Label>
           <Textarea
             id="address"
-            required
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="min-h-[100px]"
