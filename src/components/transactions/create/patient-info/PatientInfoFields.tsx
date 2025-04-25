@@ -40,11 +40,19 @@ const PatientInfoFields = ({ patient, isEditing, onFieldChange }: PatientInfoFie
         </div>
         <div>
           <label className="text-sm font-medium">Sex</label>
-          <Input
-            value={patient.sex}
-            readOnly={true}
-            className="bg-gray-50"
-          />
+          <Select 
+            value={patient.sex || 'Male'} 
+            onValueChange={(value) => onFieldChange('sex', value)}
+            disabled={!isEditing}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select sex" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Male">Male</SelectItem>
+              <SelectItem value="Female">Female</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <label className="text-sm font-medium">Contact Number</label>

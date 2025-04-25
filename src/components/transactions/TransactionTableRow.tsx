@@ -82,13 +82,20 @@ export function TransactionTableRow({
       <TableCell className="text-right">{formatCurrency(transaction.deposit)}</TableCell>
       <TableCell className="text-right">{formatCurrency(transaction.balance)}</TableCell>
       <TableCell>
-        <div className="flex items-center space-x-2">
-          <Badge 
-            variant={transaction.claimed ? "default" : "secondary"}
-            className="cursor-default"
-          >
-            {transaction.claimed ? "Claimed" : "Unclaimed"}
-          </Badge>
+        <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+          <Checkbox 
+            checked={transaction.claimed} 
+            onCheckedChange={() => onClaimedToggle(transaction.id, transaction.claimed)}
+            id={`claimed-${transaction.id}`}
+            className={`border-2 !border-[#8E9196] bg-white ${
+              transaction.claimed
+                ? "!border-[#ea384c] !bg-[#ea384c]/10 !text-[#ea384c]"
+                : "!text-[#8E9196]"
+            }`}
+            style={{
+              color: transaction.claimed ? "#ea384c" : "#8E9196",
+            }}
+          />
         </div>
       </TableCell>
       <TableCell>{claimedOnDisplay}</TableCell>

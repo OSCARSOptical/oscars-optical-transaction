@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +27,6 @@ interface TransactionHeaderProps {
   onEditToggle?: () => void;
   onSave?: () => void;
   onDiscard?: () => void;
-  showClaimedToggle?: boolean;
 }
 
 export function TransactionHeader({
@@ -41,8 +39,7 @@ export function TransactionHeader({
   isEditing = false,
   onEditToggle,
   onSave,
-  onDiscard,
-  showClaimedToggle = true
+  onDiscard
 }: TransactionHeaderProps) {
   const navigate = useNavigate();
 
@@ -112,22 +109,20 @@ export function TransactionHeader({
           </div>
         )}
       </div>
-      {showClaimedToggle && (
-        <div className="flex items-center gap-4">
-          <Badge 
-            variant={transaction.claimed ? "default" : "secondary"}
-            className="cursor-pointer hover:opacity-90"
-            onClick={onClaimedToggle}
-          >
-            {transaction.claimed ? "Claimed" : "Unclaimed"}
-          </Badge>
-          {transaction.claimed && transaction.dateClaimed && (
-            <span className="text-sm text-muted-foreground">
-              Claimed on {format(new Date(transaction.dateClaimed), 'PPP')}
-            </span>
-          )}
-        </div>
-      )}
+      <div className="flex items-center gap-4">
+        <Badge 
+          variant={transaction.claimed ? "default" : "secondary"}
+          className="cursor-pointer hover:opacity-90"
+          onClick={onClaimedToggle}
+        >
+          {transaction.claimed ? "Claimed" : "Unclaimed"}
+        </Badge>
+        {transaction.claimed && transaction.dateClaimed && (
+          <span className="text-sm text-muted-foreground">
+            Claimed on {format(new Date(transaction.dateClaimed), 'PPP')}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

@@ -23,8 +23,44 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
   const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
 
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
-    // This function is kept for compatibility but not used in the table anymore
-    // The claimed toggle button is now only available in the transaction details page
+    if (currentValue) {
+      const transaction = localTransactions.find(tx => tx.id === id);
+      if (transaction) {
+        setTransactionToUnclaim(transaction);
+        setShowUnclaimDialog(true);
+      }
+      return;
+    }
+
+    const updatedTransactions = localTransactions.map(transaction => {
+      if (transaction.id === id) {
+        const today = new Date().toISOString().split('T')[0];
+        const balancePaid = transaction.balance;
+        addBalanceSheetEntry({
+          date: today,
+          transactionId: transaction.code,
+          balancePaid,
+          patientCode: transaction.patientCode
+        });
+        const updatedTransaction = {
+          ...transaction,
+          claimed: true,
+          dateClaimed: today,
+          balance: 0
+        };
+
+        toast({
+          title: "✓ Payment Claimed!",
+          description: `Balance of ${formatCurrency(balancePaid)} has been collected and recorded.`,
+          className: "bg-[#FFC42B] text-[#241715] rounded-lg",
+          duration: 3000,
+        });
+        return updatedTransaction;
+      }
+      return transaction;
+    });
+
+    setLocalTransactions(updatedTransactions);
   };
 
   const handleUnclaimConfirm = () => {
@@ -82,7 +118,7 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
               <TableHead className="text-right">Gross Amount</TableHead>
               <TableHead className="text-right">Deposit</TableHead>
               <TableHead className="text-right">Balance</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Claimed</TableHead>
               <TableHead>Claimed on</TableHead>
               <TableHead className="w-[60px]"></TableHead>
             </TableRow>
