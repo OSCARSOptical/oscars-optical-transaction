@@ -1,4 +1,3 @@
-
 export interface Patient {
   id: string;
   code: string; // Now will be formatted as PX-[FirstInitial][LastInitial]-[7-digit sequence]
@@ -11,6 +10,8 @@ export interface Patient {
   address: string;
   createdDate?: string;
   transactions?: string[]; // Array of transaction IDs associated with this patient
+  isPromotionalItem?: boolean;
+  promotionalGroupId?: string | null;
 }
 
 export interface RefractionData {

@@ -25,6 +25,12 @@ interface ImportPreviewTableProps {
   onTogglePromotional?: (index: number) => void;
 }
 
+// Define the organizedRow type to use throughout the component
+type OrganizedRow = {
+  index: number;
+  groupId?: string;
+};
+
 export function ImportPreviewTable({ 
   data, 
   rawData, 
@@ -58,8 +64,8 @@ export function ImportPreviewTable({
     return { inGroup: false };
   };
 
-  // Logic to organize rows based on view mode
-  const organizedData = viewMode === 'transaction' 
+  // Logic to organize rows based on view mode with fixed type safety
+  const organizedData: OrganizedRow[] = viewMode === 'transaction' 
     ? Object.entries(transactionGroups)
         .sort(([txIdA], [txIdB]) => txIdA.localeCompare(txIdB))
         .flatMap(([txId, indices]) => indices.map(idx => ({ index: idx, groupId: txId })))
@@ -123,11 +129,11 @@ export function ImportPreviewTable({
                 </TableCell>
               </TableRow>
             ) : (
-              organizedData.map(({ index, groupId }) => {
-                const patient = data[index];
-                const isDuplicate = duplicates.has(index);
-                const isPromoItem = promotionalItems.has(index);
-                const groupInfo = getTransactionGroupInfo(index);
+              organizedData.map((row) => {
+                const patient = data[row.index];
+                const isDuplicate = duplicates.has(row.index);
+                const isPromoItem = promotionalItems.has(row.index);
+                const groupInfo = getTransactionGroupInfo(row.index);
                 
                 // Get background color based on status
                 let rowClass = "";
@@ -140,13 +146,13 @@ export function ImportPreviewTable({
                 
                 return (
                   <TableRow 
-                    key={`${patient.id}-${index}`}
+                    key={`${patient.id}-${row.index}`}
                     className={rowClass}
                   >
                     <TableCell>
                       <Checkbox 
-                        checked={selectedRows.has(index)}
-                        onCheckedChange={(checked) => onSelectRow(index, checked as boolean)}
+                        checked={selectedRows.has(row.index)}
+                        onCheckedChange={(checked) => onSelectRow(row.index, checked as boolean)}
                       />
                     </TableCell>
                     <TableCell>
@@ -182,7 +188,7 @@ export function ImportPreviewTable({
                             <span 
                               key={idx}
                               className={`hover:underline cursor-pointer hover:text-opacity-80 ${
-                                groupId === transactionId ? 'text-blue-600 font-medium' : 'text-[#9E0214]'
+                                row.groupId === transactionId ? 'text-blue-600 font-medium' : 'text-[#9E0214]'
                               }`}
                               onClick={() => navigate(`/patients/${patient.code}/transactions/${transactionId}`)}
                             >
@@ -200,14 +206,14 @@ export function ImportPreviewTable({
                         {groupInfo.inGroup && !groupInfo.isFirst && onTogglePromotional && (
                           <Switch 
                             checked={isPromoItem}
-                            onCheckedChange={() => onTogglePromotional(index)}
+                            onCheckedChange={() => onTogglePromotional(row.index)}
                           />
                         )}
                       </TableCell>
                     )}
                     
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => onEdit(index)}>
+                      <Button variant="outline" size="sm" onClick={() => onEdit(row.index)}>
                         Edit
                       </Button>
                     </TableCell>

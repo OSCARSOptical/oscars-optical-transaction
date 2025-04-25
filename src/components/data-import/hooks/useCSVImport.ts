@@ -340,13 +340,8 @@ export const useCSVImport = () => {
               address: address || '',
               createdDate: transactionDate || new Date().toISOString(),
               transactions: transactions,
-              originalData: {...row},
               isPromotionalItem: isPromo === 'yes' || isPromo === 'true' || isPromo === '1' || isPromo === 'y',
               promotionalGroupId: promoGroup || null
-            } as Patient & { 
-              originalData: Record<string, string>;
-              isPromotionalItem?: boolean;
-              promotionalGroupId?: string | null;
             };
           });
 
