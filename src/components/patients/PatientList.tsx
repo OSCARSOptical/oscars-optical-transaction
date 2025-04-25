@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
@@ -14,7 +13,6 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   
-  // Update searchQuery when initialSearchQuery changes
   useEffect(() => {
     setSearchQuery(initialSearchQuery);
   }, [initialSearchQuery]);
@@ -31,7 +29,7 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>Patient Name</TableHead>
               <TableHead>Patient ID</TableHead>
               <TableHead>Age</TableHead>
               <TableHead>Contact Number</TableHead>
