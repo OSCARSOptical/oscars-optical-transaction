@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
@@ -45,24 +44,70 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
     // Load patients from localStorage
     const loadedPatients: Patient[] = [];
     
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('patient_') && !key.includes('_firstName') && !key.includes('_lastName')) {
-        try {
-          const patientJson = localStorage.getItem(key);
-          if (patientJson) {
-            const patient = JSON.parse(patientJson);
-            if (patient && patient.id) {
-              loadedPatients.push(patient);
+    try {
+      // First look for complete patient objects
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('patient_') && !key.includes('_')) {
+          try {
+            const patientJson = localStorage.getItem(key);
+            if (patientJson) {
+              const patient = JSON.parse(patientJson);
+              if (patient && patient.id) {
+                loadedPatients.push(patient);
+              }
             }
+          } catch (error) {
+            console.error('Error parsing patient data from localStorage:', error);
           }
-        } catch (error) {
-          console.error('Error parsing patient data from localStorage:', error);
         }
       }
+      
+      // If no complete patient objects were found, reconstruct from individual fields
+      if (loadedPatients.length === 0) {
+        // Get all unique patient IDs
+        const patientIds = new Set<string>();
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('patient_')) {
+            const parts = key.split('_');
+            if (parts.length >= 2) {
+              patientIds.add(parts[1]);
+            }
+          }
+        }
+        
+        // Reconstruct each patient
+        patientIds.forEach(id => {
+          try {
+            const code = localStorage.getItem(`patient_${id}_code`);
+            if (code) {
+              const patient: Patient = {
+                id: id,
+                code: code,
+                firstName: localStorage.getItem(`patient_${id}_firstName`) || "",
+                lastName: localStorage.getItem(`patient_${id}_lastName`) || "",
+                age: Number(localStorage.getItem(`patient_${id}_age`)) || 0,
+                email: localStorage.getItem(`patient_${id}_email`) || "",
+                phone: localStorage.getItem(`patient_${id}_phone`) || "",
+                address: localStorage.getItem(`patient_${id}_address`) || "",
+                sex: (localStorage.getItem(`patient_${id}_sex`) as 'Male' | 'Female') || undefined
+              };
+              
+              // Store the complete patient object for future use
+              localStorage.setItem(`patient_${id}`, JSON.stringify(patient));
+              loadedPatients.push(patient);
+            }
+          } catch (error) {
+            console.error('Error reconstructing patient data:', error);
+          }
+        });
+      }
+      
+      setPatients(loadedPatients);
+    } catch (error) {
+      console.error('Error loading patients:', error);
     }
-    
-    setPatients(loadedPatients);
   }, []);
   
   const sortPatients = (patientsToSort: Patient[]) => {
@@ -193,7 +238,7 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {patients.length > 0 ? patients.map(patient => (
+            {displayedPatients.length > 0 ? displayedPatients.map(patient => (
               <PatientTableRow 
                 key={patient.id}
                 patient={patient}

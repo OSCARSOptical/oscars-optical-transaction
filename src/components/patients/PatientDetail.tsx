@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Patient } from '@/types';
 import { PatientDetailHeader } from './PatientDetailHeader';
@@ -7,67 +8,60 @@ import { PatientInformationForm } from './PatientInformationForm';
 import { PatientTransactionsTable } from './PatientTransactionsTable';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
-import { samplePatients } from '@/data';
 
-export function PatientDetail() {
-  const { patientCode } = useParams();
+interface PatientDetailProps {
+  patient: Patient;
+}
+
+export function PatientDetail({ patient }: PatientDetailProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [patient, setPatient] = useState<Patient | null>(null);
+  const [currentPatient, setCurrentPatient] = useState<Patient>(patient);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const foundPatient = samplePatients.find(p => p.code === patientCode);
-    
-    if (foundPatient) {
-      const updatedPatient = {
-        ...foundPatient,
-        firstName: localStorage.getItem(`patient_${foundPatient.id}_firstName`) || foundPatient.firstName,
-        lastName: localStorage.getItem(`patient_${foundPatient.id}_lastName`) || foundPatient.lastName,
-        age: localStorage.getItem(`patient_${foundPatient.id}_age`) ? parseInt(localStorage.getItem(`patient_${foundPatient.id}_age`)!) : foundPatient.age,
-        email: localStorage.getItem(`patient_${foundPatient.id}_email`) || foundPatient.email,
-        phone: localStorage.getItem(`patient_${foundPatient.id}_phone`) || foundPatient.phone,
-        address: localStorage.getItem(`patient_${foundPatient.id}_address`) || foundPatient.address,
-        sex: (localStorage.getItem(`patient_${foundPatient.id}_sex`) as 'Male' | 'Female') || foundPatient.sex
-      };
-      
-      setPatient(updatedPatient);
-    }
-  }, [patientCode]);
-
   const handlePatientChange = (updatedPatient: Patient) => {
-    setPatient(updatedPatient);
+    setCurrentPatient(updatedPatient);
   };
 
   const handleSaveChanges = () => {
-    if (!patient) return;
-    
-    localStorage.setItem(`patient_${patient.id}_firstName`, patient.firstName);
-    localStorage.setItem(`patient_${patient.id}_lastName`, patient.lastName);
-    localStorage.setItem(`patient_${patient.id}_age`, patient.age.toString());
-    localStorage.setItem(`patient_${patient.id}_email`, patient.email);
-    localStorage.setItem(`patient_${patient.id}_phone`, patient.phone);
-    localStorage.setItem(`patient_${patient.id}_address`, patient.address);
-    if (patient.sex) {
-      localStorage.setItem(`patient_${patient.id}_sex`, patient.sex);
+    // Save the patient data to localStorage
+    try {
+      // Save as a complete object
+      localStorage.setItem(`patient_${currentPatient.id}`, JSON.stringify(currentPatient));
+      
+      // Also save individual fields for backward compatibility
+      localStorage.setItem(`patient_${currentPatient.id}_firstName`, currentPatient.firstName);
+      localStorage.setItem(`patient_${currentPatient.id}_lastName`, currentPatient.lastName);
+      localStorage.setItem(`patient_${currentPatient.id}_age`, currentPatient.age.toString());
+      localStorage.setItem(`patient_${currentPatient.id}_email`, currentPatient.email);
+      localStorage.setItem(`patient_${currentPatient.id}_phone`, currentPatient.phone);
+      localStorage.setItem(`patient_${currentPatient.id}_address`, currentPatient.address);
+      localStorage.setItem(`patient_${currentPatient.id}_code`, currentPatient.code);
+      
+      if (currentPatient.sex) {
+        localStorage.setItem(`patient_${currentPatient.id}_sex`, currentPatient.sex);
+      }
+      
+      toast({
+        title: "Success",
+        description: "Patient information has been updated.",
+      });
+      
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving patient data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save patient information.",
+        variant: "destructive"
+      });
     }
-    
-    toast({
-      title: "Success",
-      description: "Patient information has been updated.",
-    });
-    
-    setIsEditing(false);
   };
-
-  if (!patient) {
-    return <div className="flex justify-center items-center min-h-[400px]">Loading patient information...</div>;
-  }
 
   return (
     <div className="space-y-6">
       <PatientDetailHeader 
-        patient={patient}
+        patient={currentPatient}
         isEditing={isEditing}
         onEditToggle={() => setIsEditing(!isEditing)}
       />
@@ -81,7 +75,7 @@ export function PatientDetail() {
         </CardHeader>
         <CardContent>
           <PatientInformationForm 
-            patient={patient}
+            patient={currentPatient}
             isEditing={isEditing}
             onPatientChange={handlePatientChange}
           />
@@ -93,7 +87,7 @@ export function PatientDetail() {
           <CardTitle>Transaction History</CardTitle>
         </CardHeader>
         <CardContent>
-          <PatientTransactionsTable patientCode={patient.code} />
+          <PatientTransactionsTable patientCode={currentPatient.code} />
         </CardContent>
       </Card>
     </div>

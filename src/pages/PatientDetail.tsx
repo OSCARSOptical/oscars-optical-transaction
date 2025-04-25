@@ -10,8 +10,62 @@ const PatientDetailPage = () => {
   const [patient, setPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
-    // No sample data, so set patient to null by default
-    setPatient(null);
+    if (!patientCode) return;
+
+    // Try to find the patient in localStorage
+    try {
+      // First, try to find the complete patient object
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('patient_') && !key.includes('_')) {
+          const patientJson = localStorage.getItem(key);
+          if (patientJson) {
+            const storedPatient = JSON.parse(patientJson);
+            if (storedPatient && storedPatient.code === patientCode) {
+              setPatient(storedPatient);
+              return;
+            }
+          }
+        }
+      }
+
+      // If not found, try to reconstruct from individual fields
+      // Find the patient ID from the code
+      let patientId = null;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes('_code')) {
+          const code = localStorage.getItem(key);
+          if (code === patientCode) {
+            patientId = key.split('_')[1]; // Extract ID from key format: patient_ID_code
+            break;
+          }
+        }
+      }
+
+      if (patientId) {
+        const reconstructedPatient: Patient = {
+          id: patientId,
+          code: patientCode,
+          firstName: localStorage.getItem(`patient_${patientId}_firstName`) || "",
+          lastName: localStorage.getItem(`patient_${patientId}_lastName`) || "",
+          age: Number(localStorage.getItem(`patient_${patientId}_age`)) || 0,
+          email: localStorage.getItem(`patient_${patientId}_email`) || "",
+          phone: localStorage.getItem(`patient_${patientId}_phone`) || "",
+          address: localStorage.getItem(`patient_${patientId}_address`) || "",
+          sex: (localStorage.getItem(`patient_${patientId}_sex`) as 'Male' | 'Female') || undefined
+        };
+
+        // Store the complete patient object for future use
+        localStorage.setItem(`patient_${patientId}`, JSON.stringify(reconstructedPatient));
+        setPatient(reconstructedPatient);
+      } else {
+        setPatient(null);
+      }
+    } catch (error) {
+      console.error('Error loading patient details:', error);
+      setPatient(null);
+    }
   }, [patientCode]);
 
   return (
@@ -22,7 +76,7 @@ const PatientDetailPage = () => {
           { label: patient ? `${patient.firstName} ${patient.lastName}` : 'No Patient Found' }
         ]}
       />
-      {patient ? <PatientDetail /> : <div>No patient found. Please import patients.</div>}
+      {patient ? <PatientDetail patient={patient} /> : <div>No patient found. Please import patients.</div>}
     </div>
   );
 };

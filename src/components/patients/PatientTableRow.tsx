@@ -10,32 +10,36 @@ interface PatientTableRowProps {
 
 export const PatientTableRow = ({ patient, latestTransaction }: PatientTableRowProps) => {
   const navigate = useNavigate();
+  
+  const handlePatientClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Store the patient object in localStorage to ensure it's available on the detail page
+    localStorage.setItem(`patient_${patient.id}`, JSON.stringify(patient));
+    navigate(`/patients/${patient.code}`);
+  };
+
+  const handleTransactionClick = (e: React.MouseEvent, transactionCode: string) => {
+    e.preventDefault();
+    navigate(`/patients/${patient.code}/transactions/${transactionCode}`);
+  };
 
   return (
     <TableRow>
       <TableCell className="font-medium">
-        <a 
-          href={`/patients/${patient.code}`}
-          className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate(`/patients/${patient.code}`);
-          }}
+        <button 
+          className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 text-left"
+          onClick={handlePatientClick}
         >
           {patient.firstName} {patient.lastName}
-        </a>
+        </button>
       </TableCell>
       <TableCell>
-        <a 
-          href={`/patients/${patient.code}`}
-          className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate(`/patients/${patient.code}`);
-          }}
+        <button 
+          className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 text-left"
+          onClick={handlePatientClick}
         >
           {patient.code}
-        </a>
+        </button>
       </TableCell>
       <TableCell>{patient.age}</TableCell>
       <TableCell>{patient.phone}</TableCell>
@@ -43,16 +47,12 @@ export const PatientTableRow = ({ patient, latestTransaction }: PatientTableRowP
       <TableCell>{patient.email}</TableCell>
       <TableCell>
         {latestTransaction ? (
-          <a 
-            href={`/patients/${patient.code}/transactions/${latestTransaction.code}`}
-            className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate(`/patients/${patient.code}/transactions/${latestTransaction.code}`);
-            }}
+          <button 
+            className="text-[#9E0214] hover:underline cursor-pointer hover:text-opacity-80 text-left"
+            onClick={(e) => handleTransactionClick(e, latestTransaction.code)}
           >
             {latestTransaction.code}
-          </a>
+          </button>
         ) : "—"}
       </TableCell>
     </TableRow>
