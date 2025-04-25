@@ -1,15 +1,24 @@
 
-export interface PrescriptionRowData {
-  sphere?: number | "Plano";
-  cylinder?: number;
-  axis?: number;
-  visualAcuity?: string;
-  addPower?: number;
-}
+type VisualAcuityOption = {
+  value: string;
+  label: string;
+};
 
-export interface PrescriptionOptions {
+export interface PrescriptionRowProps {
+  label: string;
+  type: "od" | "os" | "add";
+  value?: {
+    sphere?: string;
+    cylinder?: string;
+    axis?: string;
+    visualAcuity?: string;
+  };
+  onChange?: (data: any) => void;
   sphereOptions: Array<{ value: string; label: string }>;
   cylinderOptions: Array<{ value: string; label: string }>;
   axisOptions: Array<{ value: string; label: string }>;
-  visualAcuityOptions: Array<{ value: string; label: string }>;
+  visualAcuityOptions: Array<VisualAcuityOption>;
+  showAllFields?: boolean;
+  readOnly?: boolean;
+  useDisabled?: boolean;
 }

@@ -45,6 +45,7 @@ export const RefractionTable = ({
           value={data?.OD}
           onChange={onChange}
           readOnly={readOnly}
+          useDisabled={false}
         />
         <PrescriptionRow
           label="OS"
@@ -56,6 +57,7 @@ export const RefractionTable = ({
           value={data?.OS}
           onChange={onChange}
           readOnly={readOnly}
+          useDisabled={false}
         />
         {(showAddPower || data?.ADD) && (
           <PrescriptionRow
@@ -69,6 +71,7 @@ export const RefractionTable = ({
             onChange={onChange}
             showAllFields={false}
             readOnly={readOnly}
+            useDisabled={false}
           />
         )}
       </TableBody>

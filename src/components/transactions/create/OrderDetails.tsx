@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -99,38 +98,17 @@ const OrderDetails = ({
           <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="transactionDate" className="text-xs text-muted-foreground">Transaction Date</Label>
-              {readOnly ? (
-                <Input
-                  id="transactionDate"
-                  type="text"
-                  value={formattedDate}
-                  readOnly
-                  className="w-full"
-                />
-              ) : (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <div className="relative">
-                      <Input
-                        id="transactionDate"
-                        type="text"
-                        value={formattedDate}
-                        readOnly
-                        className="w-full pr-10 cursor-pointer"
-                      />
-                      <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={transactionDate}
-                      onSelect={(date) => date && setTransactionDate(date)}
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              )}
+              <Input
+                id="transactionDate"
+                type="text"
+                value={formattedDate}
+                className={cn(
+                  "w-full",
+                  readOnly && "bg-muted cursor-default"
+                )}
+                readOnly
+                disabled={readOnly}
+              />
             </div>
             <div>
               <Label htmlFor="transactionType" className="text-xs text-muted-foreground">Transaction Type</Label>
@@ -139,7 +117,10 @@ const OrderDetails = ({
                 onValueChange={handleTypeChange}
                 disabled={readOnly}
               >
-                <SelectTrigger id="transactionType">
+                <SelectTrigger 
+                  id="transactionType"
+                  className={cn(readOnly && "bg-muted cursor-default")}
+                >
                   <SelectValue placeholder="Select Transaction Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -157,100 +138,83 @@ const OrderDetails = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <Label htmlFor="refractiveIndex" className="text-xs text-muted-foreground">Refractive Index</Label>
-              <Select 
-                value={refractiveIndex} 
-                onValueChange={setRefractiveIndex}
-                disabled={readOnly || shouldDisableFields}
-              >
-                <SelectTrigger id="refractiveIndex">
-                  <SelectValue placeholder="Select Refractive Index" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="N/A">N/A</SelectItem>
-                  <SelectItem value="1.56">1.56</SelectItem>
-                  <SelectItem value="1.61">1.61</SelectItem>
-                  <SelectItem value="1.67">1.67</SelectItem>
-                  <SelectItem value="1.74">1.74</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="lensType" className="text-xs text-muted-foreground">Lens Type</Label>
-              <Select 
-                value={lensType} 
-                onValueChange={setLensType}
-                disabled={readOnly || shouldDisableFields}
-              >
-                <SelectTrigger id="lensType">
-                  <SelectValue placeholder="Select Lens Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="N/A">N/A</SelectItem>
-                  <SelectItem value="SV">SV</SelectItem>
-                  <SelectItem value="KK">KK</SelectItem>
-                  <SelectItem value="Prog">Prog</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="lensCoating" className="text-xs text-muted-foreground">Lens Coating</Label>
-              <Select 
-                value={lensCoating} 
-                onValueChange={setLensCoating}
-                disabled={readOnly || shouldDisableFields}
-              >
-                <SelectTrigger id="lensCoating">
-                  <SelectValue placeholder="Select Lens Coating" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="N/A">N/A</SelectItem>
-                  <SelectItem value="UC">UC</SelectItem>
-                  <SelectItem value="MC">MC</SelectItem>
-                  <SelectItem value="BB">BB</SelectItem>
-                  <SelectItem value="TRG">TRG</SelectItem>
-                  <SelectItem value="BB TRG">BB + TRG</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="tint" className="text-xs text-muted-foreground">Tint</Label>
-              <Select 
-                value={tint} 
-                onValueChange={setTint}
-                disabled={readOnly || shouldDisableFields}
-              >
-                <SelectTrigger id="tint">
-                  <SelectValue placeholder="Select Tint" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="N/A">N/A</SelectItem>
-                  <SelectItem value="One-Tone">One-Tone</SelectItem>
-                  <SelectItem value="Two-Tone">Two-Tone</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {(tint === "One-Tone" || tint === "Two-Tone") && (
-              <div className="md:col-span-4">
-                <Label htmlFor="color" className="text-xs text-muted-foreground">Color</Label>
-                <Input
-                  id="color"
-                  placeholder="Enter tint color"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                  readOnly={readOnly}
-                />
+            {["refractiveIndex", "lensType", "lensCoating", "tint"].map((field) => (
+              <div key={field}>
+                <Label htmlFor={field} className="text-xs text-muted-foreground">
+                  {field.split(/(?=[A-Z])/).join(" ").replace(/^./, str => str.toUpperCase())}
+                </Label>
+                <Select 
+                  value={eval(field)}
+                  onValueChange={(val) => eval(`set${field.charAt(0).toUpperCase() + field.slice(1)}`)(val)}
+                  disabled={readOnly || shouldDisableFields}
+                >
+                  <SelectTrigger 
+                    id={field}
+                    className={cn(readOnly && "bg-muted cursor-default")}
+                  >
+                    <SelectValue placeholder={`Select ${field.split(/(?=[A-Z])/).join(" ")}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="N/A">N/A</SelectItem>
+                    {field === "refractiveIndex" && (
+                      <>
+                        <SelectItem value="1.56">1.56</SelectItem>
+                        <SelectItem value="1.61">1.61</SelectItem>
+                        <SelectItem value="1.67">1.67</SelectItem>
+                        <SelectItem value="1.74">1.74</SelectItem>
+                      </>
+                    )}
+                    {field === "lensType" && (
+                      <>
+                        <SelectItem value="SV">SV</SelectItem>
+                        <SelectItem value="KK">KK</SelectItem>
+                        <SelectItem value="Prog">Prog</SelectItem>
+                      </>
+                    )}
+                    {field === "lensCoating" && (
+                      <>
+                        <SelectItem value="UC">UC</SelectItem>
+                        <SelectItem value="MC">MC</SelectItem>
+                        <SelectItem value="BB">BB</SelectItem>
+                        <SelectItem value="TRG">TRG</SelectItem>
+                        <SelectItem value="BB TRG">BB + TRG</SelectItem>
+                      </>
+                    )}
+                    {field === "tint" && (
+                      <>
+                        <SelectItem value="One-Tone">One-Tone</SelectItem>
+                        <SelectItem value="Two-Tone">Two-Tone</SelectItem>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
-            )}
+            ))}
           </div>
+
+          {(tint === "One-Tone" || tint === "Two-Tone") && (
+            <div className="md:col-span-4">
+              <Label htmlFor="color" className="text-xs text-muted-foreground">Color</Label>
+              <Input
+                id="color"
+                placeholder="Enter tint color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                readOnly={readOnly}
+                className={cn(readOnly && "bg-muted cursor-default")}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
               placeholder="Enter any additional notes about this order"
-              className="min-h-[100px]"
+              className={cn(
+                "min-h-[100px]",
+                readOnly && "bg-muted cursor-default"
+              )}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               readOnly={readOnly}

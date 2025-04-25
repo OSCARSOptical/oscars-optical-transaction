@@ -1,4 +1,5 @@
 
+import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PrescriptionSelectProps {
@@ -7,6 +8,7 @@ interface PrescriptionSelectProps {
   options: Array<{ value: string; label: string }>;
   placeholder: string;
   readOnly?: boolean;
+  className?: string;
 }
 
 export const PrescriptionSelect = ({
@@ -14,19 +16,19 @@ export const PrescriptionSelect = ({
   onValueChange,
   options,
   placeholder,
-  readOnly = false
+  readOnly = false,
+  className
 }: PrescriptionSelectProps) => {
   return (
     <Select
-      disabled={readOnly}
       value={value}
       onValueChange={onValueChange}
+      disabled={readOnly}
     >
-      <SelectTrigger className="w-full">
-        <SelectValue placeholder={placeholder} className="text-gray-400" />
+      <SelectTrigger className={cn("w-full", className)}>
+        <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        {/* Make sure all options have non-empty values */}
         {options.map(option => (
           <SelectItem key={option.value} value={option.value || "N/A"}>
             {option.label}
