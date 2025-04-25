@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -58,17 +59,6 @@ const NewTransactionPage = () => {
     }
   }, [initialPatient, patient]);
 
-  const handlePatientUpdate = (updatedPatient: Patient) => {
-    setPatient(updatedPatient);
-    setMockTransaction(prev => ({
-      ...prev,
-      patientCode: updatedPatient.code,
-      patientName: `${updatedPatient.firstName} ${updatedPatient.lastName}`,
-      firstName: updatedPatient.firstName,
-      lastName: updatedPatient.lastName
-    }));
-  };
-
   const handleTransactionTypeChange = (type: string) => {
     setTransactionType(type);
     setMockTransaction(prev => ({
@@ -116,7 +106,7 @@ const NewTransactionPage = () => {
       <div className="grid gap-y-10">
         <PatientInfo
           patient={patient}
-          onPatientUpdate={handlePatientUpdate}
+          readOnly={true}
         />
 
         <RefractionDetails
