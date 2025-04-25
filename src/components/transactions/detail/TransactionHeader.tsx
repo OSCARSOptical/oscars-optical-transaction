@@ -17,7 +17,7 @@ import { PopoverContent, Popover, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Trash2 } from "lucide-react";
+import { CalendarIcon, Trash2, PenLine } from "lucide-react";
 import { Transaction } from '@/types';
 
 interface TransactionHeaderProps {
@@ -63,6 +63,10 @@ export function TransactionHeader({
     }
   };
 
+  const handleEdit = () => {
+    navigate(`/transactions/edit/${transaction.code}`);
+  };
+
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex justify-between items-start">
@@ -102,6 +106,11 @@ export function TransactionHeader({
             </Button>
           )}
 
+          <Button variant="outline" onClick={handleEdit}>
+            <PenLine className="h-4 w-4 mr-2" />
+            Edit Transaction
+          </Button>
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">
@@ -128,7 +137,11 @@ export function TransactionHeader({
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <Badge variant={transaction.claimed ? "default" : "secondary"}>
+        <Badge 
+          variant={transaction.claimed ? "default" : "secondary"}
+          className="cursor-pointer hover:opacity-90"
+          onClick={onClaimedToggle}
+        >
           {transaction.claimed ? "Claimed" : "Unclaimed"}
         </Badge>
         {transaction.claimed && transaction.dateClaimed && (
