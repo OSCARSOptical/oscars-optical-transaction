@@ -49,6 +49,21 @@ export function usePatientTransactions(patientCode: string) {
           throw error;
         }
         
+        // Helper function to ensure transaction type is valid according to our Transaction interface
+        const validateTransactionType = (type: string | null): Transaction['type'] => {
+          const validTypes: Transaction['type'][] = [
+            'Complete', 'Frame Replacement', 'Lens Replacement', 'Eye Exam', 
+            'Medical Certificate', 'Contact Lens', 'Repair', 'Return', 
+            'Balance Payment', 'Contact Lens Fitting', 'Comprehensive Eye Exam',
+            'Frame Adjustment', 'Contact Lens Refill', 'Progressive Lenses',
+            'Bifocal Lenses', 'Single Vision Lenses'
+          ];
+          
+          return validTypes.includes(type as Transaction['type']) 
+            ? (type as Transaction['type']) 
+            : 'Complete'; // Default to 'Complete' if not valid
+        };
+        
         // Transform Supabase data to match our Transaction type
         const patientTransactions: Transaction[] = data.map(transaction => ({
           id: transaction.id,
@@ -58,7 +73,7 @@ export function usePatientTransactions(patientCode: string) {
           firstName: patientData.first_name,
           lastName: patientData.last_name,
           date: transaction.transaction_date || new Date().toISOString().split('T')[0],
-          type: transaction.transaction_type || 'Complete',
+          type: validateTransactionType(transaction.transaction_type),
           status: transaction.claimed ? 'Claimed' : 'Pending',
           grossAmount: transaction.gross_amount || 0,
           deposit: transaction.deposit || 0,
