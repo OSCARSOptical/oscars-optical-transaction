@@ -44,7 +44,9 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
     if (!first || !last) return "";
     
     const prefix = "PX";
-    const initials = `${first[0]}${last.split(' ')[0][0]}`.toUpperCase();
+    // Handle compound last names - only use the first part
+    const lastParts = last.split(' ');
+    const initials = `${first[0]}${lastParts[0][0]}`.toUpperCase();
     
     try {
       // First check Supabase for existing patient codes with same initials
@@ -85,6 +87,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
         }
       });
       
+      // Start with 0000001 if no existing codes or increment from the highest
       const nextSequence = (maxSequence + 1).toString().padStart(7, "0");
       
       return `${prefix}-${initials}-${nextSequence}`;

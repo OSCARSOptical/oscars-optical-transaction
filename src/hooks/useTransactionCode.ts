@@ -31,6 +31,7 @@ export const useTransactionCode = () => {
       }
     });
     
+    // Start with 00001 if no existing codes or increment from highest
     const nextSequence = (maxSequence + 1).toString().padStart(5, "0");
     return `${prefix}-${nextSequence}`;
   };

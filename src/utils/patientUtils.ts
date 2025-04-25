@@ -3,7 +3,11 @@ import { Patient } from '@/types';
 
 export const generatePatientCode = (firstName: string, lastName: string, id: string): string => {
   const firstInitial = firstName.charAt(0).toUpperCase();
-  const lastInitial = lastName.charAt(0).toUpperCase();
+  
+  // For compound last names (e.g., "dela Cruz"), only use the first part's initial
+  const lastNameParts = lastName.split(' ');
+  const lastInitial = lastNameParts[0].charAt(0).toUpperCase();
+  
   const numericPart = id.slice(-7).padStart(7, '0');
   return `PX-${firstInitial}${lastInitial}-${numericPart}`;
 };
