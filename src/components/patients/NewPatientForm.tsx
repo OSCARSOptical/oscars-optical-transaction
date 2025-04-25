@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Patient } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NewPatientFormProps {
   onSave: (patient: Omit<Patient, "id">) => void;
@@ -20,42 +22,65 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const generatePatientCode = (first: string, last: string) => {
+  const generatePatientCode = async (first: string, last: string) => {
     if (!first || !last) return "";
     
     const prefix = "PX";
     const initials = `${first[0]}${last.split(' ')[0][0]}`.toUpperCase();
     
-    const existingCodes: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith(`patient_`) && key.endsWith('_code')) {
-        const code = localStorage.getItem(key);
-        if (code && code.startsWith(`${prefix}-${initials}-`)) {
-          existingCodes.push(code);
+    try {
+      // First check Supabase for existing patient codes with same initials
+      const { data, error } = await supabase
+        .from('patients')
+        .select('patient_code')
+        .like('patient_code', `${prefix}-${initials}-%`);
+        
+      if (error) {
+        console.error("Error fetching patient codes:", error);
+        throw error;
+      }
+      
+      // Also check localStorage for any unsaved codes
+      const existingCodes: string[] = [];
+      if (data) {
+        existingCodes.push(...data.map(p => p.patient_code));
+      }
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(`patient_`) && key.endsWith('_code')) {
+          const code = localStorage.getItem(key);
+          if (code && code.startsWith(`${prefix}-${initials}-`)) {
+            existingCodes.push(code);
+          }
         }
       }
+      
+      let maxSequence = 0;
+      existingCodes.forEach(code => {
+        const sequencePart = code.split('-')[2];
+        if (sequencePart) {
+          const sequence = parseInt(sequencePart);
+          if (!isNaN(sequence) && sequence > maxSequence) {
+            maxSequence = sequence;
+          }
+        }
+      });
+      
+      const nextSequence = (maxSequence + 1).toString().padStart(7, "0");
+      
+      return `${prefix}-${initials}-${nextSequence}`;
+    } catch (error) {
+      console.error("Error generating patient code:", error);
+      // Fallback to simple code generation if there's an error
+      return `${prefix}-${initials}-0000001`;
     }
-    
-    let maxSequence = 0;
-    existingCodes.forEach(code => {
-      const sequencePart = code.split('-')[2];
-      if (sequencePart) {
-        const sequence = parseInt(sequencePart);
-        if (!isNaN(sequence) && sequence > maxSequence) {
-          maxSequence = sequence;
-        }
-      }
-    });
-    
-    const nextSequence = (maxSequence + 1).toString().padStart(7, "0");
-    
-    return `${prefix}-${initials}-${nextSequence}`;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!firstName || !lastName) {
@@ -67,17 +92,59 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
       return;
     }
     
-    const patientCode = generatePatientCode(firstName, lastName);
-    onSave({
-      code: patientCode,
-      firstName,
-      lastName,
-      email,
-      phone,
-      address,
-      age: parseInt(age) || 0,
-      sex
-    });
+    setLoading(true);
+    
+    try {
+      const patientCode = await generatePatientCode(firstName, lastName);
+      
+      // Save patient to Supabase
+      const { data, error } = await supabase
+        .from('patients')
+        .insert([
+          {
+            first_name: firstName,
+            last_name: lastName,
+            age: parseInt(age) || null,
+            sex: sex,
+            email: email || null,
+            contact_number: phone || null,
+            address: address || null,
+            patient_code: patientCode
+          }
+        ])
+        .select();
+        
+      if (error) {
+        console.error("Error saving patient to Supabase:", error);
+        toast({
+          title: "Error",
+          description: "Failed to save patient to database",
+          variant: "destructive"
+        });
+        throw error;
+      }
+      
+      console.log("Patient saved successfully:", data);
+      
+      // Get the newly created patient with the generated ID
+      const newPatient: Omit<Patient, "id"> = {
+        code: patientCode,
+        firstName,
+        lastName,
+        email,
+        phone,
+        address,
+        age: parseInt(age) || 0,
+        sex
+      };
+      
+      onSave(newPatient);
+      
+    } catch (error) {
+      console.error("Error in form submission:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -105,7 +172,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
           <Label htmlFor="patientCode">Patient Code</Label>
           <Input
             id="patientCode"
-            value={generatePatientCode(firstName, lastName)}
+            value={firstName && lastName ? "Will be generated" : ""}
             disabled
             className="bg-gray-100"
           />
@@ -167,10 +234,12 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
       </div>
 
       <div className="flex justify-end space-x-2 pt-4">
-        <Button type="button" variant="outline" onClick={onBack}>
+        <Button type="button" variant="outline" onClick={onBack} disabled={loading}>
           Back
         </Button>
-        <Button type="submit">Save Patient</Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Saving..." : "Save Patient"}
+        </Button>
       </div>
     </form>
   );
