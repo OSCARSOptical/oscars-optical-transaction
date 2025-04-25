@@ -13,11 +13,8 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
-import { PopoverContent, Popover, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { CalendarIcon, Trash2, PenLine } from "lucide-react";
+import { Trash2, PenLine } from "lucide-react";
 import { Transaction } from '@/types';
 
 interface TransactionHeaderProps {
@@ -48,23 +45,11 @@ export function TransactionHeader({
     navigate(`/patients/${transaction.patientCode}`);
   };
 
-  const handleDateChange = (date: Date | undefined) => {
-    if (!date) return;
-
-    // Update transaction date in localStorage
-    const storedTransaction = localStorage.getItem(`transaction_${transaction.code}`);
-    if (storedTransaction) {
-      const parsedTransaction = JSON.parse(storedTransaction);
-      parsedTransaction.date = format(date, 'yyyy-MM-dd');
-      localStorage.setItem(`transaction_${transaction.code}`, JSON.stringify(parsedTransaction));
-      
-      // Refresh the page to show updated date
-      window.location.reload();
-    }
-  };
-
   const handleEdit = () => {
-    navigate(`/transactions/edit/${transaction.code}`);
+    // Navigate to the edit transaction page correctly
+    navigate(`/transactions/edit/${transaction.code}`, { 
+      state: { transaction } 
+    });
   };
 
   return (
@@ -78,63 +63,38 @@ export function TransactionHeader({
             </p>
           )}
         </div>
-        <div className="flex gap-4">
-          {!readOnly && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="justify-start text-left font-normal">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(transactionDate, 'PPP')}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={transactionDate}
-                  onSelect={handleDateChange}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
-          )}
-
-          {readOnly && (
-            <Button variant="outline" className="justify-start text-left font-normal" disabled>
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {format(transactionDate, 'PPP')}
+        {!readOnly && (
+          <div className="flex gap-4">
+            <Button variant="outline" onClick={handleEdit}>
+              <PenLine className="h-4 w-4 mr-2" />
+              Edit Transaction
             </Button>
-          )}
 
-          <Button variant="outline" onClick={handleEdit}>
-            <PenLine className="h-4 w-4 mr-2" />
-            Edit Transaction
-          </Button>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Transaction
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete transaction {transaction.code}
-                  and all associated data.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Transaction
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete transaction {transaction.code}
+                    and all associated data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
       </div>
       <div className="flex items-center gap-4">
         <Badge 

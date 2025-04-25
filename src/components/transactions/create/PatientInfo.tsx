@@ -21,7 +21,7 @@ const PatientInfo = ({ patient: initialPatient, readOnly = false }: PatientInfoP
       <CardContent>
         <PatientInfoFields 
           patient={initialPatient}
-          isEditing={false}
+          isEditing={false}  
           onFieldChange={() => {}}
         />
       </CardContent>

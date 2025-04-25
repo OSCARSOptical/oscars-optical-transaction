@@ -88,6 +88,7 @@ const NewTransactionPage = () => {
     { label: transactionCode }
   ];
 
+  // Dummy function - not actually used for new transactions
   const handleClaimedToggle = () => {};
 
   return (
@@ -109,17 +110,6 @@ const NewTransactionPage = () => {
           readOnly={true}
         />
 
-        <RefractionDetails
-          initialData={{
-            previousRx: mockTransaction.previousRx,
-            fullRx: mockTransaction.fullRx,
-            prescribedPower: mockTransaction.prescribedPower,
-            interpupillaryDistance: mockTransaction.interpupillaryDistance
-          }}
-        />
-
-        <DoctorRemarks />
-
         <OrderDetails
           initialType={transactionType}
           onTypeChange={handleTransactionTypeChange}
@@ -134,6 +124,17 @@ const NewTransactionPage = () => {
             orderNotes: mockTransaction.orderNotes
           }}
         />
+
+        <RefractionDetails
+          initialData={{
+            previousRx: mockTransaction.previousRx,
+            fullRx: mockTransaction.fullRx,
+            prescribedPower: mockTransaction.prescribedPower,
+            interpupillaryDistance: mockTransaction.interpupillaryDistance
+          }}
+        />
+
+        <DoctorRemarks />
 
         <FinancialDetails />
 

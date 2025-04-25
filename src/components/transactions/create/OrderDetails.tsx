@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -86,6 +87,17 @@ const OrderDetails = ({
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <Label htmlFor="transactionDate" className="text-xs text-muted-foreground">Transaction Date</Label>
+              <Input
+                id="transactionDate"
+                type="date"
+                value={transactionDate}
+                onChange={(e) => setTransactionDate(e.target.value)}
+                disabled={readOnly}
+                className="w-full"
+              />
+            </div>
+            <div>
               <Label htmlFor="transactionType" className="text-xs text-muted-foreground">Transaction Type</Label>
               <Select 
                 value={transactionType}
@@ -106,17 +118,6 @@ const OrderDetails = ({
                   <SelectItem value="Return">Return</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Label htmlFor="transactionDate" className="text-xs text-muted-foreground">Transaction Date</Label>
-              <Input
-                id="transactionDate"
-                type="date"
-                value={transactionDate}
-                onChange={(e) => setTransactionDate(e.target.value)}
-                disabled={readOnly}
-                className="w-full"
-              />
             </div>
           </div>
 
