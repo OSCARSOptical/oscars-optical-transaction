@@ -10,7 +10,7 @@ interface GroupedData {
   date: string;
 }
 
-export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Transaction[]) {
+export function useBalanceSheetData(selectedMonth: Date, transactions: Transaction[]) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Add event listener for balance sheet updates
@@ -27,7 +27,7 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
   }, []);
 
   // Filter transactions for the selected month
-  const filteredTransactions = sampleTransactions.filter(transaction => {
+  const filteredTransactions = transactions.filter(transaction => {
     const transactionDate = parse(transaction.date, 'yyyy-MM-dd', new Date());
     return format(transactionDate, 'MM-yyyy') === format(selectedMonth, 'MM-yyyy');
   });
@@ -71,7 +71,7 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
           processedBalancePayments.add(paymentKey);
           
           // Find original transaction to get patient information
-          const originalTransaction = sampleTransactions.find(t => t.code === entry.transactionId);
+          const originalTransaction = transactions.find(t => t.code === entry.transactionId);
           
           if (originalTransaction || entry.patientCode) {
             const patientCode = entry.patientCode || originalTransaction?.patientCode;
@@ -122,7 +122,7 @@ export function useBalanceSheetData(selectedMonth: Date, sampleTransactions: Tra
         processedBalancePayments.add(paymentKey);
         
         // Find original transaction to get additional info
-        const originalTransaction = sampleTransactions.find(t => t.code === transactionCode);
+        const originalTransaction = transactions.find(t => t.code === transactionCode);
         
         if (!groupedData[paymentDate]) {
           groupedData[paymentDate] = {

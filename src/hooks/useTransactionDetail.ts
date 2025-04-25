@@ -13,18 +13,32 @@ export function useTransactionDetail(transactionCode: string | undefined, patien
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchData = () => {
+    const fetchData = async () => {
       setLoading(true);
-
-      // For now, with empty data, this will set null values
-      // When real data is integrated, this will be replaced with actual data fetching
-      setTransaction(null);
-      setPatient(null);
-      setLoading(false);
+      
+      try {
+        // In the future, this will fetch actual data from an API or database
+        // For now, we'll just set null values to indicate no data is available
+        
+        // Simulate a slight delay to show loading state
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        setTransaction(null);
+        setPatient(null);
+      } catch (error) {
+        console.error('Error fetching transaction details:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load transaction details",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
-  }, [transactionCode, patientCode]);
+  }, [transactionCode, patientCode, toast]);
 
   const handleClaimedToggle = () => {
     if (!transaction) return;

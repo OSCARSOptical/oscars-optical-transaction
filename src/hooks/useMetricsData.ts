@@ -4,8 +4,7 @@ import { Transaction } from '@/types';
 import { format, subMonths, startOfMonth, endOfMonth, isSameMonth, isAfter, isBefore, parseISO } from 'date-fns';
 import { getAllPayments } from '@/utils/paymentsUtils';
 
-export const useMetricsData = (sampleTransactions: Transaction[], samplePatients: any[]) => {
-  const [transactions, setTransactions] = useState<Transaction[]>(sampleTransactions);
+export const useMetricsData = (transactions: Transaction[] = [], patients: any[] = []) => {
   const [pendingPayments, setPendingPayments] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -47,15 +46,23 @@ export const useMetricsData = (sampleTransactions: Transaction[], samplePatients
 
     const currentMonthDeposits = transactions
       .filter(tx => {
-        const txDate = parseISO(tx.date);
-        return isAfter(txDate, currentMonthStart) && isBefore(txDate, currentMonthEnd);
+        try {
+          const txDate = parseISO(tx.date);
+          return isAfter(txDate, currentMonthStart) && isBefore(txDate, currentMonthEnd);
+        } catch (e) {
+          return false;
+        }
       })
       .reduce((sum, tx) => sum + tx.deposit, 0);
     
     const currentMonthBalancePayments = allPayments
       .filter(payment => {
-        const paymentDate = parseISO(payment.paymentDate);
-        return isAfter(paymentDate, currentMonthStart) && isBefore(paymentDate, currentMonthEnd);
+        try {
+          const paymentDate = parseISO(payment.paymentDate);
+          return isAfter(paymentDate, currentMonthStart) && isBefore(paymentDate, currentMonthEnd);
+        } catch (e) {
+          return false;
+        }
       })
       .reduce((sum, payment) => sum + payment.amount, 0);
     
@@ -63,15 +70,23 @@ export const useMetricsData = (sampleTransactions: Transaction[], samplePatients
     
     const lastMonthDeposits = transactions
       .filter(tx => {
-        const txDate = parseISO(tx.date);
-        return isAfter(txDate, lastMonthStart) && isBefore(txDate, lastMonthEnd);
+        try {
+          const txDate = parseISO(tx.date);
+          return isAfter(txDate, lastMonthStart) && isBefore(txDate, lastMonthEnd);
+        } catch (e) {
+          return false;
+        }
       })
       .reduce((sum, tx) => sum + tx.deposit, 0);
     
     const lastMonthBalancePayments = allPayments
       .filter(payment => {
-        const paymentDate = parseISO(payment.paymentDate);
-        return isAfter(paymentDate, lastMonthStart) && isBefore(paymentDate, lastMonthEnd);
+        try {
+          const paymentDate = parseISO(payment.paymentDate);
+          return isAfter(paymentDate, lastMonthStart) && isBefore(paymentDate, lastMonthEnd);
+        } catch (e) {
+          return false;
+        }
       })
       .reduce((sum, payment) => sum + payment.amount, 0);
     
@@ -86,13 +101,18 @@ export const useMetricsData = (sampleTransactions: Transaction[], samplePatients
       setMonthlyRevenueComparison('—');
     }
     
-    const newPatients = samplePatients.filter(patient => {
-      const createdDate = parseISO(patient.createdDate);
-      return isSameMonth(createdDate, currentDate);
+    const newPatients = patients.filter(patient => {
+      if (!patient.createdDate) return false;
+      try {
+        const createdDate = parseISO(patient.createdDate);
+        return isSameMonth(createdDate, currentDate);
+      } catch (e) {
+        return false;
+      }
     }).length;
     
     setNewPatientsThisMonth(newPatients);
-  }, [transactions, refreshTrigger, samplePatients]);
+  }, [transactions, refreshTrigger, patients]);
 
   return {
     transactions,

@@ -79,6 +79,11 @@ export const removeBalanceSheetEntry = ({ date, transactionId }: RemoveEntryPara
 export const backfillClaimedTransactionPayments = (transactions: Transaction[]) => {
   console.log("Running backfill for claimed transactions without payment records...");
   
+  if (!transactions || transactions.length === 0) {
+    console.log("No transactions to process for backfill.");
+    return 0;
+  }
+  
   const claimedTransactions = transactions.filter(
     tx => tx.claimed && tx.dateClaimed && !tx.isBalancePayment
   );
