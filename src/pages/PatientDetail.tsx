@@ -14,16 +14,21 @@ const PatientDetailPage = () => {
 
     // Try to find the patient in localStorage
     try {
-      // First, try to find the complete patient object
+      // First, check if any complete patient object has matching code
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith('patient_') && !key.includes('_')) {
           const patientJson = localStorage.getItem(key);
           if (patientJson) {
-            const storedPatient = JSON.parse(patientJson);
-            if (storedPatient && storedPatient.code === patientCode) {
-              setPatient(storedPatient);
-              return;
+            try {
+              const storedPatient = JSON.parse(patientJson);
+              if (storedPatient && storedPatient.code === patientCode) {
+                console.log("Found complete patient with matching code:", storedPatient);
+                setPatient(storedPatient);
+                return;
+              }
+            } catch (e) {
+              console.error("Error parsing patient JSON:", e);
             }
           }
         }
@@ -38,12 +43,14 @@ const PatientDetailPage = () => {
           const code = localStorage.getItem(key);
           if (code === patientCode) {
             patientId = key.split('_')[1]; // Extract ID from key format: patient_ID_code
+            console.log("Found patient ID from code:", patientId);
             break;
           }
         }
       }
 
       if (patientId) {
+        // Reconstruct patient from individual fields
         const reconstructedPatient: Patient = {
           id: patientId,
           code: patientCode,
@@ -56,10 +63,13 @@ const PatientDetailPage = () => {
           sex: (localStorage.getItem(`patient_${patientId}_sex`) as 'Male' | 'Female') || undefined
         };
 
+        console.log("Reconstructed patient:", reconstructedPatient);
+        
         // Store the complete patient object for future use
         localStorage.setItem(`patient_${patientId}`, JSON.stringify(reconstructedPatient));
         setPatient(reconstructedPatient);
       } else {
+        console.log("No patient found with code:", patientCode);
         setPatient(null);
       }
     } catch (error) {

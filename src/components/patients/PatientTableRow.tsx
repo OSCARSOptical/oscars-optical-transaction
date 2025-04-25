@@ -14,7 +14,12 @@ export const PatientTableRow = ({ patient, latestTransaction }: PatientTableRowP
   const handlePatientClick = (e: React.MouseEvent) => {
     e.preventDefault();
     // Store the patient object in localStorage to ensure it's available on the detail page
-    localStorage.setItem(`patient_${patient.id}`, JSON.stringify(patient));
+    try {
+      localStorage.setItem(`patient_${patient.id}`, JSON.stringify(patient));
+      console.log("Patient data stored in localStorage:", patient);
+    } catch (error) {
+      console.error("Error storing patient data:", error);
+    }
     navigate(`/patients/${patient.code}`);
   };
 
