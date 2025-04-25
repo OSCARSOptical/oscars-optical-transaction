@@ -12,6 +12,8 @@ const PatientDetailPage = () => {
   useEffect(() => {
     if (!patientCode) return;
 
+    console.log("Loading patient detail for code:", patientCode);
+
     // Try to find the patient in localStorage
     try {
       // First, check if any complete patient object has matching code
