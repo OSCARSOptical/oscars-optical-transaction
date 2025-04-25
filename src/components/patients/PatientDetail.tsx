@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +8,6 @@ import { PatientInformationForm } from './PatientInformationForm';
 import { PatientTransactionsTable } from './PatientTransactionsTable';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
-import { samplePatients } from '@/data';
 
 export function PatientDetail() {
   const { patientCode } = useParams();
@@ -17,21 +17,44 @@ export function PatientDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const foundPatient = samplePatients.find(p => p.code === patientCode);
+    if (!patientCode) return;
     
-    if (foundPatient) {
-      const updatedPatient = {
-        ...foundPatient,
-        firstName: localStorage.getItem(`patient_${foundPatient.id}_firstName`) || foundPatient.firstName,
-        lastName: localStorage.getItem(`patient_${foundPatient.id}_lastName`) || foundPatient.lastName,
-        age: localStorage.getItem(`patient_${foundPatient.id}_age`) ? parseInt(localStorage.getItem(`patient_${foundPatient.id}_age`)!) : foundPatient.age,
-        email: localStorage.getItem(`patient_${foundPatient.id}_email`) || foundPatient.email,
-        phone: localStorage.getItem(`patient_${foundPatient.id}_phone`) || foundPatient.phone,
-        address: localStorage.getItem(`patient_${foundPatient.id}_address`) || foundPatient.address,
-        sex: (localStorage.getItem(`patient_${foundPatient.id}_sex`) as 'Male' | 'Female') || foundPatient.sex
-      };
-      
-      setPatient(updatedPatient);
+    // Check localStorage for patient data
+    const storedPatientData = localStorage.getItem(`patient_${patientCode}`);
+    if (storedPatientData) {
+      try {
+        const parsedPatient = JSON.parse(storedPatientData);
+        setPatient(parsedPatient);
+        return;
+      } catch (e) {
+        console.error("Failed to parse stored patient data", e);
+      }
+    }
+    
+    // If no stored patient data found, reconstruct from individual fields
+    // Try to find patient ID from localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.includes('_code') && localStorage.getItem(key) === patientCode) {
+        const patientId = key.split('_')[1];
+        
+        if (patientId) {
+          const reconstructedPatient = {
+            id: patientId,
+            code: patientCode,
+            firstName: localStorage.getItem(`patient_${patientId}_firstName`) || "",
+            lastName: localStorage.getItem(`patient_${patientId}_lastName`) || "",
+            age: localStorage.getItem(`patient_${patientId}_age`) ? parseInt(localStorage.getItem(`patient_${patientId}_age`)!) : 0,
+            email: localStorage.getItem(`patient_${patientId}_email`) || "",
+            phone: localStorage.getItem(`patient_${patientId}_phone`) || "",
+            address: localStorage.getItem(`patient_${patientId}_address`) || "",
+            sex: (localStorage.getItem(`patient_${patientId}_sex`) as 'Male' | 'Female') || undefined
+          };
+          
+          setPatient(reconstructedPatient);
+          return;
+        }
+      }
     }
   }, [patientCode]);
 
@@ -42,6 +65,7 @@ export function PatientDetail() {
   const handleSaveChanges = () => {
     if (!patient) return;
     
+    // Save all patient fields individually
     localStorage.setItem(`patient_${patient.id}_firstName`, patient.firstName);
     localStorage.setItem(`patient_${patient.id}_lastName`, patient.lastName);
     localStorage.setItem(`patient_${patient.id}_age`, patient.age.toString());
@@ -51,6 +75,10 @@ export function PatientDetail() {
     if (patient.sex) {
       localStorage.setItem(`patient_${patient.id}_sex`, patient.sex);
     }
+    localStorage.setItem(`patient_${patient.id}_code`, patient.code);
+    
+    // Also save the complete patient object
+    localStorage.setItem(`patient_${patient.code}`, JSON.stringify(patient));
     
     toast({
       title: "Success",

@@ -6,7 +6,6 @@ import PatientTrends from "@/components/dashboard/PatientTrends";
 import TransactionTrends from "@/components/dashboard/TransactionTrends";
 import { format } from 'date-fns';
 import { useNavigate } from "react-router-dom";
-import { samplePatients } from "@/data";
 
 const Dashboard = () => {
   const currentDateTime = new Date();
@@ -44,7 +43,7 @@ const Dashboard = () => {
           <RevenueChart />
         </TabsContent>
         <TabsContent value="patients" className="space-y-4">
-          <PatientTrends patients={samplePatients} />
+          <PatientTrends patients={[]} />
         </TabsContent>
         <TabsContent value="transactions" className="space-y-4">
           <TransactionTrends />

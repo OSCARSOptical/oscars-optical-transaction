@@ -1,13 +1,23 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { User } from "lucide-react";
 import { Patient } from '@/types';
 import { PatientTableRow } from './PatientTableRow';
 
-export function PatientList() {
+interface PatientListProps {
+  initialSearchQuery?: string;
+}
+
+export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  
+  // Update searchQuery when initialSearchQuery changes
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery);
+  }, [initialSearchQuery]);
   
   return (
     <Card className="w-full shadow-sm border border-gray-100">
