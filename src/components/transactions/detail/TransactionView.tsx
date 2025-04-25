@@ -80,6 +80,7 @@ export const TransactionView = ({ transaction: initialTransaction, patientData, 
         onEditToggle={handleEditToggle}
         onSave={handleSave}
         onDiscard={handleDiscard}
+        showClaimedToggle={true}
       />
 
       <div className="grid gap-y-10">
@@ -135,4 +136,4 @@ export const TransactionView = ({ transaction: initialTransaction, patientData, 
       </div>
     </div>
   );
-};
+}
