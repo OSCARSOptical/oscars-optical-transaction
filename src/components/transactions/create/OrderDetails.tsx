@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -85,27 +84,40 @@ const OrderDetails = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          <div>
-            <Label htmlFor="transactionType" className="text-xs text-muted-foreground">Transaction Type</Label>
-            <Select 
-              value={transactionType}
-              onValueChange={handleTypeChange}
-              disabled={readOnly}
-            >
-              <SelectTrigger id="transactionType">
-                <SelectValue placeholder="Select Transaction Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Complete">Complete</SelectItem>
-                <SelectItem value="Eye Exam">Eye Exam</SelectItem>
-                <SelectItem value="Frame Replacement">Frame Replacement</SelectItem>
-                <SelectItem value="Lens Replacement">Lens Replacement</SelectItem>
-                <SelectItem value="Medical Certificate">Medical Certificate</SelectItem>
-                <SelectItem value="Contact Lens">Contact Lens</SelectItem>
-                <SelectItem value="Repair">Repair</SelectItem>
-                <SelectItem value="Return">Return</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="transactionType" className="text-xs text-muted-foreground">Transaction Type</Label>
+              <Select 
+                value={transactionType}
+                onValueChange={handleTypeChange}
+                disabled={readOnly}
+              >
+                <SelectTrigger id="transactionType">
+                  <SelectValue placeholder="Select Transaction Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Complete">Complete</SelectItem>
+                  <SelectItem value="Eye Exam">Eye Exam</SelectItem>
+                  <SelectItem value="Frame Replacement">Frame Replacement</SelectItem>
+                  <SelectItem value="Lens Replacement">Lens Replacement</SelectItem>
+                  <SelectItem value="Medical Certificate">Medical Certificate</SelectItem>
+                  <SelectItem value="Contact Lens">Contact Lens</SelectItem>
+                  <SelectItem value="Repair">Repair</SelectItem>
+                  <SelectItem value="Return">Return</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="transactionDate" className="text-xs text-muted-foreground">Transaction Date</Label>
+              <Input
+                id="transactionDate"
+                type="date"
+                value={transactionDate}
+                onChange={(e) => setTransactionDate(e.target.value)}
+                disabled={readOnly}
+                className="w-full"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
