@@ -25,10 +25,10 @@ interface ImportPreviewTableProps {
   onTogglePromotional?: (index: number) => void;
 }
 
-// Define the organizedRow type to use throughout the component
+// Define the organizedRow type with optional groupId
 type OrganizedRow = {
   index: number;
-  groupId?: string;
+  groupId?: string | undefined;
 };
 
 export function ImportPreviewTable({ 
@@ -71,8 +71,13 @@ export function ImportPreviewTable({
         .flatMap(([txId, indices]) => indices.map(idx => ({ index: idx, groupId: txId })))
         .concat(
           // Include rows without transaction groups at the end
-          data.map((_, idx) => ({ index: idx }))
-            .filter(({ index }) => !Object.values(transactionGroups)
+          data.map((_, idx) => {
+            // Check if this index is not in any transaction group
+            const notInGroup = !Object.values(transactionGroups)
+              .some(groupIndices => groupIndices.includes(idx));
+              
+            return notInGroup ? { index: idx } : { index: idx, groupId: undefined };
+          }).filter(({ index }) => !Object.values(transactionGroups)
               .some(groupIndices => groupIndices.includes(index)))
         )
     : data.map((_, idx) => ({ index: idx }));
