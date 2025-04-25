@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -56,7 +55,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
   );
   const [ipd, setIpd] = useState<number | undefined>(initialData?.interpupillaryDistance);
   
-  // New state for previous Rx lens type and date
   const [previousRxLensType, setPreviousRxLensType] = useState<string>(
     initialData?.previousRxLensType || ""
   );
@@ -161,38 +159,35 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
                 <Label htmlFor="previousRxDate" className="text-xs text-muted-foreground">
                   Date Prescribed
                 </Label>
-                {readOnly ? (
+                <div className="relative mt-1">
                   <Input
                     id="previousRxDate"
                     type="text"
                     value={formattedPreviousRxDate}
                     readOnly
-                    className="mt-1"
+                    className="w-full pr-10"
                   />
-                ) : (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <div className="relative mt-1">
-                        <Input
-                          id="previousRxDate"
-                          type="text"
-                          value={formattedPreviousRxDate}
-                          readOnly
-                          className="w-full pr-10 cursor-pointer"
+                  {!readOnly && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="absolute right-0 top-0 h-full px-3 hover:text-muted-foreground"
+                        >
+                          <CalendarIcon className="h-4 w-4" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="end">
+                        <Calendar
+                          mode="single"
+                          selected={previousRxDate}
+                          onSelect={(date) => date && setPreviousRxDate(date)}
+                          className="pointer-events-auto"
                         />
-                        <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={previousRxDate}
-                        onSelect={(date) => date && setPreviousRxDate(date)}
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
               </div>
             </div>
             <RefractionTable

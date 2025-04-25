@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -98,39 +97,38 @@ const OrderDetails = ({
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="transactionDate" className="text-xs text-muted-foreground">Transaction Date</Label>
-              {readOnly ? (
+              <Label htmlFor="transactionDate" className="text-xs text-muted-foreground">
+                Transaction Date
+              </Label>
+              <div className="relative mt-1">
                 <Input
                   id="transactionDate"
                   type="text"
                   value={formattedDate}
                   readOnly
-                  className="w-full"
+                  className="w-full pr-10"
                 />
-              ) : (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <div className="relative">
-                      <Input
-                        id="transactionDate"
-                        type="text"
-                        value={formattedDate}
-                        readOnly
-                        className="w-full pr-10 cursor-pointer"
+                {!readOnly && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="absolute right-0 top-0 h-full px-3 hover:text-muted-foreground"
+                      >
+                        <CalendarIcon className="h-4 w-4" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="end">
+                      <Calendar
+                        mode="single"
+                        selected={transactionDate}
+                        onSelect={(date) => date && setTransactionDate(date)}
+                        className="pointer-events-auto"
                       />
-                      <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={transactionDate}
-                      onSelect={(date) => date && setTransactionDate(date)}
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              )}
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
             </div>
             <div>
               <Label htmlFor="transactionType" className="text-xs text-muted-foreground">Transaction Type</Label>
