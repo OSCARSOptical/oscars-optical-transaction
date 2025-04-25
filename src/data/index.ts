@@ -1,3 +1,3 @@
 
-export * from './samplePatients';
 export * from './sampleTransactions';
+// Removed samplePatients export
