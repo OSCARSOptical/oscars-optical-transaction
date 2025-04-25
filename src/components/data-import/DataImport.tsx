@@ -25,11 +25,18 @@ export function DataImport() {
     errorMessage,
     csvHeaders,
     rawData,
+    duplicates: detectedDuplicates,
     handleFileChange,
     handleUpload,
-    handleImport,
-    checkDuplicates
+    handleImport
   } = useCSVImport();
+
+  // Update the duplicates state when detected duplicates change
+  useState(() => {
+    if (detectedDuplicates) {
+      setDuplicates(detectedDuplicates);
+    }
+  }, [detectedDuplicates]);
 
   const handleEdit = (index: number) => {
     setCurrentPatient({...editableData[index]});

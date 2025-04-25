@@ -297,8 +297,8 @@ export const useCSVImport = () => {
           setPreview(patients);
           setEditableData([...patients]);
           
-          const duplicates = checkDuplicates(patients);
-          setDuplicates(duplicates);
+          const duplicatesFound = checkDuplicates(patients);
+          setDuplicates(duplicatesFound);
           
           setErrorMessage(null);
         } catch (error: any) {
