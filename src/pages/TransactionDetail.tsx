@@ -6,121 +6,8 @@ import { AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TransactionView } from '@/components/transactions/detail/TransactionView';
 import { findPayment } from '@/utils/paymentsUtils';
-import { samplePatients } from '@/data';
-
-// Sample patients data with the same format as in PatientDetail component
-const samplePatients: Patient[] = [
-  {
-    id: '12345',
-    firstName: 'John',
-    lastName: 'Doe',
-    age: 35,
-    email: 'john@example.com',
-    phone: '(555) 123-4567',
-    address: '123 Main St, City, State',
-    code: 'PX-JD-0000001',
-    sex: 'Male'
-  }, 
-  {
-    id: '67890',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    age: 28,
-    email: 'jane@example.com',
-    phone: '(555) 987-6543',
-    address: '456 Oak St, City, State',
-    code: 'PX-JS-0000001',
-    sex: 'Female'
-  },
-  {
-    id: '54321',
-    firstName: 'Oscar',
-    lastName: 'Santos',
-    age: 40,
-    email: 'oscar@example.com',
-    phone: '(555) 555-1111',
-    address: '789 Pine St, City, State',
-    code: 'PX-OS-0000001',
-    sex: 'Male'
-  },
-  {
-    id: '98765',
-    firstName: 'Maria',
-    lastName: 'Garcia',
-    age: 32,
-    email: 'maria@example.com',
-    phone: '(555) 444-3333',
-    address: '321 Elm St, City, State',
-    code: 'PX-MG-0000001',
-    sex: 'Female'
-  },
-  {
-    id: '12121',
-    firstName: 'Robert',
-    lastName: 'Johnson',
-    age: 45,
-    email: 'robert@example.com',
-    phone: '(555) 222-9999',
-    address: '567 Cedar St, City, State',
-    code: 'PX-RJ-0000001',
-    sex: 'Male'
-  },
-  {
-    id: '23232',
-    firstName: 'Sarah',
-    lastName: 'Williams',
-    age: 29,
-    email: 'sarah@example.com',
-    phone: '(555) 888-7777',
-    address: '890 Maple St, City, State',
-    code: 'PX-SW-0000001',
-    sex: 'Female'
-  },
-  {
-    id: '34343',
-    firstName: 'Michael',
-    lastName: 'Brown',
-    age: 38,
-    email: 'michael@example.com',
-    phone: '(555) 777-5555',
-    address: '654 Birch St, City, State',
-    code: 'PX-MB-0000001',
-    sex: 'Male'
-  },
-  {
-    id: '45454',
-    firstName: 'Emily',
-    lastName: 'Taylor',
-    age: 27,
-    email: 'emily@example.com',
-    phone: '(555) 666-4444',
-    address: '432 Walnut St, City, State',
-    code: 'PX-ET-0000001',
-    sex: 'Female'
-  },
-  {
-    id: '56565',
-    firstName: 'David',
-    lastName: 'Martinez',
-    age: 42,
-    email: 'david@example.com',
-    phone: '(555) 333-2222',
-    address: '765 Spruce St, City, State',
-    code: 'PX-DM-0000001',
-    sex: 'Male'
-  },
-  {
-    id: '67676',
-    firstName: 'Lisa',
-    lastName: 'Anderson',
-    age: 31,
-    email: 'lisa@example.com',
-    phone: '(555) 111-8888',
-    address: '987 Oak St, City, State',
-    code: 'PX-LA-0000001',
-    sex: 'Female'
-  }
-];
+import { samplePatients as importedPatients } from '@/data';
+import { sampleTransactions } from '@/data';
 
 const TransactionDetail = () => {
   const { transactionCode, patientCode } = useParams<{ transactionCode: string; patientCode: string }>();
@@ -140,7 +27,7 @@ const TransactionDetail = () => {
       if (foundTransaction) {
         // If transaction is found, find the matching patient
         const patientCodeToUse = patientCode || foundTransaction.patientCode;
-        const foundPatient = samplePatients.find(p => p.code === patientCodeToUse);
+        const foundPatient = importedPatients.find(p => p.code === patientCodeToUse);
 
         if (foundPatient) {
           // Apply any stored patient updates from localStorage
@@ -247,7 +134,6 @@ const TransactionDetail = () => {
     );
   }
 
-  // Pass both the transaction and complete patient data to the view, and set breadcrumb items:
   const breadcrumbItems = [
     { label: 'Patients', href: '/patients' },
     { label: patient ? `${patient.firstName} ${patient.lastName}` : patientCode || '', href: `/patients/${patientCode || transaction.patientCode}` },

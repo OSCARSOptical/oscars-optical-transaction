@@ -18,6 +18,7 @@ export function usePatientTransactions(patientCode: string) {
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Filter transactions for this patient from our sample data
+        // When real data is available, this will be replaced with a database call
         const patientTransactions = sampleTransactions.filter(
           transaction => transaction.patientCode === patientCode
         );

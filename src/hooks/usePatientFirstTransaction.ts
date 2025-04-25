@@ -9,11 +9,11 @@ export function usePatientFirstTransaction() {
   useEffect(() => {
     const firstDatesMap: Record<string, string> = {};
     
-    // Group transactions by patientCode and find earliest date
+    // When real data is available, this logic will be reused
+    // For now, with empty array, this will just return an empty object
     sampleTransactions.forEach(transaction => {
       const patientCode = transaction.patientCode;
       
-      // If this patient isn't in our map or this transaction is earlier, update
       if (!firstDatesMap[patientCode] || 
           new Date(transaction.date) < new Date(firstDatesMap[patientCode])) {
         firstDatesMap[patientCode] = transaction.date;
