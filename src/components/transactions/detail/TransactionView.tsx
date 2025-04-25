@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { Transaction, Patient } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -14,26 +15,31 @@ interface TransactionViewProps {
   transaction: Transaction;
   patientData?: Patient | null;
   onClaimedToggle: () => void;
-  pageTitle?: string; // Allow custom page titles for TransactionHeader
-  breadcrumbItems?: { label: string; href?: string; }[]; // New optional prop to override breadcrumb items
+  pageTitle?: string;
+  breadcrumbItems?: { label: string; href?: string; }[];
 }
 
-export const TransactionView = ({ transaction, patientData, onClaimedToggle, pageTitle, breadcrumbItems }: TransactionViewProps) => {
+export const TransactionView = ({ transaction: initialTransaction, patientData, onClaimedToggle, pageTitle, breadcrumbItems }: TransactionViewProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [transaction, setTransaction] = useState(initialTransaction);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Default breadcrumb items if not provided
-  const defaultBreadcrumbItems = [
-    { label: 'Transactions', href: '/transactions' },
-    { label: `${transaction.firstName} ${transaction.lastName}`, href: `/patients/${transaction.patientCode}` },
-    { label: transaction.code }
-  ];
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+  };
 
-  const itemsToRender = breadcrumbItems ?? defaultBreadcrumbItems;
+  const handleSave = () => {
+    setIsEditing(false);
+    toast({
+      title: "Success",
+      description: "Transaction has been updated.",
+    });
+  };
 
-  const handleEdit = () => {
-    navigate(`/transactions/edit/${transaction.code}`,
-      { state: { transaction } });
+  const handleDiscard = () => {
+    setTransaction(initialTransaction);
+    setIsEditing(false);
   };
 
   // Use the complete patient data if available, otherwise create a basic patient object from transaction data
@@ -49,6 +55,15 @@ export const TransactionView = ({ transaction, patientData, onClaimedToggle, pag
     sex: "Male" as "Male" | "Female"
   };
 
+  // Default breadcrumb items if not provided
+  const defaultBreadcrumbItems = [
+    { label: 'Transactions', href: '/transactions' },
+    { label: `${transaction.firstName} ${transaction.lastName}`, href: `/patients/${transaction.patientCode}` },
+    { label: transaction.code }
+  ];
+
+  const itemsToRender = breadcrumbItems ?? defaultBreadcrumbItems;
+
   return (
     <div className="space-y-6 pb-16">
       <div className="flex justify-between items-start">
@@ -61,6 +76,10 @@ export const TransactionView = ({ transaction, patientData, onClaimedToggle, pag
         pageTitle={pageTitle ?? "Transaction Details"}
         patientName={`${patient.firstName} ${patient.lastName}`}
         patientCode={patient.code}
+        isEditing={isEditing}
+        onEditToggle={handleEditToggle}
+        onSave={handleSave}
+        onDiscard={handleDiscard}
       />
 
       <div className="grid gap-y-10">
@@ -70,7 +89,7 @@ export const TransactionView = ({ transaction, patientData, onClaimedToggle, pag
         />
 
         <OrderDetails
-          readOnly={true}
+          readOnly={!isEditing}
           initialData={{
             transactionType: transaction.type,
             transactionDate: transaction.date,
@@ -84,17 +103,19 @@ export const TransactionView = ({ transaction, patientData, onClaimedToggle, pag
         />
 
         <RefractionDetails
-          readOnly={true}
+          readOnly={!isEditing}
           initialData={{
             previousRx: transaction.previousRx,
             fullRx: transaction.fullRx,
             prescribedPower: transaction.prescribedPower,
-            interpupillaryDistance: transaction.interpupillaryDistance
+            interpupillaryDistance: transaction.interpupillaryDistance,
+            previousRxLensType: transaction.previousRxLensType,
+            previousRxDate: transaction.previousRxDate
           }}
         />
 
         <DoctorRemarks
-          readOnly={true}
+          readOnly={!isEditing}
           initialData={{
             doctorId: transaction.doctorId,
             remarks: transaction.doctorRemarks
@@ -102,7 +123,7 @@ export const TransactionView = ({ transaction, patientData, onClaimedToggle, pag
         />
 
         <FinancialDetails
-          readOnly={true}
+          readOnly={!isEditing}
           initialData={{
             grossAmount: transaction.grossAmount,
             deposit: transaction.deposit,
@@ -115,4 +136,3 @@ export const TransactionView = ({ transaction, patientData, onClaimedToggle, pag
     </div>
   );
 };
-
