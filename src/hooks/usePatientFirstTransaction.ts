@@ -18,7 +18,9 @@ export function usePatientFirstTransaction() {
           .order('transaction_date', { ascending: true });
           
         if (error) {
-          throw error;
+          console.error("Error fetching transactions:", error);
+          setLoading(false);
+          return;
         }
         
         const firstDatesMap: Record<string, string> = {};

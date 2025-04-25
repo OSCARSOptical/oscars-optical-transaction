@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -13,6 +12,7 @@ import { Patient } from "@/types";
 import PatientSearch from "../patients/PatientSearch";
 import NewPatientForm from "../patients/NewPatientForm";
 import { useToast } from "@/hooks/use-toast";
+import { savePatientToStorage } from "@/utils/patientStorage";
 
 interface NewTransactionModalProps {
   isOpen: boolean;
@@ -26,18 +26,8 @@ const NewTransactionModal = ({ isOpen, onClose }: NewTransactionModalProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const savePatientToLocalStorage = (patient: Patient) => {
-    localStorage.setItem(`patient_${patient.id}_code`, patient.code);
-    localStorage.setItem(`patient_${patient.id}_firstName`, patient.firstName);
-    localStorage.setItem(`patient_${patient.id}_lastName`, patient.lastName);
-    localStorage.setItem(`patient_${patient.id}_age`, patient.age.toString());
-    localStorage.setItem(`patient_${patient.id}_email`, patient.email);
-    localStorage.setItem(`patient_${patient.id}_phone`, patient.phone);
-    localStorage.setItem(`patient_${patient.id}_address`, patient.address);
-  };
-  
   const handlePatientSelect = (patient: Patient) => {
-    savePatientToLocalStorage(patient);
+    savePatientToStorage(patient);
     
     // Navigate to the new transaction page with patient data
     onClose();
@@ -53,7 +43,7 @@ const NewTransactionModal = ({ isOpen, onClose }: NewTransactionModalProps) => {
       ...patientData
     };
     
-    savePatientToLocalStorage(newPatient);
+    savePatientToStorage(newPatient);
     
     // Verify patient code was generated successfully
     if (!newPatient.code) {

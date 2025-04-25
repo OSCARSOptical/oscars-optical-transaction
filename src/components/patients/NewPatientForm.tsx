@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,8 +115,23 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
       // Use the already generated patient code
       const finalPatientCode = patientCode;
       
-      // Save patient to Supabase
-      const { data, error } = await supabase
+      // First create a patient object with the data we have
+      const newPatient: Omit<Patient, "id"> = {
+        code: finalPatientCode,
+        firstName,
+        lastName,
+        email,
+        phone,
+        address,
+        age: parseInt(age) || 0,
+        sex
+      };
+      
+      // Pass the patient to the onSave callback without waiting for Supabase
+      onSave(newPatient);
+      
+      // Then try to save to Supabase (this won't block the user flow)
+      const { error } = await supabase
         .from('patients')
         .insert([
           {
@@ -130,37 +144,17 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
             address: address || null,
             patient_code: finalPatientCode
           }
-        ])
-        .select();
+        ]);
         
       if (error) {
         console.error("Error saving patient to Supabase:", error);
-        toast({
-          title: "Error",
-          description: "Failed to save patient to database",
-          variant: "destructive"
-        });
-        throw error;
+        // Don't show error toast to the user as we've already proceeded with the patient creation
+        // We'll just use localStorage as a fallback
       }
-      
-      console.log("Patient saved successfully:", data);
-      
-      // Get the newly created patient with the generated ID
-      const newPatient: Omit<Patient, "id"> = {
-        code: finalPatientCode,
-        firstName,
-        lastName,
-        email,
-        phone,
-        address,
-        age: parseInt(age) || 0,
-        sex
-      };
-      
-      onSave(newPatient);
       
     } catch (error) {
       console.error("Error in form submission:", error);
+      // Even if there's an error with Supabase, we don't block the user flow
     } finally {
       setLoading(false);
     }
