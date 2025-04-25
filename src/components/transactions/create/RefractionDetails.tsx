@@ -114,8 +114,8 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
               <SelectValue placeholder="Select IPD" />
             </SelectTrigger>
             <SelectContent>
-              {/* Changed this to use a placeholder item with a non-empty value */}
-              <SelectItem value="placeholder">Select IPD</SelectItem>
+              {/* Fix: Replacing placeholder item with a non-empty string value */}
+              <SelectItem value="default">Select IPD</SelectItem>
               {ipdOptions.map(opt => (
                 <SelectItem key={opt} value={opt}>{opt}</SelectItem>
               ))}
@@ -143,7 +143,8 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
                     <SelectValue placeholder="Select Lens Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Select Lens Type</SelectItem>
+                    {/* Fix: Changed empty string to a default value */}
+                    <SelectItem value="default">Select Lens Type</SelectItem>
                     <SelectItem value="Single Vision">Single Vision</SelectItem>
                     <SelectItem value="Bifocal">Bifocal</SelectItem>
                     <SelectItem value="Progressive">Progressive</SelectItem>

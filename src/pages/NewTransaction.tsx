@@ -158,7 +158,9 @@ const NewTransactionPage = () => {
             previousRx: mockTransaction.previousRx,
             fullRx: mockTransaction.fullRx,
             prescribedPower: mockTransaction.prescribedPower,
-            interpupillaryDistance: mockTransaction.interpupillaryDistance
+            interpupillaryDistance: mockTransaction.interpupillaryDistance,
+            previousRxLensType: mockTransaction.previousRxLensType,
+            previousRxDate: mockTransaction.previousRxDate
           }}
           readOnly={false}
         />
