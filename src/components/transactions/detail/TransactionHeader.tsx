@@ -26,6 +26,7 @@ interface TransactionHeaderProps {
   pageTitle?: string;
   patientName?: string;
   patientCode?: string;
+  readOnly?: boolean;
 }
 
 export function TransactionHeader({
@@ -33,7 +34,8 @@ export function TransactionHeader({
   onClaimedToggle,
   pageTitle = "Transaction Details",
   patientName,
-  patientCode
+  patientCode,
+  readOnly
 }: TransactionHeaderProps) {
   const navigate = useNavigate();
   const transactionDate = transaction.date ? new Date(transaction.date) : new Date();
@@ -73,23 +75,32 @@ export function TransactionHeader({
           )}
         </div>
         <div className="flex gap-4">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="justify-start text-left font-normal">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {format(transactionDate, 'PPP')}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={transactionDate}
-                onSelect={handleDateChange}
-                initialFocus
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
+          {!readOnly && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="justify-start text-left font-normal">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(transactionDate, 'PPP')}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={transactionDate}
+                  onSelect={handleDateChange}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+
+          {readOnly && (
+            <Button variant="outline" className="justify-start text-left font-normal" disabled>
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {format(transactionDate, 'PPP')}
+            </Button>
+          )}
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
