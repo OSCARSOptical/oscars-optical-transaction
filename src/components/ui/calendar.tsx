@@ -29,7 +29,7 @@ function Calendar({
           onValueChange={(newMonth) => {
             const newDate = new Date(props.displayMonth);
             newDate.setMonth(months.indexOf(newMonth));
-            props.onMonthChange(newDate);
+            props.goToMonth(newDate);
           }}
         >
           <SelectTrigger className="h-7 w-[100px] border-none bg-transparent text-sm font-medium hover:bg-accent hover:text-accent-foreground">
@@ -49,7 +49,7 @@ function Calendar({
           onValueChange={(newYear) => {
             const newDate = new Date(props.displayMonth);
             newDate.setFullYear(parseInt(newYear));
-            props.onMonthChange(newDate);
+            props.goToMonth(newDate);
           }}
         >
           <SelectTrigger className="h-7 w-[70px] border-none bg-transparent text-sm font-medium hover:bg-accent hover:text-accent-foreground">
@@ -69,7 +69,7 @@ function Calendar({
             onClick={() => {
               const prevMonth = new Date(props.displayMonth);
               prevMonth.setMonth(prevMonth.getMonth() - 1);
-              props.onMonthChange(prevMonth);
+              props.goToMonth(prevMonth);
             }}
             className={cn(
               buttonVariants({ variant: "outline" }),
@@ -82,7 +82,7 @@ function Calendar({
             onClick={() => {
               const nextMonth = new Date(props.displayMonth);
               nextMonth.setMonth(nextMonth.getMonth() + 1);
-              props.onMonthChange(nextMonth);
+              props.goToMonth(nextMonth);
             }}
             className={cn(
               buttonVariants({ variant: "outline" }),
@@ -141,4 +141,3 @@ function Calendar({
 Calendar.displayName = "Calendar";
 
 export { Calendar };
-
