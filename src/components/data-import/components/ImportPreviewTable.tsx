@@ -7,14 +7,27 @@ import { Patient } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useTransactionCode } from "@/hooks/useTransactionCode";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ImportPreviewTableProps {
   data: Patient[];
   rawData?: Record<string, string>[];
   onEdit: (index: number) => void;
+  selectedRows: Set<number>;
+  onSelectRow: (index: number, checked: boolean) => void;
+  onSelectAll: (checked: boolean) => void;
+  duplicates: Set<number>;
 }
 
-export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTableProps) {
+export function ImportPreviewTable({ 
+  data, 
+  rawData, 
+  onEdit, 
+  selectedRows,
+  onSelectRow,
+  onSelectAll,
+  duplicates
+}: ImportPreviewTableProps) {
   const navigate = useNavigate();
   const { normalizeTransactionCode } = useTransactionCode();
   const csvHeaders = rawData && rawData.length > 0 ? Object.keys(rawData[0]) : [];
@@ -36,6 +49,12 @@ export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTable
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <Checkbox 
+                  checked={data.length > 0 && selectedRows.size === data.length}
+                  onCheckedChange={(checked) => onSelectAll(checked as boolean)}
+                />
+              </TableHead>
               <TableHead>Patient ID</TableHead>
               <TableHead>First Name</TableHead>
               <TableHead>Last Name</TableHead>
@@ -48,16 +67,32 @@ export function ImportPreviewTable({ data, rawData, onEdit }: ImportPreviewTable
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                   No patient data to display
                 </TableCell>
               </TableRow>
             ) : (
               data.map((patient, index) => {
-                // Display transactions from patient data if available
+                const isDuplicate = duplicates.has(index);
                 return (
-                  <TableRow key={patient.id}>
-                    <TableCell>{patient.code}</TableCell>
+                  <TableRow 
+                    key={patient.id}
+                    className={isDuplicate ? "bg-orange-50" : undefined}
+                  >
+                    <TableCell>
+                      <Checkbox 
+                        checked={selectedRows.has(index)}
+                        onCheckedChange={(checked) => onSelectRow(index, checked as boolean)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {patient.code}
+                      {isDuplicate && (
+                        <Badge variant="outline" className="ml-2 bg-orange-100 text-orange-700">
+                          Duplicate
+                        </Badge>
+                      )}
+                    </TableCell>
                     <TableCell>{patient.firstName}</TableCell>
                     <TableCell>{patient.lastName}</TableCell>
                     <TableCell>{patient.age}</TableCell>

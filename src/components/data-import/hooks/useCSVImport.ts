@@ -13,6 +13,7 @@ export const useCSVImport = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [rawData, setRawData] = useState<any[]>([]);
+  const [duplicates, setDuplicates] = useState<Set<number>>(new Set());
   const { toast } = useToast();
   const { normalizeTransactionCode, parseMultipleTransactionCodes } = useTransactionCode();
 
@@ -32,12 +33,9 @@ export const useCSVImport = () => {
     }
   };
 
-  // Improved column detection function
   const findColumn = (row: Record<string, string>, searchTerms: string[]): string => {
-    // Log the available headers for debugging
     console.log("Available headers:", Object.keys(row));
     
-    // First try exact matches (case-insensitive)
     for (const term of searchTerms) {
       const exactMatch = Object.keys(row).find(k => 
         k.toLowerCase() === term.toLowerCase()
@@ -49,7 +47,6 @@ export const useCSVImport = () => {
       }
     }
     
-    // Then try partial matches
     for (const term of searchTerms) {
       const partialMatch = Object.keys(row).find(k => 
         k.toLowerCase().includes(term.toLowerCase())
@@ -73,7 +70,6 @@ export const useCSVImport = () => {
     
     console.log("Checking required fields in headers:", Object.keys(row));
 
-    // Check for ID field
     if (Object.keys(row).some(header => 
       header.toLowerCase().includes('id') || 
       header.toLowerCase().includes('code') || 
@@ -86,7 +82,6 @@ export const useCSVImport = () => {
       console.log("Missing ID field");
     }
     
-    // Check for name field
     if (Object.keys(row).some(header => 
       header.toLowerCase().includes('name') ||
       header.toLowerCase() === 'patient' ||
@@ -103,7 +98,6 @@ export const useCSVImport = () => {
       console.log("Missing name field");
     }
     
-    // Check for age field
     if (Object.keys(row).some(header => 
       header.toLowerCase().includes('age') || 
       header.toLowerCase().includes('years') ||
@@ -116,9 +110,36 @@ export const useCSVImport = () => {
     }
     
     return {
-      valid: hasId && hasName, // We'll make age optional
+      valid: hasId && hasName,
       missing: missingFields
     };
+  };
+
+  const checkDuplicates = (patients: Patient[]) => {
+    const duplicateIndexes = new Set<number>();
+    const existingPatients = new Set<string>();
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('patient_')) {
+        try {
+          const patientData = JSON.parse(localStorage.getItem(key) || '');
+          if (patientData && patientData.code) {
+            existingPatients.add(patientData.code);
+          }
+        } catch (e) {
+          console.error('Error parsing patient data:', e);
+        }
+      }
+    }
+
+    patients.forEach((patient, index) => {
+      if (existingPatients.has(patient.code)) {
+        duplicateIndexes.add(index);
+      }
+    });
+
+    return duplicateIndexes;
   };
 
   const handleUpload = async () => {
@@ -145,7 +166,6 @@ export const useCSVImport = () => {
           setRawData(data);
           setCsvHeaders(Object.keys(data[0]));
           
-          // Log headers for debugging
           console.log("CSV Headers:", Object.keys(data[0]));
           
           const hasRequiredFields = checkRequiredFields(data[0]);
@@ -155,23 +175,16 @@ export const useCSVImport = () => {
           }
           
           const patients: Patient[] = data.map((row, index) => {
-            // Look for Patient ID with various possible column names
             const patientId = findColumn(row, [
               'Patient ID', 'ID', 'Code', 'Patient Code', 
               'patient id', 'id', 'code', 'patient code'
             ]);
             
-            console.log(`Row ${index} - Found patient ID:`, patientId);
-            
-            // Look for patient name with various possible column names
             const patientName = findColumn(row, [
               'Patient Name', 'Name', 'Full Name', 'name', 
               'patient name', 'Patient', 'fullname', 'patient'
             ]);
             
-            console.log(`Row ${index} - Found patient name:`, patientName);
-            
-            // Try to find first and last name separately if they exist
             const firstName = findColumn(row, [
               'First Name', 'Given Name', 'first name', 
               'First', 'firstname', 'given name'
@@ -186,12 +199,10 @@ export const useCSVImport = () => {
             let lastNameValue = '';
             
             if (firstName && lastName) {
-              // Use separate first/last name columns if available
               firstNameValue = firstName;
               lastNameValue = lastName;
               console.log(`Row ${index} - Using separate name fields:`, firstNameValue, lastNameValue);
             } else if (patientName) {
-              // Split full name into parts
               const nameParts = patientName.trim().split(' ');
               if (nameParts.length >= 2) {
                 lastNameValue = nameParts[nameParts.length - 1];
@@ -203,14 +214,10 @@ export const useCSVImport = () => {
               console.log(`Row ${index} - Split patient name:`, firstNameValue, lastNameValue);
             }
 
-            // Find age in various formats
             const age = findColumn(row, [
               'Age', 'age', 'Years', 'years', 'year', 'Age (years)'
             ]);
             
-            console.log(`Row ${index} - Found age:`, age);
-            
-            // Find other fields
             const sex = findColumn(row, [
               'Sex', 'Gender', 'sex', 'gender'
             ]);
@@ -230,37 +237,25 @@ export const useCSVImport = () => {
               'Email', 'E-mail', 'email', 'Mail', 'mail', 'e-mail'
             ]);
             
-            // TRANSACTION DATA EXTRACTION
-            // Look for transaction ID in various formats
             const recentTransaction = findColumn(row, [
               'Recent Transaction', 'Transaction', 'Last Transaction',
               'Transaction ID', 'transaction', 'Transaction Id',
               'Recent Transaction ID'
             ]);
             
-            // Look for transaction history (multiple transactions)
             const transactionHistory = findColumn(row, [
               'Transaction History', 'History', 'Previous Transactions',
               'Past Transactions', 'transaction history', 'All Transactions',
               'Transactions'
             ]);
             
-            // Look for transaction date
             const transactionDate = findColumn(row, [
               'Date of Recent Transaction', 'Transaction Date', 'Date',
               'date', 'Recent Date', 'Last Transaction Date'
             ]);
             
-            console.log(`Row ${index} - Found transactions:`, {
-              recent: recentTransaction,
-              history: transactionHistory,
-              date: transactionDate
-            });
-            
-            // Normalize and collect all transaction IDs
             const transactions: string[] = [];
             
-            // Add recent transaction if it exists
             if (recentTransaction) {
               const normalizedCode = normalizeTransactionCode(recentTransaction);
               if (normalizedCode && !transactions.includes(normalizedCode)) {
@@ -268,7 +263,6 @@ export const useCSVImport = () => {
               }
             }
             
-            // Add transaction history if it exists
             if (transactionHistory) {
               const historyCodes = parseMultipleTransactionCodes(transactionHistory);
               historyCodes.forEach(code => {
@@ -278,12 +272,10 @@ export const useCSVImport = () => {
               });
             }
             
-            // Generate placeholder transaction if none found
             if (transactions.length === 0) {
               console.log(`Row ${index} - No transactions found`);
             }
 
-            // Use a default code sequence if ID is missing
             const finalPatientId = patientId || `PX${index + 1}`;
             
             return {
@@ -304,6 +296,10 @@ export const useCSVImport = () => {
 
           setPreview(patients);
           setEditableData([...patients]);
+          
+          const duplicates = checkDuplicates(patients);
+          setDuplicates(duplicates);
+          
           setErrorMessage(null);
         } catch (error: any) {
           console.error('CSV processing error:', error);
@@ -319,20 +315,19 @@ export const useCSVImport = () => {
     });
   };
 
-  const handleImport = () => {
-    if (editableData.length === 0) return;
+  const handleImport = (selectedData: Patient[]) => {
+    if (selectedData.length === 0) return;
 
     try {
-      editableData.forEach(patient => {
+      selectedData.forEach(patient => {
         localStorage.setItem(`patient_${patient.id}`, JSON.stringify(patient));
       });
 
       toast({
         title: "Import successful",
-        description: `Imported ${editableData.length} patients`,
+        description: `Imported ${selectedData.length} patients`,
       });
 
-      // Reset state
       setFile(null);
       setPreview([]);
       setEditableData([]);
@@ -340,7 +335,6 @@ export const useCSVImport = () => {
       setCsvHeaders([]);
       setRawData([]);
       
-      // Clear the file input
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
     } catch (error) {
@@ -362,6 +356,7 @@ export const useCSVImport = () => {
     errorMessage,
     csvHeaders,
     rawData,
+    duplicates,
     handleFileChange,
     handleUpload,
     handleImport

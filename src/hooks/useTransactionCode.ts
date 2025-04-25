@@ -1,4 +1,3 @@
-
 export const useTransactionCode = () => {
   const generateTransactionCode = () => {
     const date = new Date();
@@ -44,7 +43,6 @@ export const useTransactionCode = () => {
     return `${prefix}-${nextSequence}`;
   };
 
-  // Enhanced function to normalize transaction codes
   const normalizeTransactionCode = (code: string): string => {
     // If empty or undefined
     if (!code || code.trim() === '') {

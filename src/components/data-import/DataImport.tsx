@@ -14,6 +14,8 @@ export function DataImport() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
+  const [duplicates, setDuplicates] = useState<Set<number>>(new Set());
 
   const {
     file,
@@ -25,7 +27,8 @@ export function DataImport() {
     rawData,
     handleFileChange,
     handleUpload,
-    handleImport
+    handleImport,
+    checkDuplicates
   } = useCSVImport();
 
   const handleEdit = (index: number) => {
@@ -50,6 +53,31 @@ export function DataImport() {
       setEditableData(updatedData);
       setEditDialogOpen(false);
     }
+  };
+
+  const handleSelectRow = (index: number, checked: boolean) => {
+    const newSelected = new Set(selectedRows);
+    if (checked) {
+      newSelected.add(index);
+    } else {
+      newSelected.delete(index);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIndexes = new Set(editableData.map((_, index) => index));
+      setSelectedRows(allIndexes);
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleImportSelected = () => {
+    const selectedData = Array.from(selectedRows).map(index => editableData[index]);
+    handleImport(selectedData);
+    setSelectedRows(new Set());
   };
 
   return (
@@ -86,12 +114,12 @@ export function DataImport() {
           </Button>
           
           <Button 
-            onClick={handleImport} 
-            disabled={editableData.length === 0}
+            onClick={handleImportSelected}
+            disabled={selectedRows.size === 0}
             className="flex items-center gap-2"
           >
             <Upload className="h-4 w-4" />
-            Import Data
+            Import Selected ({selectedRows.size})
           </Button>
         </div>
         
@@ -107,6 +135,10 @@ export function DataImport() {
             data={editableData}
             rawData={rawData}
             onEdit={handleEdit}
+            selectedRows={selectedRows}
+            onSelectRow={handleSelectRow}
+            onSelectAll={handleSelectAll}
+            duplicates={duplicates}
           />
         )}
         
