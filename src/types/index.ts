@@ -59,6 +59,8 @@ export interface Transaction {
   previousRx?: RefractionData;
   fullRx?: RefractionData;
   prescribedPower?: RefractionData;
+  previousRxLensType?: 'Single Vision' | 'Bifocal' | 'Progressive';
+  previousRxDate?: string;
 
   // Financials
   grossAmount: number;

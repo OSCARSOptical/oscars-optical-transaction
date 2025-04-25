@@ -11,6 +11,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CalendarIcon } from "lucide-react";
 
 const NA_TRANSACTION_TYPES = [
   "Eye Exam",
@@ -88,14 +89,17 @@ const OrderDetails = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="transactionDate" className="text-xs text-muted-foreground">Transaction Date</Label>
-              <Input
-                id="transactionDate"
-                type="date"
-                value={transactionDate}
-                onChange={(e) => setTransactionDate(e.target.value)}
-                disabled={readOnly}
-                className="w-full"
-              />
+              <div className="relative">
+                <Input
+                  id="transactionDate"
+                  type="date"
+                  value={transactionDate}
+                  onChange={(e) => setTransactionDate(e.target.value)}
+                  disabled={readOnly}
+                  className="w-full pr-10"
+                />
+                <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+              </div>
             </div>
             <div>
               <Label htmlFor="transactionType" className="text-xs text-muted-foreground">Transaction Type</Label>

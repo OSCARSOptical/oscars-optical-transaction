@@ -6,6 +6,7 @@ import { RefractionTable } from "./RefractionTable";
 import { RefractionData } from "@/types";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { 
   Select,
   SelectContent,
@@ -21,6 +22,8 @@ interface RefractionDetailsProps {
     fullRx?: RefractionData;
     prescribedPower?: RefractionData;
     interpupillaryDistance?: number;
+    previousRxLensType?: string;
+    previousRxDate?: string;
   };
 }
 
@@ -44,6 +47,14 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
     initialData?.prescribedPower
   );
   const [ipd, setIpd] = useState<number | undefined>(initialData?.interpupillaryDistance);
+  
+  // New state for previous Rx lens type and date
+  const [previousRxLensType, setPreviousRxLensType] = useState<string>(
+    initialData?.previousRxLensType || ""
+  );
+  const [previousRxDate, setPreviousRxDate] = useState<string>(
+    initialData?.previousRxDate || ""
+  );
 
   const [copyEnabled, setCopyEnabled] = useState(false);
 
@@ -65,10 +76,10 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
     }
   };
 
-  const handleIpdChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleIpdChange = (value: string) => {
     if (!readOnly) {
-      const value = parseFloat(e.target.value);
-      setIpd(isNaN(value) ? undefined : value);
+      const parsedValue = parseFloat(value);
+      setIpd(isNaN(parsedValue) ? undefined : parsedValue);
     }
   };
 
@@ -93,7 +104,7 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
           </Label>
           <Select
             value={ipd !== undefined ? ipd.toFixed(1) : ""}
-            onValueChange={(value) => handleIpdChange({ target: { value } } as any)}
+            onValueChange={handleIpdChange}
             disabled={readOnly}
           >
             <SelectTrigger
@@ -118,6 +129,43 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
             <TabsTrigger value="prescribed" className="flex-1">Prescribed Power</TabsTrigger>
           </TabsList>
           <TabsContent value="previous">
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="previousRxLensType" className="text-xs text-muted-foreground">
+                  Lens Type
+                </Label>
+                <Select
+                  value={previousRxLensType}
+                  onValueChange={setPreviousRxLensType}
+                  disabled={readOnly}
+                >
+                  <SelectTrigger id="previousRxLensType" className="mt-1">
+                    <SelectValue placeholder="Select Lens Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Select Lens Type</SelectItem>
+                    <SelectItem value="Single Vision">Single Vision</SelectItem>
+                    <SelectItem value="Bifocal">Bifocal</SelectItem>
+                    <SelectItem value="Progressive">Progressive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="previousRxDate" className="text-xs text-muted-foreground">
+                  Date Prescribed
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="previousRxDate"
+                    type="date"
+                    className="w-full pr-10 mt-1"
+                    value={previousRxDate}
+                    onChange={(e) => setPreviousRxDate(e.target.value)}
+                    disabled={readOnly}
+                  />
+                </div>
+              </div>
+            </div>
             <RefractionTable
               data={previousRx}
               onChange={handlePreviousRxChange}

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
@@ -16,48 +16,68 @@ import { Patient, Transaction } from "@/types";
 import { TransactionHeader } from "@/components/transactions/detail/TransactionHeader";
 
 const NewTransactionPage = () => {
-  const { patientId } = useParams();
+  const { patientId, transactionCode } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { patient: initialPatient } = usePatientData(patientId);
   const { generateTransactionCode } = useTransactionCode();
   const [transactionType, setTransactionType] = useState<string>("Complete");
-  const [transactionCode] = useState<string>(generateTransactionCode());
+  const isEditMode = location.pathname.includes('/edit/');
+  
+  // Get transaction from location state if in edit mode
+  const editTransaction = isEditMode && location.state?.transaction 
+    ? location.state.transaction 
+    : null;
+
+  const [transactionCodeState] = useState<string>(
+    editTransaction?.code || generateTransactionCode()
+  );
+  
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
 
-  const [mockTransaction, setMockTransaction] = useState<Transaction>({
-    id: "new",
-    code: transactionCode,
-    date: new Date().toISOString().split('T')[0],
-    patientCode: patientId || "",
-    patientName: "",
-    firstName: "",
-    lastName: "",
-    type: "Complete",
-    grossAmount: 0,
-    deposit: 0,
-    balance: 0,
-    lensCapital: 0,
-    edgingPrice: 0,
-    otherExpenses: 0,
-    totalExpenses: 0,
-    claimed: false,
-    dateClaimed: null
+  // Initialize with edit transaction data or create a new mock transaction
+  const [mockTransaction, setMockTransaction] = useState<Transaction>(() => {
+    if (editTransaction) {
+      return editTransaction;
+    }
+    
+    return {
+      id: "new",
+      code: transactionCodeState,
+      date: new Date().toISOString().split('T')[0],
+      patientCode: patientId || "",
+      patientName: "",
+      firstName: "",
+      lastName: "",
+      type: "Complete",
+      grossAmount: 0,
+      deposit: 0,
+      balance: 0,
+      lensCapital: 0,
+      edgingPrice: 0,
+      otherExpenses: 0,
+      totalExpenses: 0,
+      claimed: false,
+      dateClaimed: null
+    };
   });
 
   useEffect(() => {
     if (initialPatient && (!patient || patient.id !== initialPatient.id)) {
       setPatient(initialPatient);
 
-      setMockTransaction(prev => ({
-        ...prev,
-        patientCode: initialPatient.code,
-        patientName: `${initialPatient.firstName} ${initialPatient.lastName}`,
-        firstName: initialPatient.firstName,
-        lastName: initialPatient.lastName
-      }));
+      if (!isEditMode) {
+        setMockTransaction(prev => ({
+          ...prev,
+          patientCode: initialPatient.code,
+          patientName: `${initialPatient.firstName} ${initialPatient.lastName}`,
+          firstName: initialPatient.firstName,
+          lastName: initialPatient.lastName
+        }));
+      }
     }
-  }, [initialPatient, patient]);
+  }, [initialPatient, patient, isEditMode]);
 
   const handleTransactionTypeChange = (type: string) => {
     setTransactionType(type);
@@ -77,18 +97,25 @@ const NewTransactionPage = () => {
   const handleSave = () => {
     toast({
       title: "Success",
-      description: `Transaction ${transactionCode} has been saved.`,
+      description: `Transaction ${mockTransaction.code} has been ${isEditMode ? 'updated' : 'saved'}.`,
     });
     navigate("/transactions");
   };
 
-  const breadcrumbItems = [
-    { label: "Patients", href: "/patients" },
-    { label: patient ? `${patient.firstName} ${patient.lastName}` : "Loading...", href: `/patients/${patient?.code}` },
-    { label: transactionCode }
-  ];
+  // Prepare breadcrumb items based on whether we're editing or creating
+  const breadcrumbItems = isEditMode
+    ? [
+        { label: "Transactions", href: "/transactions" },
+        { label: mockTransaction.code, href: `/transactions/${mockTransaction.code}` },
+        { label: "Edit" }
+      ]
+    : [
+        { label: "Patients", href: "/patients" },
+        { label: patient ? `${patient.firstName} ${patient.lastName}` : "Loading...", href: `/patients/${patient?.code}` },
+        { label: transactionCodeState }
+      ];
 
-  // Dummy function - not actually used for new transactions
+  // Dummy function - not actually used for new/edit transactions
   const handleClaimedToggle = () => {};
 
   return (
@@ -99,7 +126,7 @@ const NewTransactionPage = () => {
         transaction={mockTransaction}
         onClaimedToggle={handleClaimedToggle}
         readOnly={true}
-        pageTitle="New Transaction"
+        pageTitle={isEditMode ? `Edit Transaction ${mockTransaction.code}` : "New Transaction"}
         patientName={patient ? `${patient.firstName} ${patient.lastName}` : ""}
         patientCode={patient ? patient.code : ""}
       />
@@ -123,6 +150,7 @@ const NewTransactionPage = () => {
             color: mockTransaction.color,
             orderNotes: mockTransaction.orderNotes
           }}
+          readOnly={false}
         />
 
         <RefractionDetails
@@ -132,6 +160,7 @@ const NewTransactionPage = () => {
             prescribedPower: mockTransaction.prescribedPower,
             interpupillaryDistance: mockTransaction.interpupillaryDistance
           }}
+          readOnly={false}
         />
 
         <DoctorRemarks />
