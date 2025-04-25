@@ -18,22 +18,22 @@ function Calendar({
   const [month, setMonth] = React.useState<Date>();
 
   // Custom caption component with month/year selection
-  function CustomCaption({ displayMonth, onMonthChange }: CaptionProps) {
+  function CustomCaption(props: CaptionProps) {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const years = Array.from({ length: 10 }, (_, i) => displayMonth.getFullYear() - 5 + i);
+    const years = Array.from({ length: 10 }, (_, i) => props.displayMonth.getFullYear() - 5 + i);
     
     return (
       <div className="flex justify-center pt-1 relative items-center gap-1">
         <Select
-          value={months[displayMonth.getMonth()]}
+          value={months[props.displayMonth.getMonth()]}
           onValueChange={(newMonth) => {
-            const newDate = new Date(displayMonth);
+            const newDate = new Date(props.displayMonth);
             newDate.setMonth(months.indexOf(newMonth));
-            onMonthChange(newDate);
+            props.onMonthChange(newDate);
           }}
         >
           <SelectTrigger className="h-7 w-[100px] border-none bg-transparent text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-            {months[displayMonth.getMonth()]}
+            {months[props.displayMonth.getMonth()]}
           </SelectTrigger>
           <SelectContent>
             {months.map((month) => (
@@ -45,15 +45,15 @@ function Calendar({
         </Select>
 
         <Select
-          value={displayMonth.getFullYear().toString()}
+          value={props.displayMonth.getFullYear().toString()}
           onValueChange={(newYear) => {
-            const newDate = new Date(displayMonth);
+            const newDate = new Date(props.displayMonth);
             newDate.setFullYear(parseInt(newYear));
-            onMonthChange(newDate);
+            props.onMonthChange(newDate);
           }}
         >
           <SelectTrigger className="h-7 w-[70px] border-none bg-transparent text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-            {displayMonth.getFullYear()}
+            {props.displayMonth.getFullYear()}
           </SelectTrigger>
           <SelectContent>
             {years.map((year) => (
@@ -67,9 +67,9 @@ function Calendar({
         <div className="space-x-1 flex items-center">
           <button
             onClick={() => {
-              const prevMonth = new Date(displayMonth);
+              const prevMonth = new Date(props.displayMonth);
               prevMonth.setMonth(prevMonth.getMonth() - 1);
-              onMonthChange(prevMonth);
+              props.onMonthChange(prevMonth);
             }}
             className={cn(
               buttonVariants({ variant: "outline" }),
@@ -80,9 +80,9 @@ function Calendar({
           </button>
           <button
             onClick={() => {
-              const nextMonth = new Date(displayMonth);
+              const nextMonth = new Date(props.displayMonth);
               nextMonth.setMonth(nextMonth.getMonth() + 1);
-              onMonthChange(nextMonth);
+              props.onMonthChange(nextMonth);
             }}
             className={cn(
               buttonVariants({ variant: "outline" }),
