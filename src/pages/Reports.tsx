@@ -1,18 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText } from 'lucide-react';
-import { sampleTransactions } from '@/data';
 import ReportCard from '@/components/reports/ReportCard';
 
 const Reports = () => {
   const [transactionCount, setTransactionCount] = useState(0);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Set transaction count from our sample data
-    setTransactionCount(sampleTransactions.length);
-  }, []);
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -26,7 +20,6 @@ const Reports = () => {
           icon={FileText}
           onClick={() => navigate('/reports/job-orders')}
         />
-        {/* Additional report cards can be added here */}
       </div>
     </div>
   );

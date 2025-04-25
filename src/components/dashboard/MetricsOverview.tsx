@@ -2,7 +2,6 @@
 import { format } from 'date-fns';
 import MetricCard from "./MetricCard";
 import { useMetricsData } from '@/hooks/useMetricsData';
-import { sampleTransactions } from '@/data';
 import { getMetricsConfig } from '@/config/metricsConfig';
 
 interface MetricsOverviewProps {
@@ -17,16 +16,15 @@ const MetricsOverview = ({ onPendingPaymentsClick }: MetricsOverviewProps) => {
     monthlyRevenue,
     monthlyRevenueComparison,
     newPatientsThisMonth
-  } = useMetricsData(sampleTransactions, []);
+  } = useMetricsData([], []); // Empty arrays since we no longer use sample data
 
   const currentMonth = format(new Date(), 'yyyy-MM');
   const monthlyTransactionsCount = transactions.filter(tx => 
     format(new Date(tx.date), 'yyyy-MM') === currentMonth
   ).length;
 
-  // We want to attach an onClick only to Pending Payments metric
   const metrics = getMetricsConfig(
-    0, // Total patients count (now 0 since we're not using sample data)
+    0,
     newPatientsThisMonth,
     monthlyRevenue,
     monthlyRevenueComparison,
@@ -44,7 +42,6 @@ const MetricsOverview = ({ onPendingPaymentsClick }: MetricsOverviewProps) => {
             key={`${index}-${metric.title}`}
             {...metric}
             onClick={isPendingPayments ? onPendingPaymentsClick : undefined}
-            // Remove 'href' if we attach onClick for accessibility consistency
             href={!isPendingPayments ? metric.href : undefined}
           />
         );

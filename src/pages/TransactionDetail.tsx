@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Transaction, Patient } from '@/types';
@@ -7,7 +6,7 @@ import { AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TransactionView } from '@/components/transactions/detail/TransactionView';
 import { findPayment } from '@/utils/paymentsUtils';
-import { sampleTransactions } from '@/data';
+import { samplePatients } from '@/data';
 
 // Sample patients data with the same format as in PatientDetail component
 const samplePatients: Patient[] = [

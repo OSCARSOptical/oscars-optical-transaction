@@ -1,6 +1,5 @@
+
 import { useState, useEffect, useRef } from 'react';
-import { sampleTransactions } from '@/data';
-import { Transaction } from '@/types';
 import BreadcrumbNav from '@/components/layout/Breadcrumb';
 import JobOrdersTable from '@/components/reports/JobOrdersTable';
 import AdditionalItemsDialog, { AdditionalItem } from '@/components/reports/AdditionalItemsDialog';
@@ -10,7 +9,6 @@ import JobOrdersActionsBar from "@/components/reports/JobOrdersActionsBar";
 import { useJobOrdersPrint } from "@/components/reports/useJobOrdersPrint";
 
 const JobOrders = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -20,11 +18,6 @@ const JobOrders = () => {
   const [showClearHistoryDialog, setShowClearHistoryDialog] = useState(false);
 
   useEffect(() => {
-    const sortedTransactions = [...sampleTransactions].sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    setTransactions(sortedTransactions);
-
     const savedPrintedTx = localStorage.getItem('printedTransactions');
     if (savedPrintedTx) {
       setPrintedTransactions(JSON.parse(savedPrintedTx));
@@ -37,9 +30,7 @@ const JobOrders = () => {
   };
 
   const calculateTransactionTotal = () => {
-    return transactions
-      .filter(tx => selectedRows.includes(tx.id))
-      .reduce((sum, tx) => sum + tx.lensCapital + tx.edgingPrice + tx.otherExpenses, 0);
+    return 0; // This will be updated when we integrate with real data
   };
 
   const handlePrint = useJobOrdersPrint({
@@ -75,7 +66,6 @@ const JobOrders = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-
       <BreadcrumbNav items={breadcrumbItems} />
 
       <div className="flex justify-between items-center mb-6">
@@ -89,36 +79,25 @@ const JobOrders = () => {
       </div>
 
       <JobOrdersTable
-        transactions={transactions}
+        transactions={[]} // Empty array since we no longer use sample data
         selectedRows={selectedRows}
         selectAll={selectAll}
         onSelectAll={() => {
-          if (selectAll) {
-            setSelectedRows([]);
-            setSelectAll(false);
-          } else {
-            setSelectedRows(transactions.map(tx => tx.id));
-            setSelectAll(true);
-          }
+          setSelectedRows([]);
+          setSelectAll(false);
         }}
         onSelectRow={(id) => {
-          let nextRows: string[];
-          let nextSelectAll = false;
-          if (selectedRows.includes(id)) {
-            nextRows = selectedRows.filter(rowId => rowId !== id);
-            nextSelectAll = false;
-          } else {
-            nextRows = [...selectedRows, id];
-            if (nextRows.length === transactions.length) nextSelectAll = true;
-          }
-          setSelectedRows(nextRows);
-          setSelectAll(nextSelectAll);
+          setSelectedRows(prevRows => {
+            const nextRows = prevRows.filter(rowId => rowId !== id);
+            setSelectAll(false);
+            return nextRows;
+          });
         }}
         printedTransactions={printedTransactions}
       />
 
       <JobOrdersSelection
-        transactions={transactions}
+        transactions={[]} // Empty array since we no longer use sample data
         onSelectionChange={handleSelectionChange}
         initialSelectedRows={selectedRows}
         initialSelectAll={selectAll}
@@ -127,7 +106,7 @@ const JobOrders = () => {
       <div className="hidden">
         <div ref={printRef}>
           <JobOrdersTable
-            transactions={transactions.filter(tx => selectedRows.includes(tx.id))}
+            transactions={[]} // Empty array since we no longer use sample data
             isPrintView={true}
             additionalItems={additionalItems}
           />
