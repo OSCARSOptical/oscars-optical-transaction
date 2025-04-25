@@ -8,9 +8,9 @@ export interface PrescriptionRowProps {
   label: string;
   type: "od" | "os" | "add";
   value?: {
-    sphere?: string;
-    cylinder?: string;
-    axis?: string;
+    sphere?: string | number | "Plano";
+    cylinder?: string | number;
+    axis?: string | number;
     visualAcuity?: string;
   };
   onChange?: (data: any) => void;

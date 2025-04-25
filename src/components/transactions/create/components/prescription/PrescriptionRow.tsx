@@ -26,12 +26,18 @@ export const PrescriptionRow = ({
     }
   };
 
+  // Convert any numeric values to strings for display in the select components
+  const getStringValue = (val: string | number | "Plano" | undefined): string => {
+    if (val === undefined) return "";
+    return val.toString();
+  };
+
   return (
     <TableRow>
       <TableCell className="font-medium">{label}</TableCell>
       <TableCell>
         <PrescriptionSelect
-          value={value?.sphere || ""}
+          value={getStringValue(value?.sphere)}
           onValueChange={(val) => handleValueChange("sphere", val)}
           options={sphereOptions}
           placeholder="Select sphere"
@@ -43,7 +49,7 @@ export const PrescriptionRow = ({
         <>
           <TableCell>
             <PrescriptionSelect
-              value={value?.cylinder || ""}
+              value={getStringValue(value?.cylinder)}
               onValueChange={(val) => handleValueChange("cylinder", val)}
               options={cylinderOptions}
               placeholder="Select cylinder"
@@ -53,7 +59,7 @@ export const PrescriptionRow = ({
           </TableCell>
           <TableCell>
             <PrescriptionSelect
-              value={value?.axis || ""}
+              value={getStringValue(value?.axis)}
               onValueChange={(val) => handleValueChange("axis", val)}
               options={axisOptions}
               placeholder="Select axis"
