@@ -51,7 +51,7 @@ export const PrescriptionRow = ({
         />
       </TableCell>
       <TableCell className="w-48 min-w-[192px]">
-        {showAllFields && (
+        {showAllFields ? (
           <PrescriptionSelect
             value={getStringValue(value?.cylinder)}
             onValueChange={(val) => handleValueChange("cylinder", val)}
@@ -60,10 +60,12 @@ export const PrescriptionRow = ({
             readOnly={isFieldDisabled}
             className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
           />
+        ) : (
+          <div className="h-10"></div> // Empty space placeholder with same height
         )}
       </TableCell>
       <TableCell className="w-48 min-w-[192px]">
-        {showAllFields && (
+        {showAllFields ? (
           <PrescriptionSelect
             value={getStringValue(value?.axis)}
             onValueChange={(val) => handleValueChange("axis", val)}
@@ -72,6 +74,8 @@ export const PrescriptionRow = ({
             readOnly={isFieldDisabled}
             className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
           />
+        ) : (
+          <div className="h-10"></div> // Empty space placeholder with same height
         )}
       </TableCell>
       <TableCell className="w-48 min-w-[192px]">

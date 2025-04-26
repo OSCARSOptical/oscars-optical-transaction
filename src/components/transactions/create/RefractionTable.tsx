@@ -1,3 +1,4 @@
+
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RefractionData } from "@/types";
 import { PrescriptionRow } from "./components/prescription/PrescriptionRow";
@@ -84,6 +85,8 @@ export const RefractionTable = ({
               label="ADD"
               type="add"
               sphereOptions={addOptions}
+              cylinderOptions={cylinderOptions} // Added this line
+              axisOptions={axisOptions} // Added this line
               visualAcuityOptions={nearVisualAcuityOptions}
               value={data?.ADD}
               onChange={(value) => handleChange("add", value)}
