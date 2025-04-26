@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -27,33 +26,7 @@ const TransactionForm = ({
 }: TransactionFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [transactionType, setTransactionType] = useState<string>(mockTransaction.type || "Complete");
-  const [noPreviousRx, setNoPreviousRx] = useState<boolean>(mockTransaction.noPreviousRx || false);
   const [isLoading, setIsLoading] = useState(false);
-  const [autofillPrices, setAutofillPrices] = useState({
-    lensCapital: 0,
-    edgingPrice: 0,
-    otherExpenses: 0
-  });
-
-  const handleTransactionTypeChange = (type: string) => {
-    setTransactionType(type);
-    setMockTransaction(prev => ({
-      ...prev,
-      type: type as any
-    }));
-  };
-
-  const handleIpdChangeForRefraction = (ipdValue: number | undefined) => {
-    setMockTransaction(prev => ({
-      ...prev,
-      interpupillaryDistance: ipdValue
-    }));
-  };
-
-  const handlePricesChange = (prices: { lensCapital: number; edgingPrice: number; otherExpenses: number }) => {
-    setAutofillPrices(prices);
-  };
 
   const handleSave = async () => {
     try {
@@ -72,11 +45,11 @@ const TransactionForm = ({
       
       // Prepare transaction data
       const transactionData = {
+        patient_id: patient.id,
         transaction_code: mockTransaction.code,
         transaction_date: transactionDate.toISOString(),
-        patient_id: patient.id,
-        transaction_type: transactionType,
-        interpupillary_distance: mockTransaction.interpupillaryDistance || null,
+        transaction_type: mockTransaction.type,
+        interpupillary_distance: mockTransaction.interpupillaryDistance,
         gross_amount: mockTransaction.grossAmount || 0,
         deposit: mockTransaction.deposit || 0,
         balance: mockTransaction.balance || 0,
@@ -91,6 +64,8 @@ const TransactionForm = ({
         claimed: false,
         refractive_index: mockTransaction.refractiveIndex || null
       };
+
+      console.log('Saving transaction with data:', transactionData);
 
       const { data: transaction, error: transactionError } = await supabase
         .from('transactions')
@@ -143,9 +118,16 @@ const TransactionForm = ({
       <DoctorRemarks />
 
       <OrderDetails
-        initialType={transactionType}
-        onTypeChange={handleTransactionTypeChange}
-        onPricesChange={handlePricesChange}
+        initialType={mockTransaction.type}
+        onTypeChange={type => setMockTransaction(prev => ({ ...prev, type }))}
+        onPricesChange={prices => {
+          setMockTransaction(prev => ({
+            ...prev,
+            lensCapital: prices.lensCapital,
+            edgingPrice: prices.edgingPrice,
+            otherExpenses: prices.otherExpenses
+          }));
+        }}
         initialData={{
           transactionType: mockTransaction.type,
           transactionDate: mockTransaction.date,
@@ -161,7 +143,18 @@ const TransactionForm = ({
       />
 
       <FinancialDetails
-        autofillPrices={autofillPrices}
+        initialData={{
+          grossAmount: mockTransaction.grossAmount,
+          deposit: mockTransaction.deposit,
+          lensCapital: mockTransaction.lensCapital,
+          edgingPrice: mockTransaction.edgingPrice,
+          otherExpenses: mockTransaction.otherExpenses
+        }}
+        autofillPrices={{
+          lensCapital: mockTransaction.lensCapital,
+          edgingPrice: mockTransaction.edgingPrice,
+          otherExpenses: mockTransaction.otherExpenses
+        }}
       />
 
       <div className="flex justify-end">

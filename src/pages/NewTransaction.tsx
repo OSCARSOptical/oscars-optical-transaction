@@ -6,16 +6,14 @@ import { useTransactionCode } from "@/hooks/useTransactionCode";
 import { Patient, Transaction } from "@/types";
 import TransactionForm from "@/components/transactions/create/transaction-form/TransactionForm";
 import TransactionHeader from "@/components/transactions/create/transaction-form/TransactionHeader";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 
 const NewTransactionPage = () => {
   const navigate = useNavigate();
-  const { patientId, transactionCode } = useParams();
+  const { patientId: patientCode } = useParams(); // This is actually the patient code
   const location = useLocation();
-  const { patient: initialPatient, loading: patientLoading } = usePatientData(patientId);
+  const { patient: initialPatient, loading: patientLoading } = usePatientData(patientCode);
   const { generateTransactionCode } = useTransactionCode();
-  const [transactionType, setTransactionType] = useState<string>("Complete");
   const isEditMode = location.pathname.includes('/edit/');
   
   const editTransaction = isEditMode && location.state?.transaction 
@@ -29,13 +27,13 @@ const NewTransactionPage = () => {
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
 
   useEffect(() => {
-    if (!patientLoading && !initialPatient && patientId) {
+    if (!patientLoading && !initialPatient && patientCode) {
       navigate("/transactions", { 
         replace: true,
         state: { error: "Patient not found" }
       });
     }
-  }, [patientLoading, initialPatient, patientId, navigate]);
+  }, [patientLoading, initialPatient, patientCode, navigate]);
 
   useEffect(() => {
     if (initialPatient && (!patient || patient.id !== initialPatient.id)) {
@@ -62,7 +60,7 @@ const NewTransactionPage = () => {
       id: "new",
       code: transactionCodeState,
       date: new Date().toISOString().split('T')[0],
-      patientCode: patientId || "",
+      patientCode: patientCode || "",
       patientName: "",
       firstName: "",
       lastName: "",
