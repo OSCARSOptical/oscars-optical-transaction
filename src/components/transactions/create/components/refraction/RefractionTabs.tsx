@@ -71,34 +71,36 @@ export const RefractionTabs = ({
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="mb-4 w-full flex">
-        <TabsTrigger value="previous">Previous Rx</TabsTrigger>
-        <TabsTrigger value="full">Full Rx</TabsTrigger>
-        <TabsTrigger value="prescribed">Prescribed Power</TabsTrigger>
+      <TabsList className="mb-4 w-full grid grid-cols-3">
+        <TabsTrigger value="previous" className="flex-1">Previous Rx</TabsTrigger>
+        <TabsTrigger value="full" className="flex-1">Full Rx</TabsTrigger>
+        <TabsTrigger value="prescribed" className="flex-1">Prescribed Power</TabsTrigger>
       </TabsList>
       
       <TabsContent value="previous">
-        <PreviousRxOptions
-          lensType={previousRxLensType}
-          onLensTypeChange={setPreviousRxLensType}
-          rxDate={previousRxDate}
-          onRxDateChange={setPreviousRxDate}
-          readOnly={readOnly}
-          disabled={noPreviousRx}
-        />
-        <RefractionTable
-          data={previousRx}
-          onChange={handlePreviousRxChange}
-          showAddPower={true}
-          readOnly={readOnly}
-          disabled={noPreviousRx}
-        />
-        <div className="flex items-center gap-2 mt-4 px-4">
-          <NoPreviousRxCheckbox
-            checked={noPreviousRx}
-            onCheckedChange={setNoPreviousRx}
+        <div className="space-y-4">
+          <PreviousRxOptions
+            lensType={previousRxLensType}
+            onLensTypeChange={setPreviousRxLensType}
+            rxDate={previousRxDate}
+            onRxDateChange={setPreviousRxDate}
             readOnly={readOnly}
+            disabled={noPreviousRx}
           />
+          <RefractionTable
+            data={previousRx}
+            onChange={handlePreviousRxChange}
+            showAddPower={true}
+            readOnly={readOnly}
+            disabled={noPreviousRx}
+          />
+          <div className="mt-4 flex justify-end">
+            <NoPreviousRxCheckbox
+              checked={noPreviousRx}
+              onCheckedChange={setNoPreviousRx}
+              readOnly={readOnly}
+            />
+          </div>
         </div>
       </TabsContent>
       
@@ -119,10 +121,12 @@ export const RefractionTabs = ({
           readOnly={readOnly}
         />
         {!readOnly && (
-          <CopyFromFullRxCheckbox
-            checked={copyEnabled}
-            onCheckedChange={handleCopyCheckbox}
-          />
+          <div className="mt-4 flex justify-end">
+            <CopyFromFullRxCheckbox
+              checked={copyEnabled}
+              onCheckedChange={handleCopyCheckbox}
+            />
+          </div>
         )}
       </TabsContent>
     </Tabs>
