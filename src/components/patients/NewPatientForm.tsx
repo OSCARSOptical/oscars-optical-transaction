@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Patient } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { usePatientCode } from "@/hooks/usePatientCode";
 
 interface NewPatientFormProps {
   onSave: (patient: Omit<Patient, "id">) => void;
@@ -24,78 +25,26 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
   const [loading, setLoading] = useState(false);
   const [patientCode, setPatientCode] = useState("");
   const { toast } = useToast();
+  const { generatePatientCode } = usePatientCode();
 
   // Update patient code whenever first or last name changes
   useEffect(() => {
     const updatePatientCode = async () => {
       if (firstName && lastName) {
-        const code = await generatePatientCode(firstName, lastName);
-        setPatientCode(code);
+        try {
+          const code = await generatePatientCode(firstName, lastName);
+          setPatientCode(code);
+        } catch (error) {
+          console.error("Error generating patient code:", error);
+          setPatientCode("");
+        }
       } else {
         setPatientCode("");
       }
     };
     
     updatePatientCode();
-  }, [firstName, lastName]);
-
-  const generatePatientCode = async (first: string, last: string) => {
-    if (!first || !last) return "";
-    
-    const prefix = "PX";
-    // Handle compound last names - only use the first part
-    const lastParts = last.split(' ');
-    const initials = `${first[0]}${lastParts[0][0]}`.toUpperCase();
-    
-    try {
-      // First check Supabase for existing patient codes with same initials
-      const { data, error } = await supabase
-        .from('patients')
-        .select('patient_code')
-        .like('patient_code', `${prefix}-${initials}-%`);
-        
-      if (error) {
-        console.error("Error fetching patient codes:", error);
-        throw error;
-      }
-      
-      // Also check localStorage for any unsaved codes
-      const existingCodes: string[] = [];
-      if (data) {
-        existingCodes.push(...data.map(p => p.patient_code));
-      }
-      
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(`patient_`) && key.endsWith('_code')) {
-          const code = localStorage.getItem(key);
-          if (code && code.startsWith(`${prefix}-${initials}-`)) {
-            existingCodes.push(code);
-          }
-        }
-      }
-      
-      let maxSequence = 0;
-      existingCodes.forEach(code => {
-        const sequencePart = code.split('-')[2];
-        if (sequencePart) {
-          const sequence = parseInt(sequencePart);
-          if (!isNaN(sequence) && sequence > maxSequence) {
-            maxSequence = sequence;
-          }
-        }
-      });
-      
-      // Start with 0000001 if no existing codes or increment from the highest
-      const nextSequence = (maxSequence + 1).toString().padStart(7, "0");
-      
-      return `${prefix}-${initials}-${nextSequence}`;
-    } catch (error) {
-      console.error("Error generating patient code:", error);
-      // Fallback to simple code generation if there's an error
-      return `${prefix}-${initials}-0000001`;
-    }
-  };
+  }, [firstName, lastName, generatePatientCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +62,7 @@ const NewPatientForm = ({ onSave, onBack }: NewPatientFormProps) => {
     
     try {
       // Use the already generated patient code
-      const finalPatientCode = patientCode;
+      const finalPatientCode = patientCode || await generatePatientCode(firstName, lastName);
       
       // First create a patient object with the data we have
       const newPatient: Omit<Patient, "id"> = {
