@@ -1,4 +1,3 @@
-
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RefractionData } from "@/types";
 import { PrescriptionRow } from "./components/prescription/PrescriptionRow";
@@ -44,11 +43,11 @@ export const RefractionTable = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-24 font-semibold">Rx</TableHead>
-            <TableHead className="w-48">Sphere</TableHead>
-            <TableHead className="w-48">Cylinder</TableHead>
-            <TableHead className="w-48">Axis</TableHead>
-            <TableHead className="w-48">Visual Acuity</TableHead>
+            <TableHead className="w-24 min-w-[96px] font-semibold">Rx</TableHead>
+            <TableHead className="w-48 min-w-[192px]">Sphere</TableHead>
+            <TableHead className="w-48 min-w-[192px]">Cylinder</TableHead>
+            <TableHead className="w-48 min-w-[192px]">Axis</TableHead>
+            <TableHead className="w-48 min-w-[192px]">Visual Acuity</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -85,8 +84,6 @@ export const RefractionTable = ({
               label="ADD"
               type="add"
               sphereOptions={addOptions}
-              cylinderOptions={cylinderOptions}
-              axisOptions={axisOptions}
               visualAcuityOptions={nearVisualAcuityOptions}
               value={data?.ADD}
               onChange={(value) => handleChange("add", value)}

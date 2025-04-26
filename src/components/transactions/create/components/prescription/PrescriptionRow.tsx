@@ -34,12 +34,13 @@ export const PrescriptionRow = ({
   };
 
   const isFieldDisabled = readOnly || disabled;
-  const visualAcuityPlaceholder = type === 'add' ? 'Near Visual Acuity' : 'Visual Acuity';
+  const isAddType = type === 'add';
+  const visualAcuityPlaceholder = isAddType ? 'Select Near Visual Acuity' : 'Select Visual Acuity';
 
   return (
     <TableRow>
-      <TableCell className="font-medium w-24">{label}</TableCell>
-      <TableCell className="w-48">
+      <TableCell className="w-24 min-w-[96px] font-medium">{label}</TableCell>
+      <TableCell className="w-48 min-w-[192px]">
         <PrescriptionSelect
           value={getStringValue(value?.sphere)}
           onValueChange={(val) => handleValueChange("sphere", val)}
@@ -49,55 +50,40 @@ export const PrescriptionRow = ({
           className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
         />
       </TableCell>
-      {showAllFields ? (
-        <>
-          <TableCell className="w-48">
-            <PrescriptionSelect
-              value={getStringValue(value?.cylinder)}
-              onValueChange={(val) => handleValueChange("cylinder", val)}
-              options={cylinderOptions}
-              placeholder={`${placeholderPrefix}Cylinder`}
-              readOnly={isFieldDisabled}
-              className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
-            />
-          </TableCell>
-          <TableCell className="w-48">
-            <PrescriptionSelect
-              value={getStringValue(value?.axis)}
-              onValueChange={(val) => handleValueChange("axis", val)}
-              options={axisOptions}
-              placeholder={`${placeholderPrefix}Axis`}
-              readOnly={isFieldDisabled}
-              className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
-            />
-          </TableCell>
-          <TableCell className="w-48">
-            <PrescriptionSelect
-              value={value?.visualAcuity || ""}
-              onValueChange={(val) => handleValueChange("visualAcuity", val)}
-              options={visualAcuityOptions}
-              placeholder={visualAcuityPlaceholder}
-              readOnly={isFieldDisabled}
-              className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
-            />
-          </TableCell>
-        </>
-      ) : (
-        <>
-          <TableCell className="w-48" colSpan={3}>
-          </TableCell>
-          <TableCell className="w-48">
-            <PrescriptionSelect
-              value={value?.visualAcuity || ""}
-              onValueChange={(val) => handleValueChange("visualAcuity", val)}
-              options={visualAcuityOptions}
-              placeholder={visualAcuityPlaceholder}
-              readOnly={isFieldDisabled}
-              className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
-            />
-          </TableCell>
-        </>
-      )}
+      <TableCell className="w-48 min-w-[192px]">
+        {showAllFields && (
+          <PrescriptionSelect
+            value={getStringValue(value?.cylinder)}
+            onValueChange={(val) => handleValueChange("cylinder", val)}
+            options={cylinderOptions}
+            placeholder={`${placeholderPrefix}Cylinder`}
+            readOnly={isFieldDisabled}
+            className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
+          />
+        )}
+      </TableCell>
+      <TableCell className="w-48 min-w-[192px]">
+        {showAllFields && (
+          <PrescriptionSelect
+            value={getStringValue(value?.axis)}
+            onValueChange={(val) => handleValueChange("axis", val)}
+            options={axisOptions}
+            placeholder={`${placeholderPrefix}Axis`}
+            readOnly={isFieldDisabled}
+            className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
+          />
+        )}
+      </TableCell>
+      <TableCell className="w-48 min-w-[192px]">
+        <PrescriptionSelect
+          value={value?.visualAcuity || ""}
+          onValueChange={(val) => handleValueChange("visualAcuity", val)}
+          options={visualAcuityOptions}
+          placeholder={visualAcuityPlaceholder}
+          readOnly={isFieldDisabled}
+          className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
+        />
+      </TableCell>
     </TableRow>
   );
 };
