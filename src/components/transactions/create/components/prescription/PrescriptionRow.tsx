@@ -1,4 +1,3 @@
-
 import { TableCell, TableRow } from "@/components/ui/table";
 import { PrescriptionSelect } from "./PrescriptionSelect";
 import { cn } from "@/lib/utils";
@@ -28,7 +27,6 @@ export const PrescriptionRow = ({
     }
   };
 
-  // Convert any numeric values to strings for display in the select components
   const getStringValue = (val: string | number | "Plano" | undefined): string => {
     if (val === undefined) return "";
     return val.toString();
@@ -44,7 +42,7 @@ export const PrescriptionRow = ({
           value={getStringValue(value?.sphere)}
           onValueChange={(val) => handleValueChange("sphere", val)}
           options={sphereOptions}
-          placeholder={`${placeholderPrefix}sphere`}
+          placeholder={`${placeholderPrefix}Sphere`}
           readOnly={isFieldDisabled}
           className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
         />
@@ -56,7 +54,7 @@ export const PrescriptionRow = ({
               value={getStringValue(value?.cylinder)}
               onValueChange={(val) => handleValueChange("cylinder", val)}
               options={cylinderOptions}
-              placeholder={`${placeholderPrefix}cylinder`}
+              placeholder={`${placeholderPrefix}Cylinder`}
               readOnly={isFieldDisabled}
               className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
             />
@@ -66,7 +64,7 @@ export const PrescriptionRow = ({
               value={getStringValue(value?.axis)}
               onValueChange={(val) => handleValueChange("axis", val)}
               options={axisOptions}
-              placeholder={`${placeholderPrefix}axis`}
+              placeholder={`${placeholderPrefix}Axis`}
               readOnly={isFieldDisabled}
               className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
             />
@@ -76,7 +74,7 @@ export const PrescriptionRow = ({
               value={value?.visualAcuity || ""}
               onValueChange={(val) => handleValueChange("visualAcuity", val)}
               options={visualAcuityOptions}
-              placeholder={`${placeholderPrefix}VA`}
+              placeholder={`${placeholderPrefix}Visual Acuity`}
               readOnly={isFieldDisabled}
               className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
             />
