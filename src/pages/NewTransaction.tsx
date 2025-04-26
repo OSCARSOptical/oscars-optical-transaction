@@ -129,6 +129,7 @@ const NewTransactionPage = () => {
         pageTitle={isEditMode ? `Edit Transaction ${mockTransaction.code}` : "New Transaction"}
         patientName={patient ? `${patient.firstName} ${patient.lastName}` : ""}
         patientCode={patient ? patient.code : ""}
+        isNew={true}
       />
 
       <div className="grid gap-y-10">

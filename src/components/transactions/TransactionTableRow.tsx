@@ -61,7 +61,7 @@ export function TransactionTableRow({
               variant="ghost"
               size="icon"
               className="h-5 w-5 p-0"
-              aria-label="Copy Contact Number"
+              aria-label="Copy contact number"
               onClick={() => handleCopy(transaction.phone!)}
               type="button"
             >
@@ -111,7 +111,7 @@ export function TransactionTableRow({
               onClick={() => navigate(`/patients/${transaction.patientCode}/transactions/${transaction.code}`)}
               className="cursor-pointer"
             >
-              View Full Transaction
+              View full transaction
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

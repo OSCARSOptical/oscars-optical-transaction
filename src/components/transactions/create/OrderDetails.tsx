@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -19,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const NA_TRANSACTION_TYPES = [
   "Eye Exam",
@@ -98,17 +100,34 @@ const OrderDetails = ({
           <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="transactionDate" className="text-xs text-muted-foreground">Transaction Date</Label>
-              <Input
-                id="transactionDate"
-                type="text"
-                value={formattedDate}
-                className={cn(
-                  "w-full",
-                  readOnly && "bg-muted cursor-default"
-                )}
-                readOnly
-                disabled={readOnly}
-              />
+              <div className="relative">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      size="sm"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        readOnly && "opacity-50 cursor-not-allowed"
+                      )}
+                      disabled={readOnly}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formattedDate}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={transactionDate}
+                      onSelect={(date) => setTransactionDate(date || new Date())}
+                      initialFocus
+                      disabled={readOnly}
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
             <div>
               <Label htmlFor="transactionType" className="text-xs text-muted-foreground">Transaction Type</Label>
@@ -121,15 +140,15 @@ const OrderDetails = ({
                   id="transactionType"
                   className={cn(readOnly && "bg-muted cursor-default")}
                 >
-                  <SelectValue placeholder="Select Transaction Type" />
+                  <SelectValue placeholder="Select transaction type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Complete">Complete</SelectItem>
-                  <SelectItem value="Eye Exam">Eye Exam</SelectItem>
-                  <SelectItem value="Frame Replacement">Frame Replacement</SelectItem>
-                  <SelectItem value="Lens Replacement">Lens Replacement</SelectItem>
-                  <SelectItem value="Medical Certificate">Medical Certificate</SelectItem>
-                  <SelectItem value="Contact Lens">Contact Lens</SelectItem>
+                  <SelectItem value="Eye Exam">Eye exam</SelectItem>
+                  <SelectItem value="Frame Replacement">Frame replacement</SelectItem>
+                  <SelectItem value="Lens Replacement">Lens replacement</SelectItem>
+                  <SelectItem value="Medical Certificate">Medical certificate</SelectItem>
+                  <SelectItem value="Contact Lens">Contact lens</SelectItem>
                   <SelectItem value="Repair">Repair</SelectItem>
                   <SelectItem value="Return">Return</SelectItem>
                 </SelectContent>
@@ -138,58 +157,95 @@ const OrderDetails = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {["refractiveIndex", "lensType", "lensCoating", "tint"].map((field) => (
-              <div key={field}>
-                <Label htmlFor={field} className="text-xs text-muted-foreground">
-                  {field.split(/(?=[A-Z])/).join(" ").replace(/^./, str => str.toUpperCase())}
-                </Label>
-                <Select 
-                  value={eval(field)}
-                  onValueChange={(val) => eval(`set${field.charAt(0).toUpperCase() + field.slice(1)}`)(val)}
-                  disabled={readOnly || shouldDisableFields}
+            <div>
+              <Label htmlFor="refractiveIndex" className="text-xs text-muted-foreground">Refractive Index</Label>
+              <Select 
+                value={refractiveIndex}
+                onValueChange={(val) => setRefractiveIndex(val)}
+                disabled={readOnly || shouldDisableFields}
+              >
+                <SelectTrigger 
+                  id="refractiveIndex"
+                  className={cn(readOnly && "bg-muted cursor-default")}
                 >
-                  <SelectTrigger 
-                    id={field}
-                    className={cn(readOnly && "bg-muted cursor-default")}
-                  >
-                    <SelectValue placeholder={`Select ${field.split(/(?=[A-Z])/).join(" ")}`} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="N/A">N/A</SelectItem>
-                    {field === "refractiveIndex" && (
-                      <>
-                        <SelectItem value="1.56">1.56</SelectItem>
-                        <SelectItem value="1.61">1.61</SelectItem>
-                        <SelectItem value="1.67">1.67</SelectItem>
-                        <SelectItem value="1.74">1.74</SelectItem>
-                      </>
-                    )}
-                    {field === "lensType" && (
-                      <>
-                        <SelectItem value="SV">SV</SelectItem>
-                        <SelectItem value="KK">KK</SelectItem>
-                        <SelectItem value="Prog">Prog</SelectItem>
-                      </>
-                    )}
-                    {field === "lensCoating" && (
-                      <>
-                        <SelectItem value="UC">UC</SelectItem>
-                        <SelectItem value="MC">MC</SelectItem>
-                        <SelectItem value="BB">BB</SelectItem>
-                        <SelectItem value="TRG">TRG</SelectItem>
-                        <SelectItem value="BB TRG">BB + TRG</SelectItem>
-                      </>
-                    )}
-                    {field === "tint" && (
-                      <>
-                        <SelectItem value="One-Tone">One-Tone</SelectItem>
-                        <SelectItem value="Two-Tone">Two-Tone</SelectItem>
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            ))}
+                  <SelectValue placeholder="Select refractive index" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="N/A">N/A</SelectItem>
+                  <SelectItem value="1.56">1.56</SelectItem>
+                  <SelectItem value="1.61">1.61</SelectItem>
+                  <SelectItem value="1.67">1.67</SelectItem>
+                  <SelectItem value="1.74">1.74</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="lensType" className="text-xs text-muted-foreground">Lens Type</Label>
+              <Select 
+                value={lensType}
+                onValueChange={(val) => setLensType(val)}
+                disabled={readOnly || shouldDisableFields}
+              >
+                <SelectTrigger 
+                  id="lensType"
+                  className={cn(readOnly && "bg-muted cursor-default")}
+                >
+                  <SelectValue placeholder="Select lens type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="N/A">N/A</SelectItem>
+                  <SelectItem value="SV">SV</SelectItem>
+                  <SelectItem value="KK">KK</SelectItem>
+                  <SelectItem value="Prog">Prog</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="lensCoating" className="text-xs text-muted-foreground">Lens Coating</Label>
+              <Select 
+                value={lensCoating}
+                onValueChange={(val) => setLensCoating(val)}
+                disabled={readOnly || shouldDisableFields}
+              >
+                <SelectTrigger 
+                  id="lensCoating"
+                  className={cn(readOnly && "bg-muted cursor-default")}
+                >
+                  <SelectValue placeholder="Select lens coating" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="N/A">N/A</SelectItem>
+                  <SelectItem value="UC">UC</SelectItem>
+                  <SelectItem value="MC">MC</SelectItem>
+                  <SelectItem value="BB">BB</SelectItem>
+                  <SelectItem value="TRG">TRG</SelectItem>
+                  <SelectItem value="BB TRG">BB + TRG</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="tint" className="text-xs text-muted-foreground">Tint</Label>
+              <Select 
+                value={tint}
+                onValueChange={(val) => setTint(val)}
+                disabled={readOnly || shouldDisableFields}
+              >
+                <SelectTrigger 
+                  id="tint"
+                  className={cn(readOnly && "bg-muted cursor-default")}
+                >
+                  <SelectValue placeholder="Select tint" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="N/A">N/A</SelectItem>
+                  <SelectItem value="One-Tone">One-tone</SelectItem>
+                  <SelectItem value="Two-Tone">Two-tone</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {(tint === "One-Tone" || tint === "Two-Tone") && (
