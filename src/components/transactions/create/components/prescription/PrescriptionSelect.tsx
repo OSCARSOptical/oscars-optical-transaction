@@ -1,12 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PrescriptionSelectProps {
   value: string;
@@ -25,34 +19,18 @@ export const PrescriptionSelect = ({
   readOnly = false,
   className
 }: PrescriptionSelectProps) => {
-  const handleSelect = (newValue: string) => {
-    if (!readOnly) {
-      onValueChange(newValue);
-    }
-  };
-
   return (
     <Select
       value={value}
-      onValueChange={handleSelect}
+      onValueChange={onValueChange}
       disabled={readOnly}
     >
-      <SelectTrigger 
-        className={cn(
-          "w-full bg-background", 
-          readOnly && "bg-muted cursor-not-allowed",
-          className
-        )}
-      >
+      <SelectTrigger className={cn("w-full", className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
         {options.map(option => (
-          <SelectItem 
-            key={option.value} 
-            value={option.value || "N/A"}
-            className="cursor-pointer"
-          >
+          <SelectItem key={option.value} value={option.value || "N/A"}>
             {option.label}
           </SelectItem>
         ))}

@@ -23,7 +23,7 @@ export const NoPreviousRxCheckbox = ({
       />
       <Label 
         htmlFor="noPreviousRx" 
-        className="text-xs text-muted-foreground cursor-pointer"
+        className="text-xs text-muted-foreground mb-0"
       >
         No Previous Rx
       </Label>
