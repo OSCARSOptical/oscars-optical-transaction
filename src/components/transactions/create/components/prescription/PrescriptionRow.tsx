@@ -48,7 +48,7 @@ export const PrescriptionRow = ({
           className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
         />
       </TableCell>
-      {showAllFields && (
+      {showAllFields ? (
         <>
           <TableCell>
             <PrescriptionSelect
@@ -81,6 +81,17 @@ export const PrescriptionRow = ({
             />
           </TableCell>
         </>
+      ) : (
+        <TableCell>
+          <PrescriptionSelect
+            value={value?.visualAcuity || ""}
+            onValueChange={(val) => handleValueChange("visualAcuity", val)}
+            options={visualAcuityOptions}
+            placeholder={`${placeholderPrefix}Visual Acuity`}
+            readOnly={isFieldDisabled}
+            className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
+          />
+        </TableCell>
       )}
     </TableRow>
   );

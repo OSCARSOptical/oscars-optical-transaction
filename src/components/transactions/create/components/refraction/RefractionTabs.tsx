@@ -70,11 +70,11 @@ export const RefractionTabs = ({
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="mb-4 w-full flex">
-        <TabsTrigger value="previous">Previous Rx</TabsTrigger>
-        <TabsTrigger value="full">Full Rx</TabsTrigger>
-        <TabsTrigger value="prescribed">Prescribed Power</TabsTrigger>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="mb-4 grid w-full grid-cols-3">
+        <TabsTrigger value="previous" className="flex-1">Previous Rx</TabsTrigger>
+        <TabsTrigger value="full" className="flex-1">Full Rx</TabsTrigger>
+        <TabsTrigger value="prescribed" className="flex-1">Prescribed Power</TabsTrigger>
       </TabsList>
       
       <TabsContent value="previous">

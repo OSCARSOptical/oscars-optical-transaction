@@ -5,5 +5,5 @@ export const distanceVisualAcuityOptions = [
 ].map(value => ({ value, label: value }));
 
 export const nearVisualAcuityOptions = [
-  "N24", "N18", "N10", "N8", "N6", "N5"
+  "N5", "N6", "N8", "N10", "N18", "N24"
 ].map(value => ({ value, label: value }));
