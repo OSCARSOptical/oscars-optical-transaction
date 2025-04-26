@@ -37,6 +37,8 @@ export const PrescriptionSelect = ({
     }
   }, [open]);
 
+  const selectedLabel = value ? options.find(option => option.value === value)?.label : placeholder;
+
   return (
     <Popover open={open} onOpenChange={readOnly ? undefined : setOpen}>
       <PopoverTrigger asChild>
@@ -46,16 +48,19 @@ export const PrescriptionSelect = ({
           aria-expanded={open}
           disabled={readOnly}
           className={cn(
-            "w-full justify-between",
+            "w-[192px] min-w-[192px] justify-between",
             readOnly && "bg-muted cursor-default",
             className
           )}
         >
-          {value ? options.find(option => option.value === value)?.label : placeholder}
+          <span className="truncate">{selectedLabel}</span>
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
+      <PopoverContent 
+        className="w-[192px] p-0" 
+        align="start"
+      >
         <Command>
           <CommandInput 
             placeholder={`Search ${placeholder.toLowerCase()}...`}
@@ -80,7 +85,7 @@ export const PrescriptionSelect = ({
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {option.label}
+                  <span className="truncate">{option.label}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
