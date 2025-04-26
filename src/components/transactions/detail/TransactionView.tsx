@@ -98,6 +98,7 @@ export const TransactionView = ({ transaction: initialTransaction, patientData, 
             lensCoating: transaction.lensCoating,
             tint: transaction.tint,
             color: transaction.color,
+            frameType: transaction.frameType,
             orderNotes: transaction.orderNotes
           }}
         />
@@ -110,7 +111,8 @@ export const TransactionView = ({ transaction: initialTransaction, patientData, 
             prescribedPower: transaction.prescribedPower,
             interpupillaryDistance: transaction.interpupillaryDistance,
             previousRxLensType: transaction.previousRxLensType,
-            previousRxDate: transaction.previousRxDate
+            previousRxDate: transaction.previousRxDate,
+            noPreviousRx: transaction.noPreviousRx
           }}
         />
 

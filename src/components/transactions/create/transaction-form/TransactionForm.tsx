@@ -27,6 +27,7 @@ const TransactionForm = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [transactionType, setTransactionType] = useState<string>(mockTransaction.type || "Complete");
+  const [noPreviousRx, setNoPreviousRx] = useState<boolean>(mockTransaction.noPreviousRx || false);
 
   const handleTransactionTypeChange = (type: string) => {
     setTransactionType(type);
@@ -69,6 +70,7 @@ const TransactionForm = ({
           lensCoating: mockTransaction.lensCoating,
           tint: mockTransaction.tint,
           color: mockTransaction.color,
+          frameType: mockTransaction.frameType,
           orderNotes: mockTransaction.orderNotes
         }}
         readOnly={false}
@@ -81,7 +83,8 @@ const TransactionForm = ({
           prescribedPower: mockTransaction.prescribedPower,
           interpupillaryDistance: mockTransaction.interpupillaryDistance,
           previousRxLensType: mockTransaction.previousRxLensType,
-          previousRxDate: mockTransaction.previousRxDate
+          previousRxDate: mockTransaction.previousRxDate,
+          noPreviousRx: mockTransaction.noPreviousRx
         }}
         readOnly={false}
       />

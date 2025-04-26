@@ -1,24 +1,28 @@
+
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Patient } from "@/types";
+
 interface PatientInfoFieldsProps {
   patient: Patient;
   isEditing: boolean;
   onFieldChange: (field: string, value: string | number) => void;
 }
+
 const PatientInfoFields = ({
   patient,
   isEditing,
   onFieldChange
 }: PatientInfoFieldsProps) => {
-  return <div className="space-y-4">
+  return (
+    <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="text-sm font-medium">First Name</label>
+          <label className="text-sm font-medium">First name</label>
           <Input value={patient.firstName} onChange={e => onFieldChange('firstName', e.target.value)} readOnly={!isEditing} />
         </div>
         <div>
-          <label className="text-sm font-medium">Last Name</label>
+          <label className="text-sm font-medium">Last name</label>
           <Input value={patient.lastName} onChange={e => onFieldChange('lastName', e.target.value)} readOnly={!isEditing} />
         </div>
         <div>
@@ -30,7 +34,7 @@ const PatientInfoFields = ({
           <Input value={patient.sex} readOnly={true} className="cursor-default bg-inherit" />
         </div>
         <div>
-          <label className="text-sm font-medium">Contact Number</label>
+          <label className="text-sm font-medium">Contact number</label>
           <Input value={patient.phone} onChange={e => onFieldChange('phone', e.target.value)} readOnly={!isEditing} />
         </div>
         <div>
@@ -42,6 +46,8 @@ const PatientInfoFields = ({
           <Input value={patient.address} onChange={e => onFieldChange('address', e.target.value)} readOnly={!isEditing} />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default PatientInfoFields;

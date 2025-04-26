@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RefractionTable } from "./RefractionTable";
@@ -32,6 +32,7 @@ interface RefractionDetailsProps {
     interpupillaryDistance?: number;
     previousRxLensType?: string;
     previousRxDate?: string;
+    noPreviousRx?: boolean;
   };
 }
 
@@ -63,11 +64,24 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
   const [previousRxDate, setPreviousRxDate] = useState<Date | undefined>(
     initialData?.previousRxDate ? new Date(initialData.previousRxDate) : undefined
   );
+  
+  // New state for No Previous Rx checkbox
+  const [noPreviousRx, setNoPreviousRx] = useState<boolean>(
+    initialData?.noPreviousRx || false
+  );
 
   const [copyEnabled, setCopyEnabled] = useState(false);
 
+  // Effect to disable Previous Rx fields when noPreviousRx is checked
+  useEffect(() => {
+    if (noPreviousRx && activeTab === "previous") {
+      // Switch to another tab if we're on previous and it gets disabled
+      setActiveTab("full");
+    }
+  }, [noPreviousRx, activeTab]);
+
   const handlePreviousRxChange = (data: RefractionData) => {
-    if (!readOnly) {
+    if (!readOnly && !noPreviousRx) {
       setPreviousRx(data);
     }
   };
@@ -100,7 +114,17 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
     }
   };
 
-  const formattedPreviousRxDate = previousRxDate ? format(previousRxDate, "yyyy-MM-dd") : "";
+  const handleNoPreviousRxChange = (checked: boolean) => {
+    if (!readOnly) {
+      setNoPreviousRx(checked);
+      if (checked) {
+        // Clear previous Rx data when checkbox is checked
+        setPreviousRx(undefined);
+        setPreviousRxLensType("");
+        setPreviousRxDate(undefined);
+      }
+    }
+  };
 
   return (
     <Card>
@@ -130,9 +154,31 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
             </SelectContent>
           </Select>
         </div>
+        
+        <div className="flex items-center space-x-2 mb-4">
+          <Checkbox 
+            id="noPreviousRx" 
+            checked={noPreviousRx} 
+            onCheckedChange={handleNoPreviousRxChange}
+            disabled={readOnly}
+          />
+          <Label 
+            htmlFor="noPreviousRx" 
+            className="font-normal text-sm cursor-pointer"
+          >
+            No previous Rx
+          </Label>
+        </div>
+        
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4 w-full flex">
-            <TabsTrigger value="previous" className="flex-1">Previous Rx</TabsTrigger>
+            <TabsTrigger 
+              value="previous" 
+              className="flex-1"
+              disabled={noPreviousRx}
+            >
+              Previous Rx
+            </TabsTrigger>
             <TabsTrigger value="full" className="flex-1">Full Rx</TabsTrigger>
             <TabsTrigger value="prescribed" className="flex-1">Prescribed Power</TabsTrigger>
           </TabsList>
@@ -145,13 +191,13 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
                 <Select
                   value={previousRxLensType}
                   onValueChange={setPreviousRxLensType}
-                  disabled={readOnly}
+                  disabled={readOnly || noPreviousRx}
                 >
                   <SelectTrigger id="previousRxLensType" className="mt-1">
-                    <SelectValue placeholder="Select Lens Type" />
+                    <SelectValue placeholder="Select lens type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Single Vision">Single Vision</SelectItem>
+                    <SelectItem value="Single Vision">Single vision</SelectItem>
                     <SelectItem value="Bifocal">Bifocal</SelectItem>
                     <SelectItem value="Progressive">Progressive</SelectItem>
                   </SelectContent>
@@ -161,13 +207,14 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
                 <Label htmlFor="previousRxDate" className="text-xs text-muted-foreground">
                   Date Prescribed
                 </Label>
-                {readOnly ? (
+                {readOnly || noPreviousRx ? (
                   <Input
                     id="previousRxDate"
                     type="text"
-                    value={formattedPreviousRxDate}
+                    value={previousRxDate ? format(previousRxDate, "yyyy-MM-dd") : ""}
                     readOnly
                     className="mt-1"
+                    disabled={noPreviousRx}
                   />
                 ) : (
                   <Popover>
@@ -176,9 +223,10 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
                         <Input
                           id="previousRxDate"
                           type="text"
-                          value={formattedPreviousRxDate}
+                          value={previousRxDate ? format(previousRxDate, "yyyy-MM-dd") : ""}
                           readOnly
                           className="w-full pr-10 cursor-pointer"
+                          disabled={noPreviousRx}
                         />
                         <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
                       </div>
@@ -200,6 +248,7 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
               onChange={handlePreviousRxChange}
               showAddPower={true}
               readOnly={readOnly}
+              disabled={noPreviousRx}
             />
           </TabsContent>
           <TabsContent value="full">

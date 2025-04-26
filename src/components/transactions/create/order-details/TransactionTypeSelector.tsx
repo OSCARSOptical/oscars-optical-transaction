@@ -19,8 +19,8 @@ const TransactionTypeSelector = ({
       <Label htmlFor="transactionType" className="text-xs text-muted-foreground">
         Transaction type
       </Label>
-      <Select
-        value={transactionType}
+      <Select 
+        value={transactionType} 
         onValueChange={onTypeChange}
         disabled={readOnly}
       >
@@ -32,13 +32,10 @@ const TransactionTypeSelector = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="Complete">Complete</SelectItem>
-          <SelectItem value="Eye Exam">Eye exam</SelectItem>
-          <SelectItem value="Frame Replacement">Frame replacement</SelectItem>
-          <SelectItem value="Lens Replacement">Lens replacement</SelectItem>
-          <SelectItem value="Medical Certificate">Medical certificate</SelectItem>
+          <SelectItem value="Frame Only">Frame only</SelectItem>
+          <SelectItem value="Lens Only">Lens only</SelectItem>
           <SelectItem value="Contact Lens">Contact lens</SelectItem>
-          <SelectItem value="Repair">Repair</SelectItem>
-          <SelectItem value="Return">Return</SelectItem>
+          <SelectItem value="Others">Others</SelectItem>
         </SelectContent>
       </Select>
     </div>

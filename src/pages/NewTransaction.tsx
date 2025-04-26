@@ -49,7 +49,9 @@ const NewTransactionPage = () => {
       otherExpenses: 0,
       totalExpenses: 0,
       claimed: false,
-      dateClaimed: null
+      dateClaimed: null,
+      frameType: "",
+      noPreviousRx: false
     };
   });
 

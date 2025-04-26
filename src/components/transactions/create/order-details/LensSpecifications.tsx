@@ -8,10 +8,12 @@ interface LensSpecificationsProps {
   lensType: string;
   lensCoating: string;
   tint: string;
+  frameType: string;
   onRefractiveIndexChange: (value: string) => void;
   onLensTypeChange: (value: string) => void;
   onLensCoatingChange: (value: string) => void;
   onTintChange: (value: string) => void;
+  onFrameTypeChange: (value: string) => void;
   disabled: boolean;
   readOnly: boolean;
 }
@@ -21,15 +23,17 @@ const LensSpecifications = ({
   lensType,
   lensCoating,
   tint,
+  frameType,
   onRefractiveIndexChange,
   onLensTypeChange,
   onLensCoatingChange,
   onTintChange,
+  onFrameTypeChange,
   disabled,
   readOnly
 }: LensSpecificationsProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
       <div>
         <Label htmlFor="refractiveIndex" className="text-xs text-muted-foreground">Refractive index</Label>
         <Select 
@@ -116,6 +120,28 @@ const LensSpecifications = ({
             <SelectItem value="N/A">N/A</SelectItem>
             <SelectItem value="One-Tone">One-tone</SelectItem>
             <SelectItem value="Two-Tone">Two-tone</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div>
+        <Label htmlFor="frameType" className="text-xs text-muted-foreground">Frame type</Label>
+        <Select 
+          value={frameType}
+          onValueChange={onFrameTypeChange}
+          disabled={readOnly || disabled}
+        >
+          <SelectTrigger 
+            id="frameType"
+            className={cn(readOnly && "bg-muted cursor-default")}
+          >
+            <SelectValue placeholder="Select frame type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="N/A">N/A</SelectItem>
+            <SelectItem value="Full Rim">Full rim</SelectItem>
+            <SelectItem value="Semi Rim">Semi rim</SelectItem>
+            <SelectItem value="Rimless">Rimless</SelectItem>
           </SelectContent>
         </Select>
       </div>

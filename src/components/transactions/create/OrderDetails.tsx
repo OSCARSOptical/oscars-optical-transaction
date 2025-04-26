@@ -21,6 +21,7 @@ interface OrderDetailsProps {
     lensCoating?: string;
     tint?: string;
     color?: string;
+    frameType?: string;
     orderNotes?: string;
   }
 }
@@ -39,6 +40,7 @@ const OrderDetails = ({
   const [lensType, setLensType] = useState(initialData.lensType || "");
   const [lensCoating, setLensCoating] = useState(initialData.lensCoating || "");
   const [tint, setTint] = useState(initialData.tint || "");
+  const [frameType, setFrameType] = useState(initialData.frameType || "");
   const [color, setColor] = useState(initialData.color || "");
   const [notes, setNotes] = useState(initialData.orderNotes || "");
 
@@ -50,12 +52,14 @@ const OrderDetails = ({
       setLensType("N/A");
       setLensCoating("N/A");
       setTint("N/A");
+      setFrameType("N/A");
     } else {
       // Only clear if coming from a disabled state
       if (refractiveIndex === "N/A") setRefractiveIndex("");
       if (lensType === "N/A") setLensType("");
       if (lensCoating === "N/A") setLensCoating("");
       if (tint === "N/A") setTint("");
+      if (frameType === "N/A") setFrameType("");
     }
   }, [transactionType]);
 
@@ -90,10 +94,12 @@ const OrderDetails = ({
             lensType={lensType}
             lensCoating={lensCoating}
             tint={tint}
+            frameType={frameType}
             onRefractiveIndexChange={setRefractiveIndex}
             onLensTypeChange={setLensType}
             onLensCoatingChange={setLensCoating}
             onTintChange={setTint}
+            onFrameTypeChange={setFrameType}
             disabled={shouldDisableFields}
             readOnly={readOnly}
           />
