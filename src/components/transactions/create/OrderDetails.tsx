@@ -12,12 +12,12 @@ import OrderNotes from "./order-details/OrderNotes";
 import { Transaction } from "@/types";
 
 interface OrderDetailsProps {
-  initialType?: string;
+  initialType?: Transaction['type'];
   onTypeChange?: (type: Transaction['type']) => void;
   readOnly?: boolean;
   initialData?: {
     transactionDate?: string;
-    transactionType?: string;
+    transactionType?: Transaction['type'];
     refractiveIndex?: string;
     lensType?: string;
     lensCoating?: string;

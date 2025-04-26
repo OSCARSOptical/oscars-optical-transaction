@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ const TransactionForm = ({
 
   const handleSave = async () => {
     try {
-      if (!patient?.id) {
+      if (!patient?.code) {
         toast({
           title: "Error",
           description: "Invalid patient data. Please try again.",
@@ -42,13 +42,25 @@ const TransactionForm = ({
 
       setIsLoading(true);
 
+      // First, get the patient's UUID using their patient_code
+      const { data: patientData, error: patientError } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('patient_code', patient.code)
+        .single();
+
+      if (patientError || !patientData) {
+        console.error('Error fetching patient:', patientError);
+        throw new Error('Failed to find patient');
+      }
+
       const transactionDate = mockTransaction.date ? new Date(mockTransaction.date) : new Date();
       
-      // Prepare transaction data
+      // Prepare transaction data with the correct patient_id
       const transactionData = {
-        patient_id: patient.id,
+        patient_id: patientData.id,
         transaction_code: mockTransaction.code,
-        transaction_date: transactionDate.toISOString(),
+        transaction_date: transactionDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
         transaction_type: mockTransaction.type,
         interpupillary_distance: mockTransaction.interpupillaryDistance,
         gross_amount: mockTransaction.grossAmount || 0,

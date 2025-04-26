@@ -35,11 +35,19 @@ const TransactionTypeSelector = ({
           <SelectItem value="Complete">Complete</SelectItem>
           <SelectItem value="Lens Replacement">Lens Replacement</SelectItem>
           <SelectItem value="Frame Replacement">Frame Replacement</SelectItem>
+          <SelectItem value="Eye Exam">Eye Exam</SelectItem>
           <SelectItem value="Medical Certificate">Medical Certificate</SelectItem>
-          <SelectItem value="Eye Examination">Eye Examination</SelectItem>
           <SelectItem value="Contact Lens">Contact Lens</SelectItem>
           <SelectItem value="Repair">Repair</SelectItem>
           <SelectItem value="Return">Return</SelectItem>
+          <SelectItem value="Balance Payment">Balance Payment</SelectItem>
+          <SelectItem value="Contact Lens Fitting">Contact Lens Fitting</SelectItem>
+          <SelectItem value="Comprehensive Eye Exam">Comprehensive Eye Exam</SelectItem>
+          <SelectItem value="Frame Adjustment">Frame Adjustment</SelectItem>
+          <SelectItem value="Contact Lens Refill">Contact Lens Refill</SelectItem>
+          <SelectItem value="Progressive Lenses">Progressive Lenses</SelectItem>
+          <SelectItem value="Bifocal Lenses">Bifocal Lenses</SelectItem>
+          <SelectItem value="Single Vision Lenses">Single Vision Lenses</SelectItem>
         </SelectContent>
       </Select>
     </div>
