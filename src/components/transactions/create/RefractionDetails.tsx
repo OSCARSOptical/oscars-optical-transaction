@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefractionData } from "@/types";
 import { InterPupillaryDistance } from "./components/refraction/InterPupillaryDistance";
@@ -16,30 +16,42 @@ interface RefractionDetailsProps {
     previousRxDate?: string;
     noPreviousRx?: boolean;
   };
+  onDataChange?: (data: {
+    previousRx?: RefractionData;
+    fullRx?: RefractionData;
+    prescribedPower?: RefractionData;
+    interpupillaryDistance?: number;
+    previousRxLensType?: string;
+    previousRxDate?: string;
+    noPreviousRx?: boolean;
+  }) => void;
 }
 
-const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsProps) => {
+const RefractionDetails = ({ readOnly = false, initialData, onDataChange }: RefractionDetailsProps) => {
   const [activeTab, setActiveTab] = useState("previous");
-  const [previousRx, setPreviousRx] = useState<RefractionData | undefined>(
-    initialData?.previousRx
-  );
-  const [fullRx, setFullRx] = useState<RefractionData | undefined>(
-    initialData?.fullRx
-  );
-  const [prescribedPower, setPrescribedPower] = useState<RefractionData | undefined>(
-    initialData?.prescribedPower
-  );
+  const [previousRx, setPreviousRx] = useState<RefractionData | undefined>(initialData?.previousRx);
+  const [fullRx, setFullRx] = useState<RefractionData | undefined>(initialData?.fullRx);
+  const [prescribedPower, setPrescribedPower] = useState<RefractionData | undefined>(initialData?.prescribedPower);
   const [ipd, setIpd] = useState<number | undefined>(initialData?.interpupillaryDistance);
-  const [previousRxLensType, setPreviousRxLensType] = useState<string>(
-    initialData?.previousRxLensType || ""
-  );
+  const [previousRxLensType, setPreviousRxLensType] = useState<string>(initialData?.previousRxLensType || "");
   const [previousRxDate, setPreviousRxDate] = useState<Date | undefined>(
     initialData?.previousRxDate ? new Date(initialData.previousRxDate) : undefined
   );
-  
-  const [noPreviousRx, setNoPreviousRx] = useState<boolean>(
-    initialData?.noPreviousRx || false
-  );
+  const [noPreviousRx, setNoPreviousRx] = useState<boolean>(initialData?.noPreviousRx || false);
+
+  useEffect(() => {
+    if (onDataChange) {
+      onDataChange({
+        previousRx,
+        fullRx,
+        prescribedPower,
+        interpupillaryDistance: ipd,
+        previousRxLensType,
+        previousRxDate: previousRxDate?.toISOString(),
+        noPreviousRx
+      });
+    }
+  }, [previousRx, fullRx, prescribedPower, ipd, previousRxLensType, previousRxDate, noPreviousRx]);
 
   const handleIpdChange = (value: string) => {
     if (!readOnly) {

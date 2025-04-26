@@ -25,10 +25,18 @@ export const RefractionTable = ({
   readOnly = false,
   disabled = false
 }: RefractionTableProps) => {
-  const handleChange = (newData: RefractionData) => {
-    if (onChange) {
-      onChange(newData);
-    }
+  const handleChange = (type: "od" | "os" | "add", value: any) => {
+    if (!onChange) return;
+
+    const updatedData: RefractionData = {
+      ...data,
+      [type.toUpperCase()]: {
+        ...(data?.[type.toUpperCase()] || {}),
+        ...value
+      }
+    };
+
+    onChange(updatedData);
   };
 
   return (
@@ -51,7 +59,7 @@ export const RefractionTable = ({
           axisOptions={axisOptions}
           visualAcuityOptions={distanceVisualAcuityOptions}
           value={data?.OD}
-          onChange={handleChange}
+          onChange={(value) => handleChange("od", value)}
           readOnly={readOnly}
           disabled={disabled}
           useDisabled={false}
@@ -65,7 +73,7 @@ export const RefractionTable = ({
           axisOptions={axisOptions}
           visualAcuityOptions={distanceVisualAcuityOptions}
           value={data?.OS}
-          onChange={handleChange}
+          onChange={(value) => handleChange("os", value)}
           readOnly={readOnly}
           disabled={disabled}
           useDisabled={false}
@@ -80,7 +88,7 @@ export const RefractionTable = ({
             axisOptions={axisOptions}
             visualAcuityOptions={nearVisualAcuityOptions}
             value={data?.ADD}
-            onChange={handleChange}
+            onChange={(value) => handleChange("add", value)}
             showAllFields={false}
             readOnly={readOnly}
             disabled={disabled}

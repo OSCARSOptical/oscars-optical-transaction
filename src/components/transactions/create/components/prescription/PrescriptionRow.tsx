@@ -1,3 +1,4 @@
+
 import { TableCell, TableRow } from "@/components/ui/table";
 import { PrescriptionSelect } from "./PrescriptionSelect";
 import { cn } from "@/lib/utils";
@@ -21,8 +22,8 @@ export const PrescriptionRow = ({
   const handleValueChange = (field: string, newValue: string) => {
     if (onChange && !readOnly && !disabled) {
       onChange({
-        ...value,
-        [field]: newValue,
+        ...(value || {}),
+        [field]: field === 'sphere' && newValue === 'Plano' ? 'Plano' : newValue
       });
     }
   };
