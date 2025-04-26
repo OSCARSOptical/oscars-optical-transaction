@@ -13,9 +13,18 @@ interface FinancialDetailsProps {
     edgingPrice?: number;
     otherExpenses?: number;
   };
+  autofillPrices?: {
+    lensCapital: number;
+    edgingPrice: number;
+    otherExpenses: number;
+  };
 }
 
-const FinancialDetails = ({ readOnly = false, initialData }: FinancialDetailsProps) => {
+const FinancialDetails = ({ 
+  readOnly = false, 
+  initialData = {},
+  autofillPrices
+}: FinancialDetailsProps) => {
   const [grossAmount, setGrossAmount] = useState<number>(initialData?.grossAmount || 0);
   const [deposit, setDeposit] = useState<number>(initialData?.deposit || 0);
   const [balance, setBalance] = useState<number>(0);
@@ -24,6 +33,20 @@ const FinancialDetails = ({ readOnly = false, initialData }: FinancialDetailsPro
   const [otherExpenses, setOtherExpenses] = useState<number>(initialData?.otherExpenses || 0);
   const [totalExpenses, setTotalExpenses] = useState<number>(0);
   const [netIncome, setNetIncome] = useState<number>(0);
+  const [isManuallyEdited, setIsManuallyEdited] = useState({
+    lensCapital: false,
+    edgingPrice: false,
+    otherExpenses: false
+  });
+
+  useEffect(() => {
+    // Update prices from autofill only if not manually edited
+    if (autofillPrices) {
+      if (!isManuallyEdited.lensCapital) setLensCapital(autofillPrices.lensCapital);
+      if (!isManuallyEdited.edgingPrice) setEdgingPrice(autofillPrices.edgingPrice);
+      if (!isManuallyEdited.otherExpenses) setOtherExpenses(autofillPrices.otherExpenses);
+    }
+  }, [autofillPrices]);
 
   useEffect(() => {
     // Calculate balance
@@ -39,13 +62,11 @@ const FinancialDetails = ({ readOnly = false, initialData }: FinancialDetailsPro
     setNetIncome(calculatedNetIncome);
   }, [grossAmount, deposit, lensCapital, edgingPrice, otherExpenses]);
 
-  // Format number for display
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
-      minimumFractionDigits: 2
-    }).format(value);
+  const handleManualEdit = (field: keyof typeof isManuallyEdited) => {
+    setIsManuallyEdited(prev => ({
+      ...prev,
+      [field]: true
+    }));
   };
 
   return (
@@ -100,7 +121,10 @@ const FinancialDetails = ({ readOnly = false, initialData }: FinancialDetailsPro
                   type="number"
                   step="0.01"
                   value={lensCapital}
-                  onChange={readOnly ? undefined : (e) => setLensCapital(parseFloat(e.target.value) || 0)}
+                  onChange={readOnly ? undefined : (e) => {
+                    setLensCapital(parseFloat(e.target.value) || 0);
+                    handleManualEdit('lensCapital');
+                  }}
                   readOnly={readOnly}
                 />
               </div>
@@ -111,7 +135,10 @@ const FinancialDetails = ({ readOnly = false, initialData }: FinancialDetailsPro
                   type="number"
                   step="0.01"
                   value={edgingPrice}
-                  onChange={readOnly ? undefined : (e) => setEdgingPrice(parseFloat(e.target.value) || 0)}
+                  onChange={readOnly ? undefined : (e) => {
+                    setEdgingPrice(parseFloat(e.target.value) || 0);
+                    handleManualEdit('edgingPrice');
+                  }}
                   readOnly={readOnly}
                 />
               </div>
@@ -122,7 +149,10 @@ const FinancialDetails = ({ readOnly = false, initialData }: FinancialDetailsPro
                   type="number"
                   step="0.01"
                   value={otherExpenses}
-                  onChange={readOnly ? undefined : (e) => setOtherExpenses(parseFloat(e.target.value) || 0)}
+                  onChange={readOnly ? undefined : (e) => {
+                    setOtherExpenses(parseFloat(e.target.value) || 0);
+                    handleManualEdit('otherExpenses');
+                  }}
                   readOnly={readOnly}
                 />
               </div>

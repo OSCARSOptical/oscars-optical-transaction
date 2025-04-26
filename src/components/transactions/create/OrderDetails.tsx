@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { NA_TRANSACTION_TYPES } from "./order-details/constants";
+import { getPricesForCombination } from "./constants/priceMappings";
 import OrderDetailsHeader from "./order-details/OrderDetailsHeader";
 import DateSelector from "./order-details/DateSelector";
 import TransactionTypeSelector from "./order-details/TransactionTypeSelector";
@@ -23,14 +23,16 @@ interface OrderDetailsProps {
     color?: string;
     frameType?: string;
     orderNotes?: string;
-  }
+  };
+  onPricesChange?: (prices: { lensCapital: number; edgingPrice: number; otherExpenses: number }) => void;
 }
 
 const OrderDetails = ({ 
   initialType, 
   onTypeChange, 
   readOnly = false,
-  initialData = {}
+  initialData = {},
+  onPricesChange
 }: OrderDetailsProps) => {
   const [transactionType, setTransactionType] = useState(initialData.transactionType || "");
   const [transactionDate, setTransactionDate] = useState(
@@ -55,7 +57,6 @@ const OrderDetails = ({
       setTint("N/A");
       setFrameType("N/A");
     } else {
-      // Only clear if coming from a disabled state
       if (refractiveIndex === "N/A") setRefractiveIndex("");
       if (lensType === "N/A") setLensType("");
       if (lensCoating === "N/A") setLensCoating("");
@@ -63,6 +64,19 @@ const OrderDetails = ({
       if (frameType === "N/A") setFrameType("");
     }
   }, [transactionType]);
+
+  useEffect(() => {
+    if (!shouldDisableFields && refractiveIndex && lensType && lensCoating && tint && frameType) {
+      const prices = getPricesForCombination(
+        refractiveIndex,
+        lensType,
+        lensCoating,
+        tint,
+        frameType
+      );
+      onPricesChange?.(prices);
+    }
+  }, [refractiveIndex, lensType, lensCoating, tint, frameType, shouldDisableFields]);
 
   const handleTypeChange = (value: string) => {
     setTransactionType(value);

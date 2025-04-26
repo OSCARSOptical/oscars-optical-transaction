@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +27,11 @@ const TransactionForm = ({
   const { toast } = useToast();
   const [transactionType, setTransactionType] = useState<string>(mockTransaction.type || "Complete");
   const [noPreviousRx, setNoPreviousRx] = useState<boolean>(mockTransaction.noPreviousRx || false);
+  const [autofillPrices, setAutofillPrices] = useState({
+    lensCapital: 0,
+    edgingPrice: 0,
+    otherExpenses: 0
+  });
 
   const handleTransactionTypeChange = (type: string) => {
     setTransactionType(type);
@@ -42,6 +46,10 @@ const TransactionForm = ({
       ...prev,
       interpupillaryDistance: ipdValue
     }));
+  };
+
+  const handlePricesChange = (prices: { lensCapital: number; edgingPrice: number; otherExpenses: number }) => {
+    setAutofillPrices(prices);
   };
 
   const handleSave = () => {
@@ -77,6 +85,7 @@ const TransactionForm = ({
       <OrderDetails
         initialType={transactionType}
         onTypeChange={handleTransactionTypeChange}
+        onPricesChange={handlePricesChange}
         initialData={{
           transactionType: mockTransaction.type,
           transactionDate: mockTransaction.date,
@@ -91,7 +100,9 @@ const TransactionForm = ({
         readOnly={false}
       />
 
-      <FinancialDetails />
+      <FinancialDetails
+        autofillPrices={autofillPrices}
+      />
 
       <div className="flex justify-end">
         <Button onClick={handleSave} className="w-full md:w-auto">
