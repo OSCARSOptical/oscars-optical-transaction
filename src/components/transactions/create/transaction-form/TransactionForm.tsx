@@ -40,7 +40,19 @@ const TransactionForm = ({
         return;
       }
 
+      // Validate transaction type is valid
+      if (!mockTransaction.type) {
+        toast({
+          title: "Error",
+          description: "Please select a valid transaction type.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       setIsLoading(true);
+
+      console.log('Starting transaction save with patient code:', patient.code);
 
       // First, get the patient's UUID using their patient_code
       const { data: patientData, error: patientError } = await supabase
@@ -51,9 +63,11 @@ const TransactionForm = ({
 
       if (patientError || !patientData) {
         console.error('Error fetching patient:', patientError);
-        throw new Error('Failed to find patient');
+        throw new Error(`Failed to find patient with code: ${patient.code}`);
       }
 
+      console.log('Found patient with ID:', patientData.id);
+      
       const transactionDate = mockTransaction.date ? new Date(mockTransaction.date) : new Date();
       
       // Prepare transaction data with the correct patient_id
@@ -87,9 +101,11 @@ const TransactionForm = ({
         .single();
 
       if (transactionError) {
-        console.error('Supabase error:', transactionError);
-        throw new Error('Failed to save transaction');
+        console.error('Supabase error details:', transactionError);
+        throw new Error(`Failed to save transaction: ${transactionError.message}`);
       }
+
+      console.log('Transaction saved successfully:', transaction);
 
       toast({
         title: "Success",
@@ -100,7 +116,7 @@ const TransactionForm = ({
       console.error('Error saving transaction:', error);
       toast({
         title: "Error",
-        description: "Failed to save transaction. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to save transaction. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -133,10 +149,9 @@ const TransactionForm = ({
       <OrderDetails
         initialType={mockTransaction.type}
         onTypeChange={(type) => {
-          // Here's the fix: cast the type to the appropriate union type
           setMockTransaction(prev => ({ 
             ...prev, 
-            type: type as Transaction['type'] 
+            type
           }));
         }}
         onPricesChange={prices => {

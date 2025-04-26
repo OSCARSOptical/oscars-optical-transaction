@@ -22,7 +22,11 @@ const TransactionTypeSelector = ({
       </Label>
       <Select 
         value={transactionType} 
-        onValueChange={onTypeChange}
+        onValueChange={(value) => {
+          // Ensure the value is a valid Transaction['type'] before calling onTypeChange
+          const validValue = value as Transaction['type'];
+          onTypeChange(validValue);
+        }}
         disabled={readOnly}
       >
         <SelectTrigger 
