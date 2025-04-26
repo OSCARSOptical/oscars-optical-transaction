@@ -1,13 +1,11 @@
-
 export const useTransactionCode = () => {
-  const generateTransactionCode = () => {
-    const date = new Date();
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const generateTransactionCode = (transactionDate: Date = new Date()) => {
+    const year = transactionDate.getFullYear().toString().slice(-2);
+    const month = (transactionDate.getMonth() + 1).toString().padStart(2, "0");
     
     const prefix = `TX${year}-${month}`;
     
-    // We'll now only track codes in localStorage without assuming sampleTransactions
+    // Track codes in localStorage for the specific month
     const existingCodes: string[] = [];
     
     for (let i = 0; i < localStorage.length; i++) {
@@ -31,12 +29,10 @@ export const useTransactionCode = () => {
       }
     });
     
-    // Start with 00001 if no existing codes or increment from highest
     const nextSequence = (maxSequence + 1).toString().padStart(5, "0");
     return `${prefix}-${nextSequence}`;
   };
 
-  // New function to normalize transaction codes
   const normalizeTransactionCode = (code: string): string => {
     // Check if the code is already in the new format (TXXX-XX-XXXXX)
     if (code.match(/^TX\d{2}-\d{2}-\d{5}$/)) {

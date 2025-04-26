@@ -9,6 +9,7 @@ import OrderDetails from "@/components/transactions/create/OrderDetails";
 import RefractionDetails from "@/components/transactions/create/RefractionDetails";
 import DoctorRemarks from "@/components/transactions/create/DoctorRemarks";
 import FinancialDetails from "@/components/transactions/create/FinancialDetails";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TransactionFormProps {
   patient?: Patient;
@@ -27,6 +28,7 @@ const TransactionForm = ({
   const { toast } = useToast();
   const [transactionType, setTransactionType] = useState<string>(mockTransaction.type || "Complete");
   const [noPreviousRx, setNoPreviousRx] = useState<boolean>(mockTransaction.noPreviousRx || false);
+  const [isLoading, setIsLoading] = useState(false);
   const [autofillPrices, setAutofillPrices] = useState({
     lensCapital: 0,
     edgingPrice: 0,
@@ -52,12 +54,54 @@ const TransactionForm = ({
     setAutofillPrices(prices);
   };
 
-  const handleSave = () => {
-    toast({
-      title: "Success",
-      description: `Transaction ${mockTransaction.code} has been ${isEditMode ? 'updated' : 'saved'}.`,
-    });
-    navigate("/transactions");
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+
+      const transactionDate = mockTransaction.date ? new Date(mockTransaction.date) : new Date();
+      
+      const { data: transaction, error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          transaction_code: mockTransaction.code,
+          transaction_date: transactionDate.toISOString(),
+          patient_id: patient?.id,
+          transaction_type: transactionType,
+          interpupillary_distance: mockTransaction.interpupillaryDistance,
+          gross_amount: mockTransaction.grossAmount,
+          deposit: mockTransaction.deposit,
+          balance: mockTransaction.balance,
+          lens_capital: mockTransaction.lensCapital,
+          edging_price: mockTransaction.edgingPrice,
+          other_expenses: mockTransaction.otherExpenses,
+          total_expenses: mockTransaction.totalExpenses,
+          lens_type: mockTransaction.lensType,
+          lens_coating: mockTransaction.lensCoating,
+          tint: mockTransaction.tint,
+          notes: mockTransaction.orderNotes,
+          claimed: false,
+          refractive_index: mockTransaction.refractiveIndex
+        })
+        .select()
+        .single();
+
+      if (transactionError) throw transactionError;
+
+      toast({
+        title: "Success",
+        description: `Transaction ${mockTransaction.code} has been ${isEditMode ? 'updated' : 'saved'}.`,
+      });
+      navigate("/transactions");
+    } catch (error) {
+      console.error('Error saving transaction:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save transaction. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -105,9 +149,13 @@ const TransactionForm = ({
       />
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} className="w-full md:w-auto">
+        <Button 
+          onClick={handleSave} 
+          className="w-full md:w-auto"
+          disabled={isLoading}
+        >
           <Save className="mr-2" />
-          Save Transaction
+          {isLoading ? 'Saving...' : 'Save Transaction'}
         </Button>
       </div>
     </div>
