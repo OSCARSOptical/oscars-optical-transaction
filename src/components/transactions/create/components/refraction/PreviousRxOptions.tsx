@@ -28,7 +28,7 @@ export const PreviousRxOptions = ({
     <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <Label htmlFor="previousRxLensType" className="text-xs text-muted-foreground">
-          Lens type
+          Lens Type
         </Label>
         <Select
           value={lensType}
@@ -36,7 +36,7 @@ export const PreviousRxOptions = ({
           disabled={readOnly || disabled}
         >
           <SelectTrigger id="previousRxLensType" className="mt-1">
-            <SelectValue placeholder="Select lens type" />
+            <SelectValue placeholder="Select Lens Type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Single Vision">Single vision</SelectItem>
@@ -47,7 +47,7 @@ export const PreviousRxOptions = ({
       </div>
       <div>
         <Label htmlFor="previousRxDate" className="text-xs text-muted-foreground">
-          Date prescribed
+          Date Prescribed
         </Label>
         {readOnly || disabled ? (
           <Input

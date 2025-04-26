@@ -59,6 +59,21 @@ const TransactionForm = ({
         readOnly={true}
       />
 
+      <RefractionDetails
+        initialData={{
+          previousRx: mockTransaction.previousRx,
+          fullRx: mockTransaction.fullRx,
+          prescribedPower: mockTransaction.prescribedPower,
+          interpupillaryDistance: mockTransaction.interpupillaryDistance,
+          previousRxLensType: mockTransaction.previousRxLensType,
+          previousRxDate: mockTransaction.previousRxDate,
+          noPreviousRx: mockTransaction.noPreviousRx
+        }}
+        readOnly={false}
+      />
+
+      <DoctorRemarks />
+
       <OrderDetails
         initialType={transactionType}
         onTypeChange={handleTransactionTypeChange}
@@ -75,21 +90,6 @@ const TransactionForm = ({
         }}
         readOnly={false}
       />
-
-      <RefractionDetails
-        initialData={{
-          previousRx: mockTransaction.previousRx,
-          fullRx: mockTransaction.fullRx,
-          prescribedPower: mockTransaction.prescribedPower,
-          interpupillaryDistance: mockTransaction.interpupillaryDistance,
-          previousRxLensType: mockTransaction.previousRxLensType,
-          previousRxDate: mockTransaction.previousRxDate,
-          noPreviousRx: mockTransaction.noPreviousRx
-        }}
-        readOnly={false}
-      />
-
-      <DoctorRemarks />
 
       <FinancialDetails />
 

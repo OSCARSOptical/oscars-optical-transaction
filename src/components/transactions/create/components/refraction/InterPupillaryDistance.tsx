@@ -26,7 +26,7 @@ export const InterPupillaryDistance = ({
   return (
     <div className="w-full">
       <Label htmlFor="interpupillaryDistance" className="text-xs text-muted-foreground">
-        Interpupillary distance (mm)
+        Interpupillary Distance (mm)
       </Label>
       <Select
         value={ipd !== undefined ? ipd.toFixed(1) : ""}

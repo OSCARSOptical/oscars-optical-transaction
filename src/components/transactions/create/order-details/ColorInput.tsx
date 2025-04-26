@@ -11,7 +11,7 @@ interface ColorInputProps {
 
 const ColorInput = ({ color, onColorChange, readOnly = false }: ColorInputProps) => {
   return (
-    <div className="md:col-span-4">
+    <div className="w-full">
       <Label htmlFor="color" className="text-xs text-muted-foreground">Color</Label>
       <Input
         id="color"

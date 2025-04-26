@@ -55,9 +55,19 @@ function Calendar({
         IconLeft: () => <ChevronLeft className="h-4 w-4" />,
         IconRight: () => <ChevronRight className="h-4 w-4" />,
       }}
+      modifiers={{
+        // These modifiers help fix the multiple date selection issue by ensuring
+        // clear separation between today and selected date
+        today: (date) => {
+          const today = new Date();
+          return date.getDate() === today.getDate() &&
+                 date.getMonth() === today.getMonth() &&
+                 date.getFullYear() === today.getFullYear();
+        }
+      }}
       modifiersClassNames={{
         selected: 'bg-primary text-primary-foreground',
-        today: 'bg-accent text-accent-foreground'
+        today: 'ring-1 ring-accent'
       }}
       {...props}
     />

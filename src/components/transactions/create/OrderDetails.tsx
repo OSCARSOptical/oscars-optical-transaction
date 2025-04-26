@@ -45,6 +45,7 @@ const OrderDetails = ({
   const [notes, setNotes] = useState(initialData.orderNotes || "");
 
   const shouldDisableFields = NA_TRANSACTION_TYPES.includes(transactionType);
+  const showColorField = tint === "One-Tone" || tint === "Two-Tone";
 
   useEffect(() => {
     if (shouldDisableFields) {
@@ -106,14 +107,30 @@ const OrderDetails = ({
             onFrameTypeChange={setFrameType}
             disabled={shouldDisableFields}
             readOnly={readOnly}
+            showFrameType={!showColorField}
           />
 
-          {(tint === "One-Tone" || tint === "Two-Tone") && (
-            <ColorInput 
-              color={color} 
-              onColorChange={setColor} 
-              readOnly={readOnly} 
-            />
+          {showColorField && (
+            <div className="w-full">
+              <ColorInput 
+                color={color} 
+                onColorChange={setColor} 
+                readOnly={readOnly} 
+              />
+            </div>
+          )}
+          
+          {showColorField && (
+            <div className="w-full">
+              <LensSpecifications
+                frameTypeOnly={true}
+                frameType={frameType}
+                onFrameTypeChange={setFrameType}
+                disabled={shouldDisableFields}
+                readOnly={readOnly}
+                showFrameType={true}
+              />
+            </div>
           )}
 
           <OrderNotes 

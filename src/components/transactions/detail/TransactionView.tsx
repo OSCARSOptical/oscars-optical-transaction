@@ -88,21 +88,6 @@ export const TransactionView = ({ transaction: initialTransaction, patientData, 
           readOnly={true}
         />
 
-        <OrderDetails
-          readOnly={!isEditing}
-          initialData={{
-            transactionType: transaction.type,
-            transactionDate: transaction.date,
-            refractiveIndex: transaction.refractiveIndex,
-            lensType: transaction.lensType,
-            lensCoating: transaction.lensCoating,
-            tint: transaction.tint,
-            color: transaction.color,
-            frameType: transaction.frameType,
-            orderNotes: transaction.orderNotes
-          }}
-        />
-
         <RefractionDetails
           readOnly={!isEditing}
           initialData={{
@@ -121,6 +106,21 @@ export const TransactionView = ({ transaction: initialTransaction, patientData, 
           initialData={{
             doctorId: transaction.doctorId,
             remarks: transaction.doctorRemarks
+          }}
+        />
+
+        <OrderDetails
+          readOnly={!isEditing}
+          initialData={{
+            transactionType: transaction.type,
+            transactionDate: transaction.date,
+            refractiveIndex: transaction.refractiveIndex,
+            lensType: transaction.lensType,
+            lensCoating: transaction.lensCoating,
+            tint: transaction.tint,
+            color: transaction.color,
+            frameType: transaction.frameType,
+            orderNotes: transaction.orderNotes
           }}
         />
 

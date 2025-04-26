@@ -4,34 +4,65 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 
 interface LensSpecificationsProps {
-  refractiveIndex: string;
-  lensType: string;
-  lensCoating: string;
-  tint: string;
-  frameType: string;
-  onRefractiveIndexChange: (value: string) => void;
-  onLensTypeChange: (value: string) => void;
-  onLensCoatingChange: (value: string) => void;
-  onTintChange: (value: string) => void;
-  onFrameTypeChange: (value: string) => void;
-  disabled: boolean;
-  readOnly: boolean;
+  refractiveIndex?: string;
+  lensType?: string;
+  lensCoating?: string;
+  tint?: string;
+  frameType?: string;
+  onRefractiveIndexChange?: (value: string) => void;
+  onLensTypeChange?: (value: string) => void;
+  onLensCoatingChange?: (value: string) => void;
+  onTintChange?: (value: string) => void;
+  onFrameTypeChange?: (value: string) => void;
+  disabled?: boolean;
+  readOnly?: boolean;
+  showFrameType?: boolean;
+  frameTypeOnly?: boolean;
 }
 
 const LensSpecifications = ({
-  refractiveIndex,
-  lensType,
-  lensCoating,
-  tint,
-  frameType,
-  onRefractiveIndexChange,
-  onLensTypeChange,
-  onLensCoatingChange,
-  onTintChange,
-  onFrameTypeChange,
-  disabled,
-  readOnly
+  refractiveIndex = "",
+  lensType = "",
+  lensCoating = "",
+  tint = "",
+  frameType = "",
+  onRefractiveIndexChange = () => {},
+  onLensTypeChange = () => {},
+  onLensCoatingChange = () => {},
+  onTintChange = () => {},
+  onFrameTypeChange = () => {},
+  disabled = false,
+  readOnly = false,
+  showFrameType = true,
+  frameTypeOnly = false
 }: LensSpecificationsProps) => {
+  
+  if (frameTypeOnly) {
+    return (
+      <div className="w-full">
+        <Label htmlFor="frameType" className="text-xs text-muted-foreground">Frame Type</Label>
+        <Select 
+          value={frameType}
+          onValueChange={onFrameTypeChange}
+          disabled={readOnly || disabled}
+        >
+          <SelectTrigger 
+            id="frameType"
+            className={cn(readOnly && "bg-muted cursor-default")}
+          >
+            <SelectValue placeholder="Select Frame Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="N/A">N/A</SelectItem>
+            <SelectItem value="Full Rim">Full Rim</SelectItem>
+            <SelectItem value="Semi Rim">Semi Rim</SelectItem>
+            <SelectItem value="Rimless">Rimless</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -126,8 +157,8 @@ const LensSpecifications = ({
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
+      {showFrameType && !disabled && (
+        <div className="w-full">
           <Label htmlFor="frameType" className="text-xs text-muted-foreground">Frame Type</Label>
           <Select 
             value={frameType}
@@ -148,7 +179,7 @@ const LensSpecifications = ({
             </SelectContent>
           </Select>
         </div>
-      </div>
+      )}
     </div>
   );
 };
