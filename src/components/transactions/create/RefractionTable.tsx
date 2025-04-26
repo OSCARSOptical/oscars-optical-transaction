@@ -40,63 +40,65 @@ export const RefractionTable = ({
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px] font-semibold">Rx</TableHead>
-          <TableHead>Sphere</TableHead>
-          <TableHead>Cylinder</TableHead>
-          <TableHead>Axis</TableHead>
-          <TableHead>Visual Acuity</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <PrescriptionRow
-          label="OD"
-          type="od"
-          sphereOptions={sphereOptions}
-          cylinderOptions={cylinderOptions}
-          axisOptions={axisOptions}
-          visualAcuityOptions={distanceVisualAcuityOptions}
-          value={data?.OD}
-          onChange={(value) => handleChange("od", value)}
-          readOnly={readOnly}
-          disabled={disabled}
-          useDisabled={false}
-          placeholderPrefix="Select "
-        />
-        <PrescriptionRow
-          label="OS"
-          type="os"
-          sphereOptions={sphereOptions}
-          cylinderOptions={cylinderOptions}
-          axisOptions={axisOptions}
-          visualAcuityOptions={distanceVisualAcuityOptions}
-          value={data?.OS}
-          onChange={(value) => handleChange("os", value)}
-          readOnly={readOnly}
-          disabled={disabled}
-          useDisabled={false}
-          placeholderPrefix="Select "
-        />
-        {(showAddPower || data?.ADD) && (
+    <div className="w-full">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-24 font-semibold">Rx</TableHead>
+            <TableHead className="w-48">Sphere</TableHead>
+            <TableHead className="w-48">Cylinder</TableHead>
+            <TableHead className="w-48">Axis</TableHead>
+            <TableHead className="w-48">Visual Acuity</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           <PrescriptionRow
-            label="ADD"
-            type="add"
-            sphereOptions={addOptions}
+            label="OD"
+            type="od"
+            sphereOptions={sphereOptions}
             cylinderOptions={cylinderOptions}
             axisOptions={axisOptions}
-            visualAcuityOptions={nearVisualAcuityOptions}
-            value={data?.ADD}
-            onChange={(value) => handleChange("add", value)}
-            showAllFields={false}
+            visualAcuityOptions={distanceVisualAcuityOptions}
+            value={data?.OD}
+            onChange={(value) => handleChange("od", value)}
             readOnly={readOnly}
             disabled={disabled}
             useDisabled={false}
             placeholderPrefix="Select "
           />
-        )}
-      </TableBody>
-    </Table>
+          <PrescriptionRow
+            label="OS"
+            type="os"
+            sphereOptions={sphereOptions}
+            cylinderOptions={cylinderOptions}
+            axisOptions={axisOptions}
+            visualAcuityOptions={distanceVisualAcuityOptions}
+            value={data?.OS}
+            onChange={(value) => handleChange("os", value)}
+            readOnly={readOnly}
+            disabled={disabled}
+            useDisabled={false}
+            placeholderPrefix="Select "
+          />
+          {(showAddPower || data?.ADD) && (
+            <PrescriptionRow
+              label="ADD"
+              type="add"
+              sphereOptions={addOptions}
+              cylinderOptions={cylinderOptions}
+              axisOptions={axisOptions}
+              visualAcuityOptions={nearVisualAcuityOptions}
+              value={data?.ADD}
+              onChange={(value) => handleChange("add", value)}
+              showAllFields={false}
+              readOnly={readOnly}
+              disabled={disabled}
+              useDisabled={false}
+              placeholderPrefix="Select "
+            />
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };

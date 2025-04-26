@@ -34,11 +34,12 @@ export const PrescriptionRow = ({
   };
 
   const isFieldDisabled = readOnly || disabled;
+  const visualAcuityPlaceholder = type === 'add' ? 'Near Visual Acuity' : 'Visual Acuity';
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{label}</TableCell>
-      <TableCell>
+      <TableCell className="font-medium w-24">{label}</TableCell>
+      <TableCell className="w-48">
         <PrescriptionSelect
           value={getStringValue(value?.sphere)}
           onValueChange={(val) => handleValueChange("sphere", val)}
@@ -50,7 +51,7 @@ export const PrescriptionRow = ({
       </TableCell>
       {showAllFields ? (
         <>
-          <TableCell>
+          <TableCell className="w-48">
             <PrescriptionSelect
               value={getStringValue(value?.cylinder)}
               onValueChange={(val) => handleValueChange("cylinder", val)}
@@ -60,7 +61,7 @@ export const PrescriptionRow = ({
               className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
             />
           </TableCell>
-          <TableCell>
+          <TableCell className="w-48">
             <PrescriptionSelect
               value={getStringValue(value?.axis)}
               onValueChange={(val) => handleValueChange("axis", val)}
@@ -70,28 +71,32 @@ export const PrescriptionRow = ({
               className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
             />
           </TableCell>
-          <TableCell>
+          <TableCell className="w-48">
             <PrescriptionSelect
               value={value?.visualAcuity || ""}
               onValueChange={(val) => handleValueChange("visualAcuity", val)}
               options={visualAcuityOptions}
-              placeholder={`${placeholderPrefix}Visual Acuity`}
+              placeholder={visualAcuityPlaceholder}
               readOnly={isFieldDisabled}
               className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
             />
           </TableCell>
         </>
       ) : (
-        <TableCell>
-          <PrescriptionSelect
-            value={value?.visualAcuity || ""}
-            onValueChange={(val) => handleValueChange("visualAcuity", val)}
-            options={visualAcuityOptions}
-            placeholder={`${placeholderPrefix}Visual Acuity`}
-            readOnly={isFieldDisabled}
-            className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
-          />
-        </TableCell>
+        <>
+          <TableCell className="w-48" colSpan={3}>
+          </TableCell>
+          <TableCell className="w-48">
+            <PrescriptionSelect
+              value={value?.visualAcuity || ""}
+              onValueChange={(val) => handleValueChange("visualAcuity", val)}
+              options={visualAcuityOptions}
+              placeholder={visualAcuityPlaceholder}
+              readOnly={isFieldDisabled}
+              className={cn(isFieldDisabled && !useDisabled && "bg-muted cursor-default")}
+            />
+          </TableCell>
+        </>
       )}
     </TableRow>
   );
