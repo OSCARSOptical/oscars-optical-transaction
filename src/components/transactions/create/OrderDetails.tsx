@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { NA_TRANSACTION_TYPES } from "./order-details/constants";
@@ -79,7 +80,7 @@ const OrderDetails = ({
               date={transactionDate} 
               onDateChange={setTransactionDate} 
               readOnly={readOnly} 
-              label="Transaction Date"
+              label="Transaction date"
             />
             
             <TransactionTypeSelector 

@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-interface LensSpecificationProps {
+interface LensSpecificationsProps {
   refractiveIndex: string;
   lensType: string;
   lensCoating: string;
@@ -14,8 +14,8 @@ interface LensSpecificationProps {
   onLensCoatingChange: (value: string) => void;
   onTintChange: (value: string) => void;
   onFrameTypeChange: (value: string) => void;
-  disabled?: boolean;
-  readOnly?: boolean;
+  disabled: boolean;
+  readOnly: boolean;
 }
 
 const LensSpecifications = ({
@@ -29,30 +29,28 @@ const LensSpecifications = ({
   onLensCoatingChange,
   onTintChange,
   onFrameTypeChange,
-  disabled = false,
-  readOnly = false
-}: LensSpecificationProps) => {
+  disabled,
+  readOnly
+}: LensSpecificationsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
       <div>
-        <Label htmlFor="refractiveIndex" className="text-xs text-muted-foreground">Refractive Index</Label>
+        <Label htmlFor="refractiveIndex" className="text-xs text-muted-foreground capitalize">Refractive index</Label>
         <Select 
           value={refractiveIndex}
           onValueChange={onRefractiveIndexChange}
-          disabled={disabled || readOnly}
+          disabled={readOnly || disabled}
         >
           <SelectTrigger 
             id="refractiveIndex"
-            className={cn((disabled || readOnly) && "bg-muted cursor-default")}
+            className={cn(readOnly && "bg-muted cursor-default")}
           >
-            <SelectValue placeholder="Select Refractive Index" />
+            <SelectValue placeholder="Select refractive index" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1.50">1.50</SelectItem>
-            <SelectItem value="1.53">1.53</SelectItem>
+            <SelectItem value="N/A">N/A</SelectItem>
             <SelectItem value="1.56">1.56</SelectItem>
-            <SelectItem value="1.59">1.59</SelectItem>
-            <SelectItem value="1.60">1.60</SelectItem>
+            <SelectItem value="1.61">1.61</SelectItem>
             <SelectItem value="1.67">1.67</SelectItem>
             <SelectItem value="1.74">1.74</SelectItem>
           </SelectContent>
@@ -60,91 +58,90 @@ const LensSpecifications = ({
       </div>
       
       <div>
-        <Label htmlFor="lensType" className="text-xs text-muted-foreground">Lens Type</Label>
+        <Label htmlFor="lensType" className="text-xs text-muted-foreground capitalize">Lens type</Label>
         <Select 
           value={lensType}
           onValueChange={onLensTypeChange}
-          disabled={disabled || readOnly}
+          disabled={readOnly || disabled}
         >
           <SelectTrigger 
             id="lensType"
-            className={cn((disabled || readOnly) && "bg-muted cursor-default")}
+            className={cn(readOnly && "bg-muted cursor-default")}
           >
-            <SelectValue placeholder="Select Lens Type" />
+            <SelectValue placeholder="Select lens type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Single Vision">Single Vision</SelectItem>
-            <SelectItem value="Bifocal">Bifocal</SelectItem>
-            <SelectItem value="Progressive">Progressive</SelectItem>
-            <SelectItem value="Office">Office</SelectItem>
+            <SelectItem value="N/A">N/A</SelectItem>
+            <SelectItem value="SV">SV</SelectItem>
+            <SelectItem value="KK">KK</SelectItem>
+            <SelectItem value="Prog">Prog</SelectItem>
           </SelectContent>
         </Select>
       </div>
       
       <div>
-        <Label htmlFor="lensCoating" className="text-xs text-muted-foreground">Lens Coating</Label>
+        <Label htmlFor="lensCoating" className="text-xs text-muted-foreground capitalize">Lens coating</Label>
         <Select 
           value={lensCoating}
           onValueChange={onLensCoatingChange}
-          disabled={disabled || readOnly}
+          disabled={readOnly || disabled}
         >
           <SelectTrigger 
             id="lensCoating"
-            className={cn((disabled || readOnly) && "bg-muted cursor-default")}
+            className={cn(readOnly && "bg-muted cursor-default")}
           >
-            <SelectValue placeholder="Select Lens Coating" />
+            <SelectValue placeholder="Select lens coating" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Standard">Standard</SelectItem>
-            <SelectItem value="Anti-Reflective">Anti-Reflective</SelectItem>
-            <SelectItem value="Blue Cut">Blue Cut</SelectItem>
-            <SelectItem value="Photochromic">Photochromic</SelectItem>
-            <SelectItem value="Polarized">Polarized</SelectItem>
-            <SelectItem value="Transition">Transition</SelectItem>
+            <SelectItem value="N/A">N/A</SelectItem>
+            <SelectItem value="UC">UC</SelectItem>
+            <SelectItem value="MC">MC</SelectItem>
+            <SelectItem value="BB">BB</SelectItem>
+            <SelectItem value="TRG">TRG</SelectItem>
+            <SelectItem value="BB TRG">BB + TRG</SelectItem>
           </SelectContent>
         </Select>
       </div>
       
       <div>
-        <Label htmlFor="tint" className="text-xs text-muted-foreground">Tint</Label>
+        <Label htmlFor="tint" className="text-xs text-muted-foreground capitalize">Tint</Label>
         <Select 
           value={tint}
           onValueChange={onTintChange}
-          disabled={disabled || readOnly}
+          disabled={readOnly || disabled}
         >
           <SelectTrigger 
             id="tint"
-            className={cn((disabled || readOnly) && "bg-muted cursor-default")}
+            className={cn(readOnly && "bg-muted cursor-default")}
           >
-            <SelectValue placeholder="Select Tint" />
+            <SelectValue placeholder="Select tint" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="None">None</SelectItem>
-            <SelectItem value="One-Tone">One-Tone</SelectItem>
-            <SelectItem value="Two-Tone">Two-Tone</SelectItem>
-            <SelectItem value="Gradient">Gradient</SelectItem>
+            <SelectItem value="N/A">N/A</SelectItem>
+            <SelectItem value="One-Tone">One-tone</SelectItem>
+            <SelectItem value="Two-Tone">Two-tone</SelectItem>
           </SelectContent>
         </Select>
       </div>
       
       <div>
-        <Label htmlFor="frameType" className="text-xs text-muted-foreground">Frame Type</Label>
+        <Label htmlFor="frameType" className="text-xs text-muted-foreground capitalize">Frame type</Label>
         <Select 
           value={frameType}
           onValueChange={onFrameTypeChange}
-          disabled={disabled || readOnly}
+          disabled={readOnly || disabled}
         >
           <SelectTrigger 
             id="frameType"
-            className={cn((disabled || readOnly) && "bg-muted cursor-default")}
+            className={cn(readOnly && "bg-muted cursor-default")}
           >
-            <SelectValue placeholder="Select Frame Type" />
+            <SelectValue placeholder="Select frame type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Full Frame">Full Frame</SelectItem>
-            <SelectItem value="Semi-Rimless">Semi-Rimless</SelectItem>
+            <SelectItem value="N/A">N/A</SelectItem>
+            <SelectItem value="Full Rim">Full rim</SelectItem>
+            <SelectItem value="Semi Rim">Semi rim</SelectItem>
             <SelectItem value="Rimless">Rimless</SelectItem>
-            <SelectItem value="Supra">Supra</SelectItem>
           </SelectContent>
         </Select>
       </div>
