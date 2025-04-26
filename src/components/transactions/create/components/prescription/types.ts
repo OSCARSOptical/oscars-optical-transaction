@@ -20,5 +20,7 @@ export interface PrescriptionRowProps {
   visualAcuityOptions: Array<VisualAcuityOption>;
   showAllFields?: boolean;
   readOnly?: boolean;
+  disabled?: boolean;
   useDisabled?: boolean;
+  placeholderPrefix?: string;
 }

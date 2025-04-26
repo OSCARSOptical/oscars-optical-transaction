@@ -54,6 +54,7 @@ export interface Transaction {
   tint?: 'N/A' | 'One-Tone' | 'Two-Tone';  // Added tint property
   color?: string;  // Added color property
   interpupillaryDistance?: number;
+  frameType?: string; // Added frameType property
 
   // Refraction
   previousRx?: RefractionData;
@@ -61,6 +62,7 @@ export interface Transaction {
   prescribedPower?: RefractionData;
   previousRxLensType?: 'Single Vision' | 'Bifocal' | 'Progressive';
   previousRxDate?: string;
+  noPreviousRx?: boolean; // Added noPreviousRx property
 
   // Financials
   grossAmount: number;
