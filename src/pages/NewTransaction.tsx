@@ -1,25 +1,15 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { useParams, useLocation } from "react-router-dom";
 import { usePatientData } from "@/hooks/usePatientData";
 import { useTransactionCode } from "@/hooks/useTransactionCode";
-import BreadcrumbNav from "@/components/layout/Breadcrumb";
-import PatientInfo from "@/components/transactions/create/PatientInfo";
-import OrderDetails from "@/components/transactions/create/OrderDetails";
-import RefractionDetails from "@/components/transactions/create/RefractionDetails";
-import DoctorRemarks from "@/components/transactions/create/DoctorRemarks";
-import FinancialDetails from "@/components/transactions/create/FinancialDetails";
 import { Patient, Transaction } from "@/types";
-import { TransactionHeader } from "@/components/transactions/detail/TransactionHeader";
+import TransactionForm from "@/components/transactions/create/transaction-form/TransactionForm";
+import TransactionHeader from "@/components/transactions/create/transaction-form/TransactionHeader";
 
 const NewTransactionPage = () => {
   const { patientId, transactionCode } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const { patient: initialPatient } = usePatientData(patientId);
   const { generateTransactionCode } = useTransactionCode();
   const [transactionType, setTransactionType] = useState<string>("Complete");
@@ -79,29 +69,6 @@ const NewTransactionPage = () => {
     }
   }, [initialPatient, patient, isEditMode]);
 
-  const handleTransactionTypeChange = (type: string) => {
-    setTransactionType(type);
-    setMockTransaction(prev => ({
-      ...prev,
-      type: type as any
-    }));
-  };
-
-  const handleIpdChangeForRefraction = (ipdValue: number | undefined) => {
-    setMockTransaction(prev => ({
-      ...prev,
-      interpupillaryDistance: ipdValue
-    }));
-  };
-
-  const handleSave = () => {
-    toast({
-      title: "Success",
-      description: `Transaction ${mockTransaction.code} has been ${isEditMode ? 'updated' : 'saved'}.`,
-    });
-    navigate("/transactions");
-  };
-
   // Prepare breadcrumb items based on whether we're editing or creating
   const breadcrumbItems = isEditMode
     ? [
@@ -115,68 +82,21 @@ const NewTransactionPage = () => {
         { label: transactionCodeState }
       ];
 
-  // Dummy function - not actually used for new/edit transactions
-  const handleClaimedToggle = () => {};
-
   return (
     <div className="space-y-6 pb-16">
-      <BreadcrumbNav items={breadcrumbItems} />
-
-      <TransactionHeader
+      <TransactionHeader 
         transaction={mockTransaction}
-        onClaimedToggle={handleClaimedToggle}
-        readOnly={true}
-        pageTitle={isEditMode ? `Edit Transaction ${mockTransaction.code}` : "New Transaction"}
-        patientName={patient ? `${patient.firstName} ${patient.lastName}` : ""}
-        patientCode={patient ? patient.code : ""}
-        isNew={true}
+        patient={patient}
+        isEditMode={isEditMode}
+        breadcrumbItems={breadcrumbItems}
       />
-
-      <div className="grid gap-y-10">
-        <PatientInfo
-          patient={patient}
-          readOnly={true}
-        />
-
-        <OrderDetails
-          initialType={transactionType}
-          onTypeChange={handleTransactionTypeChange}
-          initialData={{
-            transactionType: mockTransaction.type,
-            transactionDate: mockTransaction.date,
-            refractiveIndex: mockTransaction.refractiveIndex,
-            lensType: mockTransaction.lensType,
-            lensCoating: mockTransaction.lensCoating,
-            tint: mockTransaction.tint,
-            color: mockTransaction.color,
-            orderNotes: mockTransaction.orderNotes
-          }}
-          readOnly={false}
-        />
-
-        <RefractionDetails
-          initialData={{
-            previousRx: mockTransaction.previousRx,
-            fullRx: mockTransaction.fullRx,
-            prescribedPower: mockTransaction.prescribedPower,
-            interpupillaryDistance: mockTransaction.interpupillaryDistance,
-            previousRxLensType: mockTransaction.previousRxLensType,
-            previousRxDate: mockTransaction.previousRxDate
-          }}
-          readOnly={false}
-        />
-
-        <DoctorRemarks />
-
-        <FinancialDetails />
-
-        <div className="flex justify-end">
-          <Button onClick={handleSave} className="w-full md:w-auto">
-            <Save className="mr-2" />
-            Save Transaction
-          </Button>
-        </div>
-      </div>
+      
+      <TransactionForm 
+        patient={patient}
+        mockTransaction={mockTransaction}
+        setMockTransaction={setMockTransaction}
+        isEditMode={isEditMode}
+      />
     </div>
   );
 };
