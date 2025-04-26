@@ -6,27 +6,53 @@ import { useTransactionCode } from "@/hooks/useTransactionCode";
 import { Patient, Transaction } from "@/types";
 import TransactionForm from "@/components/transactions/create/transaction-form/TransactionForm";
 import TransactionHeader from "@/components/transactions/create/transaction-form/TransactionHeader";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useNavigate } from "react-router-dom";
 
 const NewTransactionPage = () => {
+  const navigate = useNavigate();
   const { patientId, transactionCode } = useParams();
   const location = useLocation();
-  const { patient: initialPatient } = usePatientData(patientId);
+  const { patient: initialPatient, loading: patientLoading } = usePatientData(patientId);
   const { generateTransactionCode } = useTransactionCode();
   const [transactionType, setTransactionType] = useState<string>("Complete");
   const isEditMode = location.pathname.includes('/edit/');
   
-  // Get transaction from location state if in edit mode
   const editTransaction = isEditMode && location.state?.transaction 
     ? location.state.transaction 
     : null;
 
   const [transactionCodeState] = useState<string>(
-    editTransaction?.code || generateTransactionCode()
+    editTransaction?.code || generateTransactionCode(new Date())
   );
   
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
 
-  // Initialize with edit transaction data or create a new mock transaction
+  useEffect(() => {
+    if (!patientLoading && !initialPatient && patientId) {
+      navigate("/transactions", { 
+        replace: true,
+        state: { error: "Patient not found" }
+      });
+    }
+  }, [patientLoading, initialPatient, patientId, navigate]);
+
+  useEffect(() => {
+    if (initialPatient && (!patient || patient.id !== initialPatient.id)) {
+      setPatient(initialPatient);
+
+      if (!isEditMode) {
+        setMockTransaction(prev => ({
+          ...prev,
+          patientCode: initialPatient.code,
+          patientName: `${initialPatient.firstName} ${initialPatient.lastName}`,
+          firstName: initialPatient.firstName,
+          lastName: initialPatient.lastName
+        }));
+      }
+    }
+  }, [initialPatient, patient, isEditMode]);
+
   const [mockTransaction, setMockTransaction] = useState<Transaction>(() => {
     if (editTransaction) {
       return editTransaction;
@@ -55,23 +81,10 @@ const NewTransactionPage = () => {
     };
   });
 
-  useEffect(() => {
-    if (initialPatient && (!patient || patient.id !== initialPatient.id)) {
-      setPatient(initialPatient);
+  if (patientLoading) {
+    return <div className="p-8">Loading patient data...</div>;
+  }
 
-      if (!isEditMode) {
-        setMockTransaction(prev => ({
-          ...prev,
-          patientCode: initialPatient.code,
-          patientName: `${initialPatient.firstName} ${initialPatient.lastName}`,
-          firstName: initialPatient.firstName,
-          lastName: initialPatient.lastName
-        }));
-      }
-    }
-  }, [initialPatient, patient, isEditMode]);
-
-  // Prepare breadcrumb items based on whether we're editing or creating
   const breadcrumbItems = isEditMode
     ? [
         { label: "Transactions", href: "/transactions" },

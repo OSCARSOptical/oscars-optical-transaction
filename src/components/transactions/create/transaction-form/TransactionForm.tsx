@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -56,36 +57,51 @@ const TransactionForm = ({
 
   const handleSave = async () => {
     try {
+      if (!patient?.id) {
+        toast({
+          title: "Error",
+          description: "Invalid patient data. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       setIsLoading(true);
 
       const transactionDate = mockTransaction.date ? new Date(mockTransaction.date) : new Date();
       
+      // Prepare transaction data
+      const transactionData = {
+        transaction_code: mockTransaction.code,
+        transaction_date: transactionDate.toISOString(),
+        patient_id: patient.id,
+        transaction_type: transactionType,
+        interpupillary_distance: mockTransaction.interpupillaryDistance || null,
+        gross_amount: mockTransaction.grossAmount || 0,
+        deposit: mockTransaction.deposit || 0,
+        balance: mockTransaction.balance || 0,
+        lens_capital: mockTransaction.lensCapital || 0,
+        edging_price: mockTransaction.edgingPrice || 0,
+        other_expenses: mockTransaction.otherExpenses || 0,
+        total_expenses: mockTransaction.totalExpenses || 0,
+        lens_type: mockTransaction.lensType || null,
+        lens_coating: mockTransaction.lensCoating || null,
+        tint: mockTransaction.tint || null,
+        notes: mockTransaction.orderNotes || null,
+        claimed: false,
+        refractive_index: mockTransaction.refractiveIndex || null
+      };
+
       const { data: transaction, error: transactionError } = await supabase
         .from('transactions')
-        .insert({
-          transaction_code: mockTransaction.code,
-          transaction_date: transactionDate.toISOString(),
-          patient_id: patient?.id,
-          transaction_type: transactionType,
-          interpupillary_distance: mockTransaction.interpupillaryDistance,
-          gross_amount: mockTransaction.grossAmount,
-          deposit: mockTransaction.deposit,
-          balance: mockTransaction.balance,
-          lens_capital: mockTransaction.lensCapital,
-          edging_price: mockTransaction.edgingPrice,
-          other_expenses: mockTransaction.otherExpenses,
-          total_expenses: mockTransaction.totalExpenses,
-          lens_type: mockTransaction.lensType,
-          lens_coating: mockTransaction.lensCoating,
-          tint: mockTransaction.tint,
-          notes: mockTransaction.orderNotes,
-          claimed: false,
-          refractive_index: mockTransaction.refractiveIndex
-        })
+        .insert(transactionData)
         .select()
         .single();
 
-      if (transactionError) throw transactionError;
+      if (transactionError) {
+        console.error('Supabase error:', transactionError);
+        throw new Error('Failed to save transaction');
+      }
 
       toast({
         title: "Success",
