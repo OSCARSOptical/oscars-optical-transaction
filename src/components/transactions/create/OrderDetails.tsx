@@ -75,19 +75,22 @@ const OrderDetails = ({
       <OrderDetailsHeader />
       <CardContent>
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <DateSelector 
-              date={transactionDate} 
-              onDateChange={setTransactionDate} 
-              readOnly={readOnly} 
-              label="Transaction date"
-            />
-            
-            <TransactionTypeSelector 
-              transactionType={transactionType} 
-              onTypeChange={handleTypeChange} 
-              readOnly={readOnly} 
-            />
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="w-full md:w-1/2">
+              <DateSelector 
+                date={transactionDate} 
+                onDateChange={setTransactionDate} 
+                readOnly={readOnly} 
+                label="Transaction Date"
+              />
+            </div>
+            <div className="w-full md:w-1/2">
+              <TransactionTypeSelector 
+                transactionType={transactionType} 
+                onTypeChange={handleTypeChange} 
+                readOnly={readOnly} 
+              />
+            </div>
           </div>
 
           <LensSpecifications

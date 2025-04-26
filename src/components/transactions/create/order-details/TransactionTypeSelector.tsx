@@ -16,8 +16,8 @@ const TransactionTypeSelector = ({
 }: TransactionTypeSelectorProps) => {
   return (
     <div>
-      <Label htmlFor="transactionType" className="text-xs text-muted-foreground capitalize">
-        Transaction type
+      <Label htmlFor="transactionType" className="text-xs text-muted-foreground">
+        Transaction Type
       </Label>
       <Select 
         value={transactionType} 
@@ -28,15 +28,15 @@ const TransactionTypeSelector = ({
           id="transactionType"
           className={cn(readOnly && "bg-muted cursor-default")}
         >
-          <SelectValue placeholder="Select transaction type" />
+          <SelectValue placeholder="Select Transaction Type" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="Complete">Complete</SelectItem>
-          <SelectItem value="Lens Replacement">Lens replacement</SelectItem>
-          <SelectItem value="Frame Replacement">Frame replacement</SelectItem>
-          <SelectItem value="Medical Certificate">Medical certificate</SelectItem>
-          <SelectItem value="Eye Examination">Eye examination</SelectItem>
-          <SelectItem value="Contact Lens">Contact lens</SelectItem>
+          <SelectItem value="Lens Replacement">Lens Replacement</SelectItem>
+          <SelectItem value="Frame Replacement">Frame Replacement</SelectItem>
+          <SelectItem value="Medical Certificate">Medical Certificate</SelectItem>
+          <SelectItem value="Eye Examination">Eye Examination</SelectItem>
+          <SelectItem value="Contact Lens">Contact Lens</SelectItem>
           <SelectItem value="Repair">Repair</SelectItem>
           <SelectItem value="Return">Return</SelectItem>
         </SelectContent>

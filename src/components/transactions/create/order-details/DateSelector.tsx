@@ -18,13 +18,13 @@ const DateSelector = ({
   date, 
   onDateChange, 
   readOnly = false,
-  label = "Transaction date"
+  label = "Transaction Date"
 }: DateSelectorProps) => {
   const formattedDate = format(date, "yyyy-MM-dd");
 
   return (
     <div>
-      <Label htmlFor="date-input" className="text-xs text-muted-foreground capitalize">
+      <Label htmlFor="date-input" className="text-xs text-muted-foreground">
         {label}
       </Label>
       {readOnly ? (
@@ -53,7 +53,7 @@ const DateSelector = ({
             <Calendar
               mode="single"
               selected={date}
-              onSelect={(date) => onDateChange(date || new Date())}
+              onSelect={(date) => date && onDateChange(date)}
               initialFocus
               disabled={readOnly}
               className={cn("p-3 pointer-events-auto")}
