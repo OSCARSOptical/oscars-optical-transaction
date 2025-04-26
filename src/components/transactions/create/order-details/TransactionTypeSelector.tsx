@@ -16,7 +16,7 @@ const TransactionTypeSelector = ({
 }: TransactionTypeSelectorProps) => {
   return (
     <div>
-      <Label htmlFor="transactionType" className="text-xs text-muted-foreground">
+      <Label htmlFor="transactionType" className="text-xs text-muted-foreground capitalize">
         Transaction type
       </Label>
       <Select 
@@ -32,10 +32,13 @@ const TransactionTypeSelector = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="Complete">Complete</SelectItem>
-          <SelectItem value="Frame Only">Frame only</SelectItem>
-          <SelectItem value="Lens Only">Lens only</SelectItem>
+          <SelectItem value="Lens Replacement">Lens replacement</SelectItem>
+          <SelectItem value="Frame Replacement">Frame replacement</SelectItem>
+          <SelectItem value="Medical Certificate">Medical certificate</SelectItem>
+          <SelectItem value="Eye Examination">Eye examination</SelectItem>
           <SelectItem value="Contact Lens">Contact lens</SelectItem>
-          <SelectItem value="Others">Others</SelectItem>
+          <SelectItem value="Repair">Repair</SelectItem>
+          <SelectItem value="Return">Return</SelectItem>
         </SelectContent>
       </Select>
     </div>

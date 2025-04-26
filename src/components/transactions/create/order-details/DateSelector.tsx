@@ -24,7 +24,7 @@ const DateSelector = ({
 
   return (
     <div>
-      <Label htmlFor="date-input" className="text-xs text-muted-foreground">
+      <Label htmlFor="date-input" className="text-xs text-muted-foreground capitalize">
         {label}
       </Label>
       {readOnly ? (

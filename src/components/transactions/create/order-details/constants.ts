@@ -1,9 +1,7 @@
 
+// Transaction types that should disable lens specification fields
 export const NA_TRANSACTION_TYPES = [
-  "Eye Exam",
-  "Frame Replacement",
+  "Eye Examination",
   "Medical Certificate",
-  "Contact Lens",
-  "Repair",
-  "Return"
+  "Return",
 ];

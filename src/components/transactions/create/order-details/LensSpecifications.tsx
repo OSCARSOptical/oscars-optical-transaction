@@ -35,7 +35,7 @@ const LensSpecifications = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
       <div>
-        <Label htmlFor="refractiveIndex" className="text-xs text-muted-foreground">Refractive index</Label>
+        <Label htmlFor="refractiveIndex" className="text-xs text-muted-foreground capitalize">Refractive index</Label>
         <Select 
           value={refractiveIndex}
           onValueChange={onRefractiveIndexChange}
@@ -58,7 +58,7 @@ const LensSpecifications = ({
       </div>
       
       <div>
-        <Label htmlFor="lensType" className="text-xs text-muted-foreground">Lens type</Label>
+        <Label htmlFor="lensType" className="text-xs text-muted-foreground capitalize">Lens type</Label>
         <Select 
           value={lensType}
           onValueChange={onLensTypeChange}
@@ -80,7 +80,7 @@ const LensSpecifications = ({
       </div>
       
       <div>
-        <Label htmlFor="lensCoating" className="text-xs text-muted-foreground">Lens coating</Label>
+        <Label htmlFor="lensCoating" className="text-xs text-muted-foreground capitalize">Lens coating</Label>
         <Select 
           value={lensCoating}
           onValueChange={onLensCoatingChange}
@@ -104,7 +104,7 @@ const LensSpecifications = ({
       </div>
       
       <div>
-        <Label htmlFor="tint" className="text-xs text-muted-foreground">Tint</Label>
+        <Label htmlFor="tint" className="text-xs text-muted-foreground capitalize">Tint</Label>
         <Select 
           value={tint}
           onValueChange={onTintChange}
@@ -125,7 +125,7 @@ const LensSpecifications = ({
       </div>
       
       <div>
-        <Label htmlFor="frameType" className="text-xs text-muted-foreground">Frame type</Label>
+        <Label htmlFor="frameType" className="text-xs text-muted-foreground capitalize">Frame type</Label>
         <Select 
           value={frameType}
           onValueChange={onFrameTypeChange}
