@@ -18,13 +18,13 @@ const DateSelector = ({
   date, 
   onDateChange, 
   readOnly = false,
-  label = "Transaction date"
+  label = "Transaction Date"
 }: DateSelectorProps) => {
   const formattedDate = format(date, "yyyy-MM-dd");
 
   return (
-    <div>
-      <Label htmlFor="date-input" className="text-xs text-muted-foreground capitalize">
+    <div className="w-full">
+      <Label htmlFor="date-input" className="text-xs text-muted-foreground">
         {label}
       </Label>
       {readOnly ? (
