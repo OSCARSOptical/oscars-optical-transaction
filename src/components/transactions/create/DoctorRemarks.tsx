@@ -1,8 +1,11 @@
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+
 interface DoctorRemarksProps {
   readOnly?: boolean;
   initialData?: {
@@ -10,37 +13,64 @@ interface DoctorRemarksProps {
     remarks?: string;
   };
 }
+
 const DoctorRemarks = ({
   readOnly = false,
   initialData
 }: DoctorRemarksProps) => {
-  const [doctorId, setDoctorId] = useState<string>(initialData?.doctorId || "");
   const [remarks, setRemarks] = useState<string>(initialData?.remarks || "");
-  return <Card>
+  const [doctorName, setDoctorName] = useState<string>("");
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (profile) {
+          setDoctorName(`Dr. ${profile.first_name} ${profile.last_name}`);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  return (
+    <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-medium">Doctor's Remarks</CardTitle>
+        <CardTitle className="text-lg font-medium">Remarks</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="doctor">Attending Doctor</Label>
-            <Select value={doctorId} onValueChange={readOnly ? undefined : setDoctorId} disabled={readOnly}>
-              <SelectTrigger id="doctor">
-                <SelectValue placeholder="Select Doctor" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dr-smith">Dr. Smith</SelectItem>
-                <SelectItem value="dr-jones">Dr. Jones</SelectItem>
-                <SelectItem value="dr-williams">Doctor's Remarks</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input 
+              id="doctor"
+              value={doctorName}
+              readOnly
+              className="bg-muted cursor-default"
+            />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="remarks">Doctor's Remarks</Label>
-            <Textarea id="remarks" placeholder="Enter any remarks or medical notes from the doctor" className="min-h-[100px]" value={remarks} onChange={readOnly ? undefined : e => setRemarks(e.target.value)} readOnly={readOnly} />
+            <Label htmlFor="remarks">Remarks</Label>
+            <Textarea 
+              id="remarks" 
+              placeholder="Enter any remarks or medical notes" 
+              className="min-h-[100px]" 
+              value={remarks} 
+              onChange={readOnly ? undefined : e => setRemarks(e.target.value)} 
+              readOnly={readOnly} 
+            />
           </div>
         </div>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default DoctorRemarks;
