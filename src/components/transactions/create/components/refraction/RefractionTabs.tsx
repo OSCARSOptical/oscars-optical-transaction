@@ -5,6 +5,7 @@ import { RefractionTable } from "../../RefractionTable";
 import { RefractionData } from "@/types";
 import { CopyFromFullRxCheckbox } from "./CopyFromFullRxCheckbox";
 import { PreviousRxOptions } from "./PreviousRxOptions";
+import { NoPreviousRxCheckbox } from "./NoPreviousRxCheckbox";
 
 interface RefractionTabsProps {
   activeTab: string;
@@ -20,6 +21,7 @@ interface RefractionTabsProps {
   previousRxDate?: Date;
   setPreviousRxDate: (date: Date | undefined) => void;
   noPreviousRx: boolean;
+  setNoPreviousRx: (checked: boolean) => void;
   readOnly?: boolean;
 }
 
@@ -37,6 +39,7 @@ export const RefractionTabs = ({
   previousRxDate,
   setPreviousRxDate,
   noPreviousRx,
+  setNoPreviousRx,
   readOnly = false
 }: RefractionTabsProps) => {
   const [copyEnabled, setCopyEnabled] = useState(false);
@@ -66,26 +69,12 @@ export const RefractionTabs = ({
     }
   };
 
-  // Effect to disable Previous Rx fields when noPreviousRx is checked
-  useEffect(() => {
-    if (noPreviousRx && activeTab === "previous") {
-      // Switch to another tab if we're on previous and it gets disabled
-      setActiveTab("full");
-    }
-  }, [noPreviousRx, activeTab, setActiveTab]);
-
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <TabsList className="mb-4 w-full flex">
-        <TabsTrigger 
-          value="previous" 
-          className="flex-1"
-          disabled={noPreviousRx}
-        >
-          Previous Rx
-        </TabsTrigger>
-        <TabsTrigger value="full" className="flex-1">Full Rx</TabsTrigger>
-        <TabsTrigger value="prescribed" className="flex-1">Prescribed Power</TabsTrigger>
+        <TabsTrigger value="previous">Previous Rx</TabsTrigger>
+        <TabsTrigger value="full">Full Rx</TabsTrigger>
+        <TabsTrigger value="prescribed">Prescribed Power</TabsTrigger>
       </TabsList>
       
       <TabsContent value="previous">
@@ -104,6 +93,13 @@ export const RefractionTabs = ({
           readOnly={readOnly}
           disabled={noPreviousRx}
         />
+        <div className="flex items-center gap-2 mt-4 px-4">
+          <NoPreviousRxCheckbox
+            checked={noPreviousRx}
+            onCheckedChange={setNoPreviousRx}
+            readOnly={readOnly}
+          />
+        </div>
       </TabsContent>
       
       <TabsContent value="full">

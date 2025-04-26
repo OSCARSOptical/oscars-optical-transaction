@@ -1,6 +1,6 @@
 
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface NoPreviousRxCheckboxProps {
   checked: boolean;
@@ -14,7 +14,7 @@ export const NoPreviousRxCheckbox = ({
   readOnly = false 
 }: NoPreviousRxCheckboxProps) => {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center gap-2">
       <Checkbox 
         id="noPreviousRx" 
         checked={checked} 
@@ -23,9 +23,9 @@ export const NoPreviousRxCheckbox = ({
       />
       <Label 
         htmlFor="noPreviousRx" 
-        className="font-normal text-sm cursor-pointer"
+        className="text-xs text-muted-foreground mb-0"
       >
-        No previous Rx
+        No Previous Rx
       </Label>
     </div>
   );

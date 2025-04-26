@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefractionData } from "@/types";
 import { InterPupillaryDistance } from "./components/refraction/InterPupillaryDistance";
-import { NoPreviousRxCheckbox } from "./components/refraction/NoPreviousRxCheckbox";
 import { RefractionTabs } from "./components/refraction/RefractionTabs";
 
 interface RefractionDetailsProps {
@@ -31,8 +30,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
     initialData?.prescribedPower
   );
   const [ipd, setIpd] = useState<number | undefined>(initialData?.interpupillaryDistance);
-  
-  // State for previous Rx lens type and date
   const [previousRxLensType, setPreviousRxLensType] = useState<string>(
     initialData?.previousRxLensType || ""
   );
@@ -40,7 +37,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
     initialData?.previousRxDate ? new Date(initialData.previousRxDate) : undefined
   );
   
-  // State for No Previous Rx checkbox
   const [noPreviousRx, setNoPreviousRx] = useState<boolean>(
     initialData?.noPreviousRx || false
   );
@@ -49,18 +45,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
     if (!readOnly) {
       const parsedValue = parseFloat(value);
       setIpd(isNaN(parsedValue) ? undefined : parsedValue);
-    }
-  };
-
-  const handleNoPreviousRxChange = (checked: boolean) => {
-    if (!readOnly) {
-      setNoPreviousRx(checked);
-      if (checked) {
-        // Clear previous Rx data when checkbox is checked
-        setPreviousRx(undefined);
-        setPreviousRxLensType("");
-        setPreviousRxDate(undefined);
-      }
     }
   };
 
@@ -74,14 +58,6 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
           <InterPupillaryDistance
             ipd={ipd}
             onIpdChange={handleIpdChange}
-            readOnly={readOnly}
-          />
-        </div>
-        
-        <div className="mb-4">
-          <NoPreviousRxCheckbox
-            checked={noPreviousRx}
-            onCheckedChange={handleNoPreviousRxChange}
             readOnly={readOnly}
           />
         </div>
@@ -100,6 +76,7 @@ const RefractionDetails = ({ readOnly = false, initialData }: RefractionDetailsP
           previousRxDate={previousRxDate}
           setPreviousRxDate={setPreviousRxDate}
           noPreviousRx={noPreviousRx}
+          setNoPreviousRx={setNoPreviousRx}
           readOnly={readOnly}
         />
       </CardContent>
