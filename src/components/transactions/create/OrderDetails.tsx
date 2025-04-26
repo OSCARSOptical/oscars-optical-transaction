@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { NA_TRANSACTION_TYPES } from "./order-details/constants";
@@ -8,10 +9,11 @@ import TransactionTypeSelector from "./order-details/TransactionTypeSelector";
 import LensSpecifications from "./order-details/LensSpecifications";
 import ColorInput from "./order-details/ColorInput";
 import OrderNotes from "./order-details/OrderNotes";
+import { Transaction } from "@/types";
 
 interface OrderDetailsProps {
   initialType?: string;
-  onTypeChange?: (type: string) => void;
+  onTypeChange?: (type: Transaction['type']) => void;
   readOnly?: boolean;
   initialData?: {
     transactionDate?: string;
@@ -78,7 +80,7 @@ const OrderDetails = ({
     }
   }, [refractiveIndex, lensType, lensCoating, tint, frameType, shouldDisableFields]);
 
-  const handleTypeChange = (value: string) => {
+  const handleTypeChange = (value: Transaction['type']) => {
     setTransactionType(value);
     if (onTypeChange) {
       onTypeChange(value);

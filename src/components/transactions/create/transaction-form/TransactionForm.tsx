@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -119,7 +120,13 @@ const TransactionForm = ({
 
       <OrderDetails
         initialType={mockTransaction.type}
-        onTypeChange={type => setMockTransaction(prev => ({ ...prev, type }))}
+        onTypeChange={(type) => {
+          // Here's the fix: cast the type to the appropriate union type
+          setMockTransaction(prev => ({ 
+            ...prev, 
+            type: type as Transaction['type'] 
+          }));
+        }}
         onPricesChange={prices => {
           setMockTransaction(prev => ({
             ...prev,

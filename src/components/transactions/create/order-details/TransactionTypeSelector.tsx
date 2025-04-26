@@ -2,10 +2,11 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Transaction } from "@/types";
 
 interface TransactionTypeSelectorProps {
   transactionType: string;
-  onTypeChange: (value: string) => void;
+  onTypeChange: (value: Transaction['type']) => void;
   readOnly?: boolean;
 }
 
