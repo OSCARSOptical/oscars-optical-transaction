@@ -39,7 +39,7 @@ export const PreviousRxOptions = ({
             <SelectValue placeholder="Select Lens Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Single Vision">Single vision</SelectItem>
+            <SelectItem value="Single Vision">Single Vision</SelectItem>
             <SelectItem value="Bifocal">Bifocal</SelectItem>
             <SelectItem value="Progressive">Progressive</SelectItem>
           </SelectContent>

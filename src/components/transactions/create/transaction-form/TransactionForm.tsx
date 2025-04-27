@@ -65,7 +65,12 @@ const TransactionForm = ({
       fullRx: refractionData.fullRx,
       prescribedPower: refractionData.prescribedPower,
       interpupillaryDistance: refractionData.interpupillaryDistance,
-      previousRxLensType: refractionData.previousRxLensType,
+      // Convert the string to a valid literal type if it matches one of the allowed values
+      previousRxLensType: (refractionData.previousRxLensType === "Single Vision" || 
+                          refractionData.previousRxLensType === "Bifocal" || 
+                          refractionData.previousRxLensType === "Progressive") 
+                          ? refractionData.previousRxLensType 
+                          : undefined,
       previousRxDate: refractionData.previousRxDate,
       noPreviousRx: refractionData.noPreviousRx
     }));
