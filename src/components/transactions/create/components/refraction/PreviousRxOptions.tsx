@@ -7,6 +7,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+// Define valid lens type values
+type PreviousRxLensType = "Single Vision" | "Bifocal" | "Progressive";
+
 interface PreviousRxOptionsProps {
   lensType: string;
   onLensTypeChange: (value: string) => void;
@@ -24,6 +27,18 @@ export const PreviousRxOptions = ({
   readOnly = false,
   disabled = false 
 }: PreviousRxOptionsProps) => {
+  // Handler to ensure we only pass valid values
+  const handleLensTypeChange = (value: string) => {
+    // Validate that the value is one of the allowed types
+    if (value === "Single Vision" || value === "Bifocal" || value === "Progressive") {
+      onLensTypeChange(value);
+    } else {
+      console.warn("Invalid lens type selected:", value);
+      // Default to Single Vision if invalid value
+      onLensTypeChange("Single Vision");
+    }
+  };
+
   return (
     <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -32,7 +47,7 @@ export const PreviousRxOptions = ({
         </Label>
         <Select
           value={lensType}
-          onValueChange={onLensTypeChange}
+          onValueChange={handleLensTypeChange}
           disabled={readOnly || disabled}
         >
           <SelectTrigger id="previousRxLensType" className="mt-1">

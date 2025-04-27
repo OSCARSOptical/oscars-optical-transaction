@@ -99,7 +99,6 @@ export function usePatientTransactions(patientCode: string) {
           lastName: patientData.last_name,
           date: transaction.transaction_date || new Date().toISOString().split('T')[0],
           type: validateTransactionType(transaction.transaction_type),
-          status: transaction.claimed ? 'Claimed' : 'Pending',
           grossAmount: transaction.gross_amount || 0,
           deposit: transaction.deposit || 0,
           balance: transaction.balance || 0,
