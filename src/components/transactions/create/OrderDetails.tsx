@@ -28,6 +28,15 @@ interface OrderDetailsProps {
     orderNotes?: string;
   };
   onPricesChange?: (prices: { lensCapital: number; edgingPrice: number; otherExpenses: number }) => void;
+  onOrderDataChange?: (data: {
+    refractiveIndex?: string;
+    lensType?: string;
+    lensCoating?: string;
+    tint?: string;
+    color?: string;
+    frameType?: string;
+    orderNotes?: string;
+  }) => void;
 }
 
 const OrderDetails = ({ 
@@ -36,7 +45,8 @@ const OrderDetails = ({
   onDateChange,
   readOnly = false,
   initialData = {},
-  onPricesChange
+  onPricesChange,
+  onOrderDataChange
 }: OrderDetailsProps) => {
   const [transactionType, setTransactionType] = useState(initialData.transactionType || "");
   const [transactionDate, setTransactionDate] = useState(
@@ -67,7 +77,7 @@ const OrderDetails = ({
       if (tint === "N/A") setTint("");
       if (frameType === "N/A") setFrameType("");
     }
-  }, [transactionType]);
+  }, [transactionType, shouldDisableFields]);
 
   useEffect(() => {
     if (!shouldDisableFields && refractiveIndex && lensType && lensCoating && tint && frameType) {
@@ -78,9 +88,26 @@ const OrderDetails = ({
         tint,
         frameType
       );
-      onPricesChange?.(prices);
+      if (onPricesChange) {
+        onPricesChange(prices);
+      }
     }
-  }, [refractiveIndex, lensType, lensCoating, tint, frameType, shouldDisableFields]);
+  }, [refractiveIndex, lensType, lensCoating, tint, frameType, shouldDisableFields, onPricesChange]);
+
+  // Send data changes to parent component
+  useEffect(() => {
+    if (onOrderDataChange) {
+      onOrderDataChange({
+        refractiveIndex,
+        lensType,
+        lensCoating,
+        tint,
+        color,
+        frameType,
+        orderNotes: notes
+      });
+    }
+  }, [refractiveIndex, lensType, lensCoating, tint, color, frameType, notes, onOrderDataChange]);
 
   const handleTypeChange = (value: Transaction['type']) => {
     setTransactionType(value);
@@ -94,6 +121,34 @@ const OrderDetails = ({
     if (onDateChange) {
       onDateChange(date);
     }
+  };
+
+  const handleRefractiveIndexChange = (value: string) => {
+    setRefractiveIndex(value);
+  };
+
+  const handleLensTypeChange = (value: string) => {
+    setLensType(value);
+  };
+
+  const handleLensCoatingChange = (value: string) => {
+    setLensCoating(value);
+  };
+
+  const handleTintChange = (value: string) => {
+    setTint(value);
+  };
+
+  const handleFrameTypeChange = (value: string) => {
+    setFrameType(value);
+  };
+
+  const handleColorChange = (value: string) => {
+    setColor(value);
+  };
+
+  const handleNotesChange = (value: string) => {
+    setNotes(value);
   };
   
   return (
@@ -125,11 +180,11 @@ const OrderDetails = ({
             lensCoating={lensCoating}
             tint={tint}
             frameType={frameType}
-            onRefractiveIndexChange={setRefractiveIndex}
-            onLensTypeChange={setLensType}
-            onLensCoatingChange={setLensCoating}
-            onTintChange={setTint}
-            onFrameTypeChange={setFrameType}
+            onRefractiveIndexChange={handleRefractiveIndexChange}
+            onLensTypeChange={handleLensTypeChange}
+            onLensCoatingChange={handleLensCoatingChange}
+            onTintChange={handleTintChange}
+            onFrameTypeChange={handleFrameTypeChange}
             disabled={shouldDisableFields}
             readOnly={readOnly}
             showFrameType={!showColorField}
@@ -139,7 +194,7 @@ const OrderDetails = ({
             <div className="w-full">
               <ColorInput 
                 color={color} 
-                onColorChange={setColor} 
+                onColorChange={handleColorChange} 
                 readOnly={readOnly} 
               />
             </div>
@@ -150,7 +205,7 @@ const OrderDetails = ({
               <LensSpecifications
                 frameTypeOnly={true}
                 frameType={frameType}
-                onFrameTypeChange={setFrameType}
+                onFrameTypeChange={handleFrameTypeChange}
                 disabled={shouldDisableFields}
                 readOnly={readOnly}
                 showFrameType={true}
@@ -160,7 +215,7 @@ const OrderDetails = ({
 
           <OrderNotes 
             notes={notes} 
-            onNotesChange={setNotes} 
+            onNotesChange={handleNotesChange} 
             readOnly={readOnly} 
           />
         </div>

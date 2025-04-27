@@ -71,12 +71,21 @@ export const useTransactionSave = ({
       // Calculate net income
       const netIncome = grossAmount - totalExpenses;
       
+      // Create a validated object for refractiveIndex, lensType, lensCoating and tint
+      const refractiveIndex = mockTransaction.refractiveIndex || null;
+      const lensType = mockTransaction.lensType || null;
+      const lensCoating = mockTransaction.lensCoating || null;
+      const tint = mockTransaction.tint || null;
+      
+      // Store frameType in the notes field since there's no specific column for it
+      const notes = mockTransaction.frameType || mockTransaction.orderNotes || null;
+      
       const transactionData = {
         patient_id: patientData.id,
         transaction_code: mockTransaction.code,
         transaction_date: transactionDate.toISOString().split('T')[0],
         transaction_type: mockTransaction.type,
-        interpupillary_distance: mockTransaction.interpupillaryDistance,
+        interpupillary_distance: mockTransaction.interpupillaryDistance || null,
         gross_amount: grossAmount,
         deposit: deposit,
         balance: balance,
@@ -85,14 +94,16 @@ export const useTransactionSave = ({
         other_expenses: otherExpenses,
         total_expenses: totalExpenses,
         net_income: netIncome,
-        lens_type: mockTransaction.lensType || null,
-        lens_coating: mockTransaction.lensCoating || null,
-        tint: mockTransaction.tint || null,
-        notes: mockTransaction.orderNotes || null,
+        lens_type: lensType,
+        lens_coating: lensCoating,
+        tint: tint,
+        notes: notes, // Store frameType in the notes field
         claimed: mockTransaction.claimed || false,
-        refractive_index: mockTransaction.refractiveIndex || null,
+        refractive_index: refractiveIndex,
         doctor_remarks: mockTransaction.doctorRemarks || null
       };
+
+      console.log('Data to be inserted:', transactionData);
 
       const { data: transaction, error: transactionError } = await supabase
         .from('transactions')

@@ -51,7 +51,7 @@ const RefractionDetails = ({ readOnly = false, initialData, onDataChange }: Refr
         noPreviousRx
       });
     }
-  }, [previousRx, fullRx, prescribedPower, ipd, previousRxLensType, previousRxDate, noPreviousRx]);
+  }, [previousRx, fullRx, prescribedPower, ipd, previousRxLensType, previousRxDate, noPreviousRx, onDataChange]);
 
   const handleIpdChange = (value: string) => {
     if (!readOnly) {

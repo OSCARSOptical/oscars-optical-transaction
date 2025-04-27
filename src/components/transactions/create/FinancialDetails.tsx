@@ -18,12 +18,20 @@ interface FinancialDetailsProps {
     edgingPrice: number;
     otherExpenses: number;
   };
+  onDataChange?: (data: {
+    grossAmount: number;
+    deposit: number;
+    lensCapital: number;
+    edgingPrice: number;
+    otherExpenses: number;
+  }) => void;
 }
 
 const FinancialDetails = ({ 
   readOnly = false, 
   initialData = {},
-  autofillPrices
+  autofillPrices,
+  onDataChange
 }: FinancialDetailsProps) => {
   const [grossAmount, setGrossAmount] = useState<number>(initialData?.grossAmount || 0);
   const [deposit, setDeposit] = useState<number>(initialData?.deposit || 0);
@@ -46,7 +54,7 @@ const FinancialDetails = ({
       if (!isManuallyEdited.edgingPrice) setEdgingPrice(autofillPrices.edgingPrice);
       if (!isManuallyEdited.otherExpenses) setOtherExpenses(autofillPrices.otherExpenses);
     }
-  }, [autofillPrices]);
+  }, [autofillPrices, isManuallyEdited.lensCapital, isManuallyEdited.edgingPrice, isManuallyEdited.otherExpenses]);
 
   useEffect(() => {
     // Calculate balance
@@ -60,7 +68,18 @@ const FinancialDetails = ({
     // Calculate net income
     const calculatedNetIncome = deposit - calculatedTotalExpenses;
     setNetIncome(calculatedNetIncome);
-  }, [grossAmount, deposit, lensCapital, edgingPrice, otherExpenses]);
+
+    // Send data to parent component
+    if (onDataChange) {
+      onDataChange({
+        grossAmount,
+        deposit,
+        lensCapital,
+        edgingPrice,
+        otherExpenses
+      });
+    }
+  }, [grossAmount, deposit, lensCapital, edgingPrice, otherExpenses, onDataChange]);
 
   const handleManualEdit = (field: keyof typeof isManuallyEdited) => {
     setIsManuallyEdited(prev => ({

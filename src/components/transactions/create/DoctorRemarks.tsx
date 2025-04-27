@@ -1,10 +1,7 @@
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
 
 interface DoctorRemarksProps {
   readOnly?: boolean;
@@ -12,62 +9,44 @@ interface DoctorRemarksProps {
     doctorId?: string;
     remarks?: string;
   };
+  onDataChange?: (data: { doctorId?: string; remarks?: string }) => void;
 }
 
-const DoctorRemarks = ({
-  readOnly = false,
-  initialData
+const DoctorRemarks = ({ 
+  readOnly = false, 
+  initialData = {},
+  onDataChange
 }: DoctorRemarksProps) => {
-  const [remarks, setRemarks] = useState<string>(initialData?.remarks || "");
-  const [doctorName, setDoctorName] = useState<string>("");
+  const [remarks, setRemarks] = useState(initialData?.remarks || "");
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (profile) {
-          setDoctorName(`Dr. ${profile.first_name} ${profile.last_name}`);
-        }
-      }
-    };
+    if (onDataChange) {
+      onDataChange({
+        doctorId: initialData?.doctorId,
+        remarks
+      });
+    }
+  }, [remarks, initialData?.doctorId, onDataChange]);
 
-    fetchUserProfile();
-  }, []);
+  const handleRemarksChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (!readOnly) {
+      setRemarks(e.target.value);
+    }
+  };
 
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-medium">Remarks</CardTitle>
+        <CardTitle className="text-lg font-medium">Doctor Remarks</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="doctor">Attending Doctor</Label>
-            <Input 
-              id="doctor"
-              value={doctorName}
-              readOnly
-              className="bg-muted cursor-default"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="remarks">Remarks</Label>
-            <Textarea 
-              id="remarks" 
-              placeholder="Enter any remarks or medical notes" 
-              className="min-h-[100px]" 
-              value={remarks} 
-              onChange={readOnly ? undefined : e => setRemarks(e.target.value)} 
-              readOnly={readOnly} 
-            />
-          </div>
-        </div>
+        <Textarea
+          placeholder="Enter any remarks or notes from the doctor..."
+          value={remarks}
+          onChange={handleRemarksChange}
+          disabled={readOnly}
+          className="min-h-[100px]"
+        />
       </CardContent>
     </Card>
   );
