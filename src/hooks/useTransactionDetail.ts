@@ -64,6 +64,30 @@ export function useTransactionDetail(transactionCode: string | undefined, patien
           throw new Error(`Transaction not found: ${transactionCode}`);
         }
         
+        // Helper function to validate refractive index
+        const validateRefractiveIndex = (value: string | null): "1.56" | "1.61" | "1.67" | "1.74" | undefined => {
+          const validValues = ["1.56", "1.61", "1.67", "1.74"];
+          return validValues.includes(value || "") ? (value as "1.56" | "1.61" | "1.67" | "1.74") : undefined;
+        };
+
+        // Helper function to validate lens type
+        const validateLensType = (value: string | null): "SV" | "KK" | "Prog" | "N/A" | undefined => {
+          const validValues = ["SV", "KK", "Prog", "N/A"];
+          return validValues.includes(value || "") ? (value as "SV" | "KK" | "Prog" | "N/A") : undefined;
+        };
+
+        // Helper function to validate lens coating
+        const validateLensCoating = (value: string | null): "UC" | "MC" | "BB" | "TRG" | "BB TRG" | undefined => {
+          const validValues = ["UC", "MC", "BB", "TRG", "BB TRG"];
+          return validValues.includes(value || "") ? (value as "UC" | "MC" | "BB" | "TRG" | "BB TRG") : undefined;
+        };
+
+        // Helper function to validate tint
+        const validateTint = (value: string | null): "N/A" | "One-Tone" | "Two-Tone" | undefined => {
+          const validValues = ["N/A", "One-Tone", "Two-Tone"];
+          return validValues.includes(value || "") ? (value as "N/A" | "One-Tone" | "Two-Tone") : undefined;
+        };
+        
         // Format the transaction data to match our Transaction type
         const formattedTransaction: Transaction = {
           id: transactionData.id,
@@ -85,11 +109,11 @@ export function useTransactionDetail(transactionCode: string | undefined, patien
           claimed: transactionData.claimed || false,
           dateClaimed: transactionData.claimed_on || null,
           interpupillaryDistance: transactionData.interpupillary_distance,
-          refractiveIndex: transactionData.refractive_index as string,
-          lensType: transactionData.lens_type as string,
-          lensCoating: transactionData.lens_coating as string,
-          tint: transactionData.tint as string,
-          frameType: transactionData.frame_type as string,
+          refractiveIndex: validateRefractiveIndex(transactionData.refractive_index),
+          lensType: validateLensType(transactionData.lens_type),
+          lensCoating: validateLensCoating(transactionData.lens_coating),
+          tint: validateTint(transactionData.tint),
+          frameType: transactionData.frame_type,
           orderNotes: transactionData.notes,
           doctorRemarks: transactionData.doctor_remarks,
           phone: formattedPatient.phone

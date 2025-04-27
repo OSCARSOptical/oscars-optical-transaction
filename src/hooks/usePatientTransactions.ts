@@ -64,6 +64,30 @@ export function usePatientTransactions(patientCode: string) {
             ? (type as Transaction['type']) 
             : 'Complete'; // Default to 'Complete' if not valid
         };
+
+        // Helper function to validate refractive index
+        const validateRefractiveIndex = (value: string | null): "1.56" | "1.61" | "1.67" | "1.74" | undefined => {
+          const validValues = ["1.56", "1.61", "1.67", "1.74"];
+          return validValues.includes(value || "") ? (value as "1.56" | "1.61" | "1.67" | "1.74") : undefined;
+        };
+
+        // Helper function to validate lens type
+        const validateLensType = (value: string | null): "SV" | "KK" | "Prog" | "N/A" | undefined => {
+          const validValues = ["SV", "KK", "Prog", "N/A"];
+          return validValues.includes(value || "") ? (value as "SV" | "KK" | "Prog" | "N/A") : undefined;
+        };
+
+        // Helper function to validate lens coating
+        const validateLensCoating = (value: string | null): "UC" | "MC" | "BB" | "TRG" | "BB TRG" | undefined => {
+          const validValues = ["UC", "MC", "BB", "TRG", "BB TRG"];
+          return validValues.includes(value || "") ? (value as "UC" | "MC" | "BB" | "TRG" | "BB TRG") : undefined;
+        };
+
+        // Helper function to validate tint
+        const validateTint = (value: string | null): "N/A" | "One-Tone" | "Two-Tone" | undefined => {
+          const validValues = ["N/A", "One-Tone", "Two-Tone"];
+          return validValues.includes(value || "") ? (value as "N/A" | "One-Tone" | "Two-Tone") : undefined;
+        };
         
         // Transform Supabase data to match our Transaction type
         const patientTransactions: Transaction[] = data.map(transaction => ({
@@ -87,10 +111,10 @@ export function usePatientTransactions(patientCode: string) {
           claimed: transaction.claimed || false,
           dateClaimed: transaction.claimed_on || null,
           phone: patientData.contact_number || '',
-          refractiveIndex: transaction.refractive_index || undefined,
-          lensType: transaction.lens_type || undefined,
-          lensCoating: transaction.lens_coating || undefined,
-          tint: transaction.tint || undefined,
+          refractiveIndex: validateRefractiveIndex(transaction.refractive_index),
+          lensType: validateLensType(transaction.lens_type),
+          lensCoating: validateLensCoating(transaction.lens_coating),
+          tint: validateTint(transaction.tint),
           frameType: transaction.frame_type || undefined,
           orderNotes: transaction.notes || undefined
         }));
