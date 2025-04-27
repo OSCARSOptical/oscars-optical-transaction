@@ -23,13 +23,16 @@ export const InterPupillaryDistance = ({
 }: InterPupillaryDistanceProps) => {
   const ipdOptions = generateIpdDropdownOptions();
 
+  // Convert ipd to string safely by checking if it's undefined or null
+  const ipdValue = ipd !== undefined && ipd !== null ? ipd.toFixed(1) : "";
+
   return (
     <div className="w-full">
       <Label htmlFor="interpupillaryDistance" className="text-xs text-muted-foreground">
         Interpupillary Distance (mm)
       </Label>
       <Select
-        value={ipd !== undefined ? ipd.toFixed(1) : ""}
+        value={ipdValue}
         onValueChange={onIpdChange}
         disabled={readOnly}
       >

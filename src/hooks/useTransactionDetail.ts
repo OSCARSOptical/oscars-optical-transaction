@@ -113,7 +113,7 @@ export function useTransactionDetail(transactionCode: string | undefined, patien
           lensType: validateLensType(transactionData.lens_type),
           lensCoating: validateLensCoating(transactionData.lens_coating),
           tint: validateTint(transactionData.tint),
-          frameType: transactionData.frame_type,
+          frameType: transactionData.notes || undefined, // Use notes field as frameType since frame_type doesn't exist
           orderNotes: transactionData.notes,
           doctorRemarks: transactionData.doctor_remarks,
           phone: formattedPatient.phone

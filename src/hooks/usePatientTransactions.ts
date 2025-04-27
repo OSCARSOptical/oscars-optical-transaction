@@ -115,7 +115,7 @@ export function usePatientTransactions(patientCode: string) {
           lensType: validateLensType(transaction.lens_type),
           lensCoating: validateLensCoating(transaction.lens_coating),
           tint: validateTint(transaction.tint),
-          frameType: transaction.frame_type || undefined,
+          frameType: transaction.notes || undefined, // Use notes field as frameType since frame_type doesn't exist
           orderNotes: transaction.notes || undefined
         }));
         
