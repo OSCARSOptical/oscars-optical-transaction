@@ -1,3 +1,4 @@
+
 export const useTransactionCode = () => {
   const generateTransactionCode = (transactionDate: Date = new Date()) => {
     const year = transactionDate.getFullYear().toString().slice(-2);
@@ -8,6 +9,8 @@ export const useTransactionCode = () => {
     // Track codes in localStorage for the specific month
     const existingCodes: string[] = [];
     
+    // Check Supabase-stored transactions first (if we implemented this in the future)
+    // For now, use localStorage as a fallback
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith(`transaction_`) && key.endsWith('_code')) {
@@ -30,6 +33,7 @@ export const useTransactionCode = () => {
     });
     
     const nextSequence = (maxSequence + 1).toString().padStart(5, "0");
+    console.log(`Generated transaction code: ${prefix}-${nextSequence} for date: ${transactionDate}`);
     return `${prefix}-${nextSequence}`;
   };
 

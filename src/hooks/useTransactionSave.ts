@@ -30,6 +30,9 @@ export const useTransactionSave = ({
     if (!mockTransaction.code) {
       throw new Error("Transaction code is required");
     }
+    if (!mockTransaction.date) {
+      throw new Error("Transaction date is required");
+    }
   };
 
   const handleSave = async () => {
@@ -37,6 +40,7 @@ export const useTransactionSave = ({
       validateTransaction();
       setIsLoading(true);
       console.log('Starting transaction save with patient code:', patient?.code);
+      console.log('Transaction data to save:', mockTransaction);
 
       const { data: patientData, error: patientError } = await supabase
         .from('patients')
@@ -53,25 +57,41 @@ export const useTransactionSave = ({
       
       const transactionDate = mockTransaction.date ? new Date(mockTransaction.date) : new Date();
       
+      // Calculate balance
+      const grossAmount = mockTransaction.grossAmount || 0;
+      const deposit = mockTransaction.deposit || 0;
+      const balance = grossAmount - deposit;
+      
+      // Calculate total expenses
+      const lensCapital = mockTransaction.lensCapital || 0;
+      const edgingPrice = mockTransaction.edgingPrice || 0;
+      const otherExpenses = mockTransaction.otherExpenses || 0;
+      const totalExpenses = lensCapital + edgingPrice + otherExpenses;
+      
+      // Calculate net income
+      const netIncome = grossAmount - totalExpenses;
+      
       const transactionData = {
         patient_id: patientData.id,
         transaction_code: mockTransaction.code,
         transaction_date: transactionDate.toISOString().split('T')[0],
         transaction_type: mockTransaction.type,
         interpupillary_distance: mockTransaction.interpupillaryDistance,
-        gross_amount: mockTransaction.grossAmount || 0,
-        deposit: mockTransaction.deposit || 0,
-        balance: mockTransaction.balance || 0,
-        lens_capital: mockTransaction.lensCapital || 0,
-        edging_price: mockTransaction.edgingPrice || 0,
-        other_expenses: mockTransaction.otherExpenses || 0,
-        total_expenses: mockTransaction.totalExpenses || 0,
+        gross_amount: grossAmount,
+        deposit: deposit,
+        balance: balance,
+        lens_capital: lensCapital,
+        edging_price: edgingPrice,
+        other_expenses: otherExpenses,
+        total_expenses: totalExpenses,
+        net_income: netIncome,
         lens_type: mockTransaction.lensType || null,
         lens_coating: mockTransaction.lensCoating || null,
         tint: mockTransaction.tint || null,
         notes: mockTransaction.orderNotes || null,
-        claimed: false,
-        refractive_index: mockTransaction.refractiveIndex || null
+        claimed: mockTransaction.claimed || false,
+        refractive_index: mockTransaction.refractiveIndex || null,
+        doctor_remarks: mockTransaction.doctorRemarks || null
       };
 
       const { data: transaction, error: transactionError } = await supabase
@@ -86,12 +106,17 @@ export const useTransactionSave = ({
       }
 
       console.log('Transaction saved successfully:', transaction);
+      
+      // Save transaction code to localStorage for code generation purposes
+      localStorage.setItem(`transaction_${transaction.id}_code`, mockTransaction.code);
 
       toast({
         title: "Success",
         description: `Transaction ${mockTransaction.code} has been ${isEditMode ? 'updated' : 'saved'}.`,
       });
-      navigate("/transactions");
+      
+      // Navigate to the transaction details page
+      navigate(`/patients/${patient?.code}/transactions/${mockTransaction.code}`);
     } catch (error) {
       console.error('Error saving transaction:', error);
       toast({

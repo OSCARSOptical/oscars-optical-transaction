@@ -58,6 +58,12 @@ const TransactionForm = ({
             type
           }));
         }}
+        onDateChange={(date) => {
+          setMockTransaction(prev => ({
+            ...prev,
+            date: date.toISOString().split('T')[0]
+          }));
+        }}
         onPricesChange={prices => {
           setMockTransaction(prev => ({
             ...prev,

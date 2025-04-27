@@ -14,6 +14,7 @@ import { Transaction } from "@/types";
 interface OrderDetailsProps {
   initialType?: Transaction['type'];
   onTypeChange?: (type: Transaction['type']) => void;
+  onDateChange?: (date: Date) => void;
   readOnly?: boolean;
   initialData?: {
     transactionDate?: string;
@@ -32,6 +33,7 @@ interface OrderDetailsProps {
 const OrderDetails = ({ 
   initialType, 
   onTypeChange, 
+  onDateChange,
   readOnly = false,
   initialData = {},
   onPricesChange
@@ -86,6 +88,13 @@ const OrderDetails = ({
       onTypeChange(value);
     }
   };
+
+  const handleDateChange = (date: Date) => {
+    setTransactionDate(date);
+    if (onDateChange) {
+      onDateChange(date);
+    }
+  };
   
   return (
     <Card>
@@ -96,7 +105,7 @@ const OrderDetails = ({
             <div className="w-full md:w-1/2">
               <DateSelector 
                 date={transactionDate} 
-                onDateChange={setTransactionDate} 
+                onDateChange={handleDateChange} 
                 readOnly={readOnly} 
                 label="Transaction Date"
               />

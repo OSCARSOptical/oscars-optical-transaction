@@ -43,7 +43,8 @@ export function usePatientTransactions(patientCode: string) {
         const { data, error } = await supabase
           .from('transactions')
           .select('*')
-          .eq('patient_id', patientId);
+          .eq('patient_id', patientId)
+          .order('transaction_date', { ascending: false });
           
         if (error) {
           throw error;
@@ -85,7 +86,13 @@ export function usePatientTransactions(patientCode: string) {
           netIncome: transaction.net_income || 0,
           claimed: transaction.claimed || false,
           dateClaimed: transaction.claimed_on || null,
-          phone: patientData.contact_number || ''
+          phone: patientData.contact_number || '',
+          refractiveIndex: transaction.refractive_index || undefined,
+          lensType: transaction.lens_type || undefined,
+          lensCoating: transaction.lens_coating || undefined,
+          tint: transaction.tint || undefined,
+          frameType: transaction.frame_type || undefined,
+          orderNotes: transaction.notes || undefined
         }));
         
         console.log("Found transactions:", patientTransactions.length);

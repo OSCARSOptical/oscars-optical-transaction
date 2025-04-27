@@ -20,8 +20,13 @@ const NewTransactionPage = () => {
     ? location.state.transaction 
     : null;
 
+  // Use today's date for new transactions or the date from editTransaction
+  const transactionDate = editTransaction?.date 
+    ? new Date(editTransaction.date) 
+    : new Date();
+  
   const [transactionCodeState] = useState<string>(
-    editTransaction?.code || generateTransactionCode(new Date())
+    editTransaction?.code || generateTransactionCode(transactionDate)
   );
   
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
@@ -59,7 +64,7 @@ const NewTransactionPage = () => {
     return {
       id: "new",
       code: transactionCodeState,
-      date: new Date().toISOString().split('T')[0],
+      date: transactionDate.toISOString().split('T')[0],
       patientCode: patientCode || "",
       patientName: "",
       firstName: "",
@@ -78,6 +83,29 @@ const NewTransactionPage = () => {
       noPreviousRx: false
     };
   });
+
+  // This effect updates the transaction code when the transaction date changes
+  useEffect(() => {
+    if (!isEditMode && mockTransaction.date) {
+      const currentDate = new Date(mockTransaction.date);
+      // Only regenerate the code if the year/month has changed
+      const currentCode = mockTransaction.code;
+      const currentCodePrefix = currentCode.split('-').slice(0, 2).join('-');
+      
+      const newDateYear = currentDate.getFullYear().toString().slice(-2);
+      const newDateMonth = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const newDatePrefix = `TX${newDateYear}-${newDateMonth}`;
+      
+      if (currentCodePrefix !== newDatePrefix) {
+        const newCode = generateTransactionCode(currentDate);
+        console.log(`Date changed, updating transaction code from ${currentCode} to ${newCode}`);
+        setMockTransaction(prev => ({
+          ...prev,
+          code: newCode
+        }));
+      }
+    }
+  }, [mockTransaction.date, isEditMode, generateTransactionCode]);
 
   if (patientLoading) {
     return <div className="p-8">Loading patient data...</div>;
