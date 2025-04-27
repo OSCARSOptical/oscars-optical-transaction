@@ -29,52 +29,43 @@ const TransactionForm = ({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
+  const validateTransaction = () => {
+    if (!patient?.code) {
+      throw new Error("Invalid patient data");
+    }
+    if (!mockTransaction.type) {
+      throw new Error("Please select a valid transaction type");
+    }
+    if (!mockTransaction.code) {
+      throw new Error("Transaction code is required");
+    }
+  };
+
   const handleSave = async () => {
     try {
-      if (!patient?.code) {
-        toast({
-          title: "Error",
-          description: "Invalid patient data. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Validate transaction type is valid
-      if (!mockTransaction.type) {
-        toast({
-          title: "Error",
-          description: "Please select a valid transaction type.",
-          variant: "destructive"
-        });
-        return;
-      }
-
+      validateTransaction();
       setIsLoading(true);
+      console.log('Starting transaction save with patient code:', patient?.code);
 
-      console.log('Starting transaction save with patient code:', patient.code);
-
-      // First, get the patient's UUID using their patient_code
       const { data: patientData, error: patientError } = await supabase
         .from('patients')
         .select('id')
-        .eq('patient_code', patient.code)
+        .eq('patient_code', patient?.code)
         .single();
 
       if (patientError || !patientData) {
         console.error('Error fetching patient:', patientError);
-        throw new Error(`Failed to find patient with code: ${patient.code}`);
+        throw new Error(`Failed to find patient with code: ${patient?.code}`);
       }
 
       console.log('Found patient with ID:', patientData.id);
       
       const transactionDate = mockTransaction.date ? new Date(mockTransaction.date) : new Date();
       
-      // Prepare transaction data with the correct patient_id
       const transactionData = {
         patient_id: patientData.id,
         transaction_code: mockTransaction.code,
-        transaction_date: transactionDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+        transaction_date: transactionDate.toISOString().split('T')[0],
         transaction_type: mockTransaction.type,
         interpupillary_distance: mockTransaction.interpupillaryDistance,
         gross_amount: mockTransaction.grossAmount || 0,
