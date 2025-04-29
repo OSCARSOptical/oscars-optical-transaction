@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Transaction } from '@/types';
 import { NA_TRANSACTION_TYPES } from '../constants';
+import { getPricesForCombination } from '../constants/priceMappings';
 
 interface UseOrderDetailsProps {
   initialType?: Transaction['type'];
