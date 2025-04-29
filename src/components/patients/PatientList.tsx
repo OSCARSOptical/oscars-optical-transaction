@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { User } from "lucide-react";
-import { Patient } from '@/types';
+import { Patient, Transaction } from '@/types';
 import { PatientTableRow } from './PatientTableRow';
 import { supabase } from "@/integrations/supabase/client";
 import { filterPatients } from '@/utils/patientUtils';
+import { usePatientLatestTransaction } from '@/hooks/usePatientLatestTransaction';
 
 interface PatientListProps {
   initialSearchQuery?: string;
@@ -14,8 +15,12 @@ interface PatientListProps {
 
 export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [loading, setLoading] = useState(true);
+  
+  // Use the hook to get latest transaction for each patient
+  const { getLatestTransaction } = usePatientLatestTransaction(transactions);
   
   useEffect(() => {
     setSearchQuery(initialSearchQuery);
@@ -51,8 +56,42 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
         
         console.log('Fetched patients:', formattedPatients);
         setPatients(formattedPatients);
+        
+        // Fetch all transactions
+        const { data: transactionData, error: transactionError } = await supabase
+          .from('transactions')
+          .select('*, patients!inner(patient_code)');
+          
+        if (transactionError) {
+          console.error('Error fetching transactions:', transactionError);
+          return;
+        }
+        
+        // Transform transaction data
+        const formattedTransactions: Transaction[] = transactionData.map(tx => ({
+          id: tx.id,
+          code: tx.transaction_code || '',
+          patientCode: tx.patients?.patient_code || '',
+          patientName: '', // Will be filled in later
+          firstName: '',
+          lastName: '',
+          date: tx.transaction_date || new Date().toISOString().split('T')[0],
+          type: tx.transaction_type as Transaction['type'],
+          grossAmount: tx.gross_amount || 0,
+          deposit: tx.deposit || 0,
+          balance: tx.balance || 0,
+          lensCapital: tx.lens_capital || 0,
+          edgingPrice: tx.edging_price || 0,
+          otherExpenses: tx.other_expenses || 0,
+          totalExpenses: tx.total_expenses || 0,
+          claimed: tx.claimed || false,
+          dateClaimed: tx.claimed_on || null
+        }));
+        
+        console.log('Fetched transactions:', formattedTransactions);
+        setTransactions(formattedTransactions);
       } catch (error) {
-        console.error('Error fetching patients:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
@@ -98,7 +137,7 @@ export function PatientList({ initialSearchQuery = '' }: PatientListProps) {
               <PatientTableRow 
                 key={patient.id}
                 patient={patient}
-                latestTransaction={null}
+                latestTransaction={getLatestTransaction(patient.code)}
               />
             )) : (
               <TableRow>
