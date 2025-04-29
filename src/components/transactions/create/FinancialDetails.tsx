@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useFinancialCalculations } from "@/hooks/useFinancialCalculations";
 
 interface FinancialDetailsProps {
   readOnly?: boolean;
@@ -35,16 +36,22 @@ const FinancialDetails = ({
 }: FinancialDetailsProps) => {
   const [grossAmount, setGrossAmount] = useState<number>(initialData?.grossAmount || 0);
   const [deposit, setDeposit] = useState<number>(initialData?.deposit || 0);
-  const [balance, setBalance] = useState<number>(0);
   const [lensCapital, setLensCapital] = useState<number>(initialData?.lensCapital || 0);
   const [edgingPrice, setEdgingPrice] = useState<number>(initialData?.edgingPrice || 0);
   const [otherExpenses, setOtherExpenses] = useState<number>(initialData?.otherExpenses || 0);
-  const [totalExpenses, setTotalExpenses] = useState<number>(0);
-  const [netIncome, setNetIncome] = useState<number>(0);
   const [isManuallyEdited, setIsManuallyEdited] = useState({
     lensCapital: false,
     edgingPrice: false,
     otherExpenses: false
+  });
+  
+  // Use our new financial calculations hook
+  const [{ balance, totalExpenses, netIncome }, updateFinancialData] = useFinancialCalculations({
+    grossAmount,
+    deposit,
+    lensCapital,
+    edgingPrice,
+    otherExpenses
   });
 
   useEffect(() => {
@@ -57,18 +64,15 @@ const FinancialDetails = ({
   }, [autofillPrices, isManuallyEdited.lensCapital, isManuallyEdited.edgingPrice, isManuallyEdited.otherExpenses]);
 
   useEffect(() => {
-    // Calculate balance
-    const calculatedBalance = grossAmount - deposit;
-    setBalance(calculatedBalance);
+    // Update the financial calculations hook with current values
+    updateFinancialData({
+      grossAmount,
+      deposit,
+      lensCapital,
+      edgingPrice,
+      otherExpenses
+    });
     
-    // Calculate total expenses
-    const calculatedTotalExpenses = lensCapital + edgingPrice + otherExpenses;
-    setTotalExpenses(calculatedTotalExpenses);
-    
-    // Calculate net income
-    const calculatedNetIncome = deposit - calculatedTotalExpenses;
-    setNetIncome(calculatedNetIncome);
-
     // Send data to parent component
     if (onDataChange) {
       onDataChange({
@@ -79,7 +83,7 @@ const FinancialDetails = ({
         otherExpenses
       });
     }
-  }, [grossAmount, deposit, lensCapital, edgingPrice, otherExpenses, onDataChange]);
+  }, [grossAmount, deposit, lensCapital, edgingPrice, otherExpenses, onDataChange, updateFinancialData]);
 
   const handleManualEdit = (field: keyof typeof isManuallyEdited) => {
     setIsManuallyEdited(prev => ({

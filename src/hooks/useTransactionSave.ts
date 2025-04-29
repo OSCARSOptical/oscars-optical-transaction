@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Patient, Transaction } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
+import { useFinancialCalculations } from "@/hooks/useFinancialCalculations";
 
 interface UseTransactionSaveProps {
   patient?: Patient;
@@ -19,6 +20,15 @@ export const useTransactionSave = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+
+  // We'll use the calculations hook just for the calculation logic
+  const [calculatedValues] = useFinancialCalculations({
+    grossAmount: mockTransaction.grossAmount || 0,
+    deposit: mockTransaction.deposit || 0,
+    lensCapital: mockTransaction.lensCapital || 0,
+    edgingPrice: mockTransaction.edgingPrice || 0,
+    otherExpenses: mockTransaction.otherExpenses || 0
+  });
 
   const validateTransaction = () => {
     if (!patient?.code) {
@@ -57,19 +67,16 @@ export const useTransactionSave = ({
       
       const transactionDate = mockTransaction.date ? new Date(mockTransaction.date) : new Date();
       
-      // Calculate balance
+      // Use our financial calculation hook values for consistency
+      const { balance, totalExpenses } = calculatedValues;
       const grossAmount = mockTransaction.grossAmount || 0;
       const deposit = mockTransaction.deposit || 0;
-      const balance = grossAmount - deposit;
-      
-      // Calculate total expenses
       const lensCapital = mockTransaction.lensCapital || 0;
       const edgingPrice = mockTransaction.edgingPrice || 0;
       const otherExpenses = mockTransaction.otherExpenses || 0;
-      const totalExpenses = lensCapital + edgingPrice + otherExpenses;
       
       // Calculate net income
-      const netIncome = grossAmount - totalExpenses;
+      const netIncome = deposit - totalExpenses;
       
       // Create a validated object for refractiveIndex, lensType, lensCoating and tint
       const refractiveIndex = mockTransaction.refractiveIndex || null;
