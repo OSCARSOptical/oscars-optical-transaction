@@ -17,6 +17,7 @@ export function TransactionList({ searchQuery = "", showUnclaimed = false }: Tra
     showUnclaimedState,
     setShowUnclaimedState,
     filteredTransactions,
+    loading
   } = useFilteredTransactions(searchQuery, showUnclaimed);
 
   useTransactionCodeMismatchToast(transactions);
@@ -34,6 +35,7 @@ export function TransactionList({ searchQuery = "", showUnclaimed = false }: Tra
       setShowUnclaimed={setShowUnclaimedState}
       filteredTransactions={filteredTransactions}
       handleDeleteTransaction={handleDeleteTransaction}
+      loading={loading}
     />
   );
 }

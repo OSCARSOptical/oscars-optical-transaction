@@ -1,13 +1,14 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Transaction } from "@/types";
-import { samplePatients } from "@/data";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useFilteredTransactions(searchQuery = "", showUnclaimed = false) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showUnclaimedState, setShowUnclaimedState] = useState(showUnclaimed);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLocalSearchQuery(searchQuery);
@@ -16,6 +17,56 @@ export function useFilteredTransactions(searchQuery = "", showUnclaimed = false)
   useEffect(() => {
     setShowUnclaimedState(showUnclaimed);
   }, [showUnclaimed]);
+
+  // Fetch transactions from Supabase
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*, patients!inner(first_name, last_name, patient_code, contact_number)');
+          
+        if (error) {
+          console.error('Error fetching transactions:', error);
+          return;
+        }
+        
+        console.log('Fetched transactions from Supabase:', data);
+        
+        // Transform the data to match the Transaction type
+        const formattedTransactions: Transaction[] = data.map(tx => ({
+          id: tx.id,
+          code: tx.transaction_code || '',
+          patientCode: tx.patients?.patient_code || '',
+          patientName: `${tx.patients?.first_name || ''} ${tx.patients?.last_name || ''}`,
+          firstName: tx.patients?.first_name || '',
+          lastName: tx.patients?.last_name || '',
+          date: tx.transaction_date || new Date().toISOString().split('T')[0],
+          type: tx.transaction_type as Transaction['type'],
+          grossAmount: tx.gross_amount || 0,
+          deposit: tx.deposit || 0,
+          balance: tx.balance || 0,
+          lensCapital: tx.lens_capital || 0,
+          edgingPrice: tx.edging_price || 0,
+          otherExpenses: tx.other_expenses || 0,
+          totalExpenses: tx.total_expenses || 0,
+          claimed: tx.claimed || false,
+          dateClaimed: tx.claimed_on || null,
+          phone: tx.patients?.contact_number || ''
+        }));
+        
+        setTransactions(formattedTransactions);
+      } catch (err) {
+        console.error('Error in fetchTransactions:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchTransactions();
+  }, []);
 
   const filteredTransactions = useMemo(() => {
     return transactions
@@ -51,5 +102,6 @@ export function useFilteredTransactions(searchQuery = "", showUnclaimed = false)
     showUnclaimedState,
     setShowUnclaimedState,
     filteredTransactions,
+    loading
   }
 }

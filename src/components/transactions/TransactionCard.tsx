@@ -12,6 +12,7 @@ interface TransactionCardProps {
   setShowUnclaimed: (show: boolean) => void;
   filteredTransactions: Transaction[];
   handleDeleteTransaction: (id: string) => void;
+  loading: boolean;
 }
 
 export function TransactionCard({
@@ -20,7 +21,8 @@ export function TransactionCard({
   showUnclaimed,
   setShowUnclaimed,
   filteredTransactions,
-  handleDeleteTransaction
+  handleDeleteTransaction,
+  loading
 }: TransactionCardProps) {
   return (
     <Card className="w-full shadow-sm border border-gray-100">
@@ -40,6 +42,7 @@ export function TransactionCard({
         <TransactionTable 
           transactions={filteredTransactions}
           onDeleteTransaction={handleDeleteTransaction}
+          loading={loading}
         />
       </CardContent>
     </Card>

@@ -51,6 +51,7 @@ export const useTransactionSave = ({
       setIsLoading(true);
       console.log('Starting transaction save with patient code:', patient?.code);
       console.log('Transaction data to save:', mockTransaction);
+      console.log('Is edit mode:', isEditMode);
 
       const { data: patientData, error: patientError } = await supabase
         .from('patients')
@@ -110,20 +111,48 @@ export const useTransactionSave = ({
         doctor_remarks: mockTransaction.doctorRemarks || null
       };
 
-      console.log('Data to be inserted:', transactionData);
+      console.log('Data to be saved:', transactionData);
 
-      const { data: transaction, error: transactionError } = await supabase
-        .from('transactions')
-        .insert(transactionData)
-        .select()
-        .single();
+      let transaction;
+      let transactionError;
+
+      if (isEditMode) {
+        console.log('Updating existing transaction with ID:', mockTransaction.id);
+        
+        // Use the update method for existing transactions
+        const updateResult = await supabase
+          .from('transactions')
+          .update(transactionData)
+          .eq('id', mockTransaction.id)
+          .select()
+          .single();
+          
+        transaction = updateResult.data;
+        transactionError = updateResult.error;
+        
+        console.log('Update result:', updateResult);
+      } else {
+        console.log('Inserting new transaction');
+        
+        // Use insert for new transactions
+        const insertResult = await supabase
+          .from('transactions')
+          .insert(transactionData)
+          .select()
+          .single();
+          
+        transaction = insertResult.data;
+        transactionError = insertResult.error;
+        
+        console.log('Insert result:', insertResult);
+      }
 
       if (transactionError) {
         console.error('Supabase error details:', transactionError);
-        throw new Error(`Failed to save transaction: ${transactionError.message}`);
+        throw new Error(`Failed to ${isEditMode ? 'update' : 'save'} transaction: ${transactionError.message}`);
       }
 
-      console.log('Transaction saved successfully:', transaction);
+      console.log(`Transaction ${isEditMode ? 'updated' : 'saved'} successfully:`, transaction);
       
       // Save transaction code to localStorage for code generation purposes
       localStorage.setItem(`transaction_${transaction.id}_code`, mockTransaction.code);

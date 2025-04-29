@@ -9,8 +9,10 @@ import { useBalanceSheetData } from "@/hooks/useBalanceSheetData";
 import { backfillClaimedTransactionPayments } from "@/utils/balanceSheetUtils";
 import { Transaction } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export function BalanceSheet() {
+  const { toast } = useToast();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +29,11 @@ export function BalanceSheet() {
           
         if (error) {
           console.error('Error fetching transactions:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load transaction data",
+            variant: "destructive"
+          });
           return;
         }
         
@@ -51,6 +58,7 @@ export function BalanceSheet() {
           dateClaimed: tx.claimed_on || null
         }));
         
+        console.log('Balance Sheet: Fetched transactions:', formattedTransactions.length);
         setTransactions(formattedTransactions);
         
         // Run the backfill once transactions are loaded
@@ -60,21 +68,18 @@ export function BalanceSheet() {
         }
       } catch (err) {
         console.error('Error in fetchTransactions:', err);
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
     };
     
     fetchTransactions();
-  }, []);
-  
-  // Run the backfill once when the component mounts
-  useEffect(() => {
-    const backfilledCount = backfillClaimedTransactionPayments(transactions);
-    if (backfilledCount > 0) {
-      console.log(`Created ${backfilledCount} payment records for previously claimed transactions.`);
-    }
-  }, []);
+  }, [toast]);
   
   const { groupedData, sortedDates, monthlyTotals } = useBalanceSheetData(selectedMonth, transactions);
   

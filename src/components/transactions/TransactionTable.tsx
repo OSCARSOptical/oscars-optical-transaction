@@ -14,13 +14,19 @@ import { TransactionUnclaimDialog } from './TransactionUnclaimDialog';
 interface TransactionTableProps {
   transactions: Transaction[];
   onDeleteTransaction: (id: string) => void;
+  loading: boolean;
 }
 
-export function TransactionTable({ transactions, onDeleteTransaction }: TransactionTableProps) {
+export function TransactionTable({ transactions, onDeleteTransaction, loading }: TransactionTableProps) {
   const { toast } = useToast();
   const [localTransactions, setLocalTransactions] = useState<Transaction[]>(transactions);
   const [showUnclaimDialog, setShowUnclaimDialog] = useState(false);
   const [transactionToUnclaim, setTransactionToUnclaim] = useState<Transaction | null>(null);
+
+  // Update localTransactions when transactions prop changes
+  useState(() => {
+    setLocalTransactions(transactions);
+  });
 
   const handleClaimedToggle = (id: string, currentValue: boolean) => {
     if (currentValue) {
@@ -124,7 +130,13 @@ export function TransactionTable({ transactions, onDeleteTransaction }: Transact
             </TableRow>
           </TableHeader>
           <TableBody>
-            {localTransactions.length === 0 ? (
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={12} className="h-24 text-center">
+                  Loading transactions...
+                </TableCell>
+              </TableRow>
+            ) : localTransactions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={12} className="h-24 text-center">
                   No transactions found.
